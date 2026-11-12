@@ -51,10 +51,7 @@ struct BoothControls: View {
                     .buttonStyle(PeekPrimaryButtonStyle())
                 }
             case .complete:
-                Button { model.send(.retake(model.state.currentSlotID)) } label: {
-                    Label(.shootAgain, systemImage: "arrow.counterclockwise")
-                }
-                .buttonStyle(PeekGhostButtonStyle())
+                FinishedControls(model: model)
             }
         }
         .controlSize(.large)

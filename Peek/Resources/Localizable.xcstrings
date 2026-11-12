@@ -529,6 +529,17 @@
         }
       }
     },
+    "finishedStrip" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Finished photo strip"
+          }
+        }
+      }
+    },
     "free" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -558,6 +569,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Mirror Outer Preview"
+          }
+        }
+      }
+    },
+    "newSet" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "New set"
           }
         }
       }
@@ -672,6 +694,17 @@
         }
       }
     },
+    "photosDenied" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "PEEK cannot add to Photos. Allow access in Settings."
+          }
+        }
+      }
+    },
     "poseIdeas" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -734,6 +767,61 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Strike a pose"
+          }
+        }
+      }
+    },
+    "saveFailed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The save failed. Try again."
+          }
+        }
+      }
+    },
+    "saveShots" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Save shots"
+          }
+        }
+      }
+    },
+    "saveStrip" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Save strip to Photos"
+          }
+        }
+      }
+    },
+    "savedToPhotos" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Saved to Photos"
+          }
+        }
+      }
+    },
+    "shareStrip" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Share"
           }
         }
       }
@@ -811,6 +899,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Swap pose"
+          }
+        }
+      }
+    },
+    "yourStrip" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your strip"
           }
         }
       }

@@ -21,10 +21,10 @@ struct BoothStageView: View {
                         .overlay {
                             Image(uiImage: still)
                                 .resizable()
-                                .aspectRatio(contentMode: usesFrameFeed ? .fill : .fit)
+                                .aspectRatio(contentMode: usesFrameFeed && !model.isComplete ? .fill : .fit)
                         }
                         .clipped()
-                        .accessibilityLabel(Text(.capturedPhoto))
+                        .accessibilityLabel(Text(model.isComplete ? .finishedStrip : .capturedPhoto))
                 } else if usesFrameFeed {
                     FramePreviewView(capture: model.capture, deviceID: model.deviceID, isMirrored: isMirrored)
                         .accessibilityLabel(Text(.livePreview))
@@ -35,7 +35,8 @@ struct BoothStageView: View {
             }
             // The outer display shows the picture edge to edge. The cue stays inside the safe area,
             // clear of the camera housing.
-            .ignoresSafeArea(edges: usesFrameFeed ? .all : (isSubjectFacing ? [] : .horizontal))
+            // The finished strip stays inside the safe area, so the camera housing hides no shot.
+            .ignoresSafeArea(edges: model.isComplete ? [] : (usesFrameFeed ? .all : (isSubjectFacing ? [] : .horizontal)))
             CueOverlay(
                 phase: model.state.phase,
                 isSubjectFacing: isSubjectFacing,

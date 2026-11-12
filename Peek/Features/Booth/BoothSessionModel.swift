@@ -14,11 +14,18 @@ final class BoothSessionModel {
     /// PRD open decision: default mirroring. Off until hardware tests decide.
     var isOuterPreviewMirrored = false
 
+    /// The finished strip. It exists only while the session is complete.
+    private(set) var strip: UIImage?
+    private(set) var saveStatus: SaveStatus = .idle
+
     private(set) var countdownTask: Task<Void, Never>?
     private(set) var captureTask: Task<Void, Never>?
 
     let capture: any CaptureProviding
+    private let saver: any PhotoSaving
     private var images: [Take.ID: UIImage] = [:]
+    /// The camera's bytes for each take, so a save keeps the full quality.
+    private var originals: [Take.ID: Data] = [:]
     private let reducer = BoothReducer()
     private let sleep: @Sendable (Duration) async throws -> Void
 
@@ -26,9 +33,11 @@ final class BoothSessionModel {
         capture: any CaptureProviding,
         packID: String = PoseLibrary.classicID,
         cueIDs: [String]? = nil,
+        saver: any PhotoSaving = PhotoLibrarySaver(),
         sleep: @escaping @Sendable (Duration) async throws -> Void = { try await Task.sleep(for: $0) }
     ) {
         self.capture = capture
+        self.saver = saver
         self.sleep = sleep
         self.packID = packID
         state = BoothState(cueIDs: cueIDs ?? PoseLibrary.cueIDs(forPack: packID))
@@ -39,6 +48,9 @@ final class BoothSessionModel {
         countdownTask?.cancel()
         captureTask?.cancel()
         images.removeAll()
+        originals.removeAll()
+        strip = nil
+        saveStatus = .idle
         self.packID = packID
         state = BoothState(cueIDs: PoseLibrary.cueIDs(forPack: packID), countdown: state.countdown)
         if cameraStatus == .running {
@@ -95,11 +107,11 @@ final class BoothSessionModel {
         isOuterDisplayAvailable && isOuterDisplayEnabled
     }
 
-    /// The still to show in place of the live frame: the take in review, or the accepted take when complete.
+    /// The still to show in place of the live frame: the take in review, or the strip when complete.
     var stillImage: UIImage? {
         switch state.phase {
         case let .review(take): images[take.id]
-        case .complete: state.currentSlot.acceptedTake.flatMap { images[$0.id] }
+        case .complete: strip
         default: nil
         }
     }
@@ -136,6 +148,51 @@ final class BoothSessionModel {
         for effect in reducer.reduce(&state, event) {
             run(effect)
         }
+        updateStrip()
+    }
+
+    var isComplete: Bool {
+        state.phase == .complete
+    }
+
+    /// Makes the strip when the last shot is accepted. Drops it when a retake reopens the session.
+    private func updateStrip() {
+        if isComplete {
+            if strip == nil {
+                strip = StripRenderer.render(state.slots.compactMap { image(for: $0) })
+            }
+        } else if strip != nil {
+            strip = nil
+            saveStatus = .idle
+        }
+    }
+
+    /// Saves the strip to Photos. The system asks for add-only access the first time.
+    func saveStrip() async {
+        await save([strip?.jpegData(compressionQuality: 1)].compactMap(\.self))
+    }
+
+    /// Saves each accepted shot to Photos, with the camera's bytes.
+    func saveShots() async {
+        await save(state.slots.compactMap { $0.acceptedTake.flatMap { originals[$0.id] } })
+    }
+
+    private func save(_ photos: [Data]) async {
+        guard !photos.isEmpty, saveStatus != .saving else { return }
+        saveStatus = .saving
+        do {
+            try await saver.save(photos)
+            saveStatus = .saved
+        } catch PhotoSaveError.denied {
+            saveStatus = .denied
+        } catch {
+            saveStatus = .failed
+        }
+    }
+
+    /// Starts a new set with the same pack. The shots of the old set are discarded.
+    func startNewSet() {
+        loadPack(packID)
     }
 
     private func run(_ effect: BoothEffect) {
@@ -166,6 +223,7 @@ final class BoothSessionModel {
                         rotationAngle: photo.rotationAngle
                     )
                     images[take.id] = image
+                    originals[take.id] = photo.data
                     send(.captureSucceeded(token, take))
                 } catch {
                     send(.captureFailed(token, CaptureFailure(message: String(describing: error))))
@@ -174,6 +232,7 @@ final class BoothSessionModel {
 
         case let .discardTake(take):
             images[take.id] = nil
+            originals[take.id] = nil
         }
     }
 }
