@@ -16,6 +16,9 @@ build/
 .claude/.cc-writes/
 .claude/settings.local.json
 
+# Local signing settings
+Config/Local.xcconfig
+
 # Secrets and machine-owned files. Never commit these.
 .env
 .env.*
