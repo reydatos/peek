@@ -91,4 +91,20 @@ struct BoothSessionModelTests {
         #expect(model.state.slots.allSatisfy { $0.acceptedTake == nil })
         #expect(model.image(for: model.state.slots[0]) == nil)
     }
+
+    @Test func hasShotsIsTrueInReviewAndAfterAccept() async {
+        let model = BoothSessionModel(capture: FakeCapture(), sleep: { _ in })
+        await model.startCamera()
+        #expect(!model.hasShots)
+
+        model.send(.start)
+        await settle(model)
+        #expect(model.hasShots)
+
+        model.send(.accept)
+        #expect(model.hasShots)
+
+        model.loadPack("streetStyle")
+        #expect(!model.hasShots)
+    }
 }

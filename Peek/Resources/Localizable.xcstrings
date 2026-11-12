@@ -496,6 +496,39 @@
         }
       }
     },
+    "discardShots" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Discard shots"
+          }
+        }
+      }
+    },
+    "discardShotsMessage" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This discards the shots of the current set."
+          }
+        }
+      }
+    },
+    "discardShotsTitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Start a new set?"
+          }
+        }
+      }
+    },
     "free" : {
       "extractionState" : "manual",
       "localizations" : {

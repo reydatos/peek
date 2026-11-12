@@ -8,6 +8,7 @@ import SwiftUI
 struct BoothView: View {
     @State private var model: BoothSessionModel
     @State private var posePicker: PosePickerRequest?
+    @State private var packToConfirm: PosePack?
     @Environment(\.scenePhase) private var scenePhase
 
     init(packID: String) {
@@ -39,9 +40,31 @@ struct BoothView: View {
                 }
             }
             .sheet(item: $posePicker) { _ in
+                // The warning shows on the sheet, so the photographer decides before the sheet closes.
                 PoseIdeasView { pack in
-                    model.loadPack(pack.id)
-                    posePicker = nil
+                    if model.hasShots {
+                        packToConfirm = pack
+                    } else {
+                        load(pack)
+                    }
+                }
+                .confirmationDialog(
+                    Text(.discardShotsTitle),
+                    isPresented: Binding(
+                        get: { packToConfirm != nil },
+                        set: {
+                            if !$0 {
+                                packToConfirm = nil
+                            }
+                        }
+                    ),
+                    titleVisibility: .visible,
+                    presenting: packToConfirm
+                ) { pack in
+                    Button(role: .destructive) { load(pack) } label: { Text(.discardShots) }
+                    Button(role: .cancel) {} label: { Text(.cancel) }
+                } message: { _ in
+                    Text(.discardShotsMessage)
                 }
             }
             .modifier(OuterDisplayAccessory(model: model))
@@ -54,5 +77,11 @@ struct BoothView: View {
                     model.send(.pause(.interruption))
                 }
             }
+    }
+
+    private func load(_ pack: PosePack) {
+        model.loadPack(pack.id)
+        packToConfirm = nil
+        posePicker = nil
     }
 }

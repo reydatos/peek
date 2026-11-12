@@ -46,6 +46,14 @@ final class BoothSessionModel {
         }
     }
 
+    /// True when a pack change discards work: an accepted shot, or a shot in review.
+    var hasShots: Bool {
+        if case .review = state.phase {
+            return true
+        }
+        return state.slots.contains { $0.acceptedTake != nil }
+    }
+
     var pack: PosePack? {
         PoseLibrary.packs.first { $0.id == packID }
     }
