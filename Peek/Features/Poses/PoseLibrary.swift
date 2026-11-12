@@ -36,6 +36,18 @@ enum PoseLibrary {
             PoseCue(id: "lowSquat", name: .cueLowSquat, symbol: "figure.strengthtraining.functional"),
             PoseCue(id: "lookDown", name: .cueLookDown, symbol: "figure.walk.motion"),
         ]),
+        PosePack(id: "hongKongHer", name: .packHongKongHer, isFree: false, cues: [
+            PoseCue(id: "hkStepPause", name: .cueStepPause, symbol: "figure.stairs"),
+            PoseCue(id: "hkBagSwing", name: .cueBagSwing, symbol: "bag"),
+            PoseCue(id: "hkShutterLean", name: .cueShutterLean, symbol: "figure.stand"),
+            PoseCue(id: "hkShadesPeek", name: .cueShadesPeek, symbol: "sunglasses"),
+        ]),
+        PosePack(id: "hongKongHim", name: .packHongKongHim, isFree: false, cues: [
+            PoseCue(id: "hkStairSit", name: .cueStairSit, symbol: "figure.stairs"),
+            PoseCue(id: "hkLookAway", name: .cueLookAway, symbol: "figure.stand"),
+            PoseCue(id: "hkCapTug", name: .cueCapTug, symbol: "hat.cap"),
+            PoseCue(id: "hkBagWalk", name: .cueBagWalk, symbol: "figure.walk"),
+        ]),
     ]
 
     static func cueIDs(forPack id: String) -> [String] {

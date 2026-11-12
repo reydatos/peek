@@ -188,6 +188,39 @@
         }
       }
     },
+    "cueBagSwing" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bag Swing"
+          }
+        }
+      }
+    },
+    "cueBagWalk" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bag Strap Walk"
+          }
+        }
+      }
+    },
+    "cueCapTug" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cap Tug"
+          }
+        }
+      }
+    },
     "cueCheekHeart" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -287,6 +320,17 @@
         }
       }
     },
+    "cueLookAway" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lean and Look Away"
+          }
+        }
+      }
+    },
     "cueLookBack" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -331,6 +375,28 @@
         }
       }
     },
+    "cueShadesPeek" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Shades Peek"
+          }
+        }
+      }
+    },
+    "cueShutterLean" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Shutter Lean"
+          }
+        }
+      }
+    },
     "cueSilly" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -360,6 +426,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Big smiles"
+          }
+        }
+      }
+    },
+    "cueStairSit" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stair Sit"
+          }
+        }
+      }
+    },
+    "cueStepPause" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Step and Look Back"
           }
         }
       }
@@ -492,6 +580,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Classic"
+          }
+        }
+      }
+    },
+    "packHongKongHer" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hong Kong: Her"
+          }
+        }
+      }
+    },
+    "packHongKongHim" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hong Kong: Him"
           }
         }
       }
