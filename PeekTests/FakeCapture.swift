@@ -8,6 +8,7 @@ actor FakeCapture: CaptureProviding {
         "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==") ?? Data()
 
     nonisolated(unsafe) let session = AVCaptureSession()
+    nonisolated let frameSource = FrameSource()
     private let startError: CaptureError?
     private let captureError: CaptureError?
     private(set) var captureCount = 0
@@ -25,6 +26,8 @@ actor FakeCapture: CaptureProviding {
     }
 
     func stop() {}
+
+    func setFrameRotationAngle(_: CGFloat) {}
 
     func capturePhoto() throws -> CapturedPhoto {
         captureCount += 1

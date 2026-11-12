@@ -32,7 +32,7 @@ Verify the test COUNT. The tests use Swift Testing, so the XCTest line `Executed
 | `Config/Shared.xcconfig` | Build settings. The Info.plist is generated from `INFOPLIST_KEY_*`. |
 | `Packages/PeekCore` | Pure Swift. Session reducer, data records, templates, `DraftStore` protocol. No AVFoundation or UIKit. |
 | `Peek/Features` | SwiftUI by feature: `Home`, `Booth` (inner display), `Outer` (outer display accessory). |
-| `Peek/Capture` | `CaptureService` actor, preview view, rotation. |
+| `Peek/Capture` | `CaptureService` actor, preview layer view (inner), `FrameSource` frame feed view (outer), rotation. |
 | `Peek/Resources/Localizable.xcstrings` | Manual keys. Use generated symbols: `Text(.startBooth)`. |
 | `PeekTests` | App tests with `FakeCapture`. |
 
@@ -43,6 +43,7 @@ Verify the test COUNT. The tests use Swift Testing, so the XCTest line `Executed
 - `BoothReducer` is the one authority for session state. It is pure: no timers, no I/O. Add a state rule there with a test, not in a view.
 - Review is a state of `BoothView`. Do not move it to a sheet or a navigation push. The system shows the outer accessory only while the registering view is onscreen and the capture session runs.
 - The outer display is an enhancement. Every flow must complete on the inner display alone.
+- The outer display draws frames from `FrameSource` (`AVCaptureVideoDataOutput`). Do not put a second `AVCaptureVideoPreviewLayer` there. On a physical Duo that layer showed no picture.
 - Keep purchase prompts, links, and account requests off the outer (subject) display.
 - The app target uses `SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor`. Mark types that must leave the main actor `nonisolated`.
 
