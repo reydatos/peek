@@ -24,6 +24,18 @@ enum PoseLibrary {
             PoseCue(id: "swapFaces", name: .cueSwapFaces, symbol: "arrow.left.arrow.right"),
             PoseCue(id: "director", name: .cueDirector, symbol: "megaphone"),
         ]),
+        PosePack(id: "asiaTrendsHer", name: .packAsiaTrendsHer, isFree: false, cues: [
+            PoseCue(id: "cheekHeart", name: .cueCheekHeart, symbol: "heart"),
+            PoseCue(id: "peaceEye", name: .cuePeaceEye, symbol: "hand.raised.fingers.spread"),
+            PoseCue(id: "sitLow", name: .cueSitLow, symbol: "figure.mind.and.body"),
+            PoseCue(id: "hairTuck", name: .cueHairTuck, symbol: "person.crop.circle"),
+        ]),
+        PosePack(id: "asiaTrendsHim", name: .packAsiaTrendsHim, isFree: false, cues: [
+            PoseCue(id: "fingerHeart", name: .cueFingerHeart, symbol: "heart.circle"),
+            PoseCue(id: "fixCollar", name: .cueFixCollar, symbol: "tshirt"),
+            PoseCue(id: "lowSquat", name: .cueLowSquat, symbol: "figure.strengthtraining.functional"),
+            PoseCue(id: "lookDown", name: .cueLookDown, symbol: "figure.walk.motion"),
+        ]),
     ]
 
     static func cueIDs(forPack id: String) -> [String] {

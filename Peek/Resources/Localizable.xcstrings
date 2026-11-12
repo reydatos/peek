@@ -188,6 +188,17 @@
         }
       }
     },
+    "cueCheekHeart" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cheek Heart"
+          }
+        }
+      }
+    },
     "cueCopyMe" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -210,6 +221,28 @@
         }
       }
     },
+    "cueFingerHeart" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Finger Heart"
+          }
+        }
+      }
+    },
+    "cueFixCollar" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fix the Collar"
+          }
+        }
+      }
+    },
     "cueFreeze" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -217,6 +250,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Freeze"
+          }
+        }
+      }
+    },
+    "cueHairTuck" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hair Tuck"
           }
         }
       }
@@ -254,6 +298,39 @@
         }
       }
     },
+    "cueLookDown" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Look Down"
+          }
+        }
+      }
+    },
+    "cueLowSquat" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Low Squat"
+          }
+        }
+      }
+    },
+    "cuePeaceEye" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Peace by the Eye"
+          }
+        }
+      }
+    },
     "cueSilly" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -261,6 +338,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Silly faces"
+          }
+        }
+      }
+    },
+    "cueSitLow" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sit Low"
           }
         }
       }
@@ -371,6 +459,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Open Settings"
+          }
+        }
+      }
+    },
+    "packAsiaTrendsHer" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Asia Trends: Her"
+          }
+        }
+      }
+    },
+    "packAsiaTrendsHim" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Asia Trends: Him"
           }
         }
       }
