@@ -17,14 +17,22 @@ struct PosePackSection: View {
                     }
                 }
             }
+            .listRowBackground(PeekTheme.ink)
             Button { onSelect(pack) } label: {
                 Label(.startWithPack, systemImage: "camera")
             }
+            .buttonStyle(PeekPrimaryButtonStyle())
+            .listRowBackground(PeekTheme.ink)
         } header: {
             HStack {
                 Text(pack.name)
+                    .font(.title2)
+                    .fontDesign(.serif)
+                    .textCase(nil)
+                    .foregroundStyle(PeekTheme.cream)
                 Spacer()
                 Text(pack.isFree ? .free : .preview)
+                    .modifier(PeekSectionLabel())
             }
         }
     }

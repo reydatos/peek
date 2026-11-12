@@ -12,7 +12,6 @@ struct BoothLayout: View {
                         .frame(width: split.leading)
                     BoothSidePane(model: model)
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .background(.bar)
                         .padding(.leading, split.gap)
                 }
             } else {

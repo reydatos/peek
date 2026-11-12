@@ -738,6 +738,17 @@
         }
       }
     },
+    "shuffle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Shuffle"
+          }
+        }
+      }
+    },
     "start" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -756,6 +767,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Start with this pack"
+          }
+        }
+      }
+    },
+    "swapPose" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Swap pose"
           }
         }
       }

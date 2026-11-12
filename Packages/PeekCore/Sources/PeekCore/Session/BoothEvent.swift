@@ -12,4 +12,6 @@ public enum BoothEvent: Equatable, Sendable {
     case redo
     case retake(SlotID)
     case undo(SlotID)
+    /// Changes the prompt of the current slot. Valid in `ready` only.
+    case swapCue(String)
 }

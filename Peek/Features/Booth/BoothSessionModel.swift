@@ -6,6 +6,7 @@ import UIKit
 @Observable
 final class BoothSessionModel {
     private(set) var state: BoothState
+    private(set) var packID: String
     private(set) var cameraStatus: CameraStatus = .idle
     private(set) var deviceID: String?
     private(set) var isOuterDisplayAvailable = false
@@ -23,12 +24,14 @@ final class BoothSessionModel {
 
     init(
         capture: any CaptureProviding,
-        cueIDs: [String] = PoseLibrary.cueIDs(forPack: PoseLibrary.classicID),
+        packID: String = PoseLibrary.classicID,
+        cueIDs: [String]? = nil,
         sleep: @escaping @Sendable (Duration) async throws -> Void = { try await Task.sleep(for: $0) }
     ) {
         self.capture = capture
         self.sleep = sleep
-        state = BoothState(cueIDs: cueIDs)
+        self.packID = packID
+        state = BoothState(cueIDs: cueIDs ?? PoseLibrary.cueIDs(forPack: packID))
     }
 
     /// Starts a new four-shot session with the poses of a pack. The shots of the old session are discarded.
@@ -36,9 +39,31 @@ final class BoothSessionModel {
         countdownTask?.cancel()
         captureTask?.cancel()
         images.removeAll()
+        self.packID = packID
         state = BoothState(cueIDs: PoseLibrary.cueIDs(forPack: packID), countdown: state.countdown)
         if cameraStatus == .running {
             send(.finishSetup)
+        }
+    }
+
+    var pack: PosePack? {
+        PoseLibrary.packs.first { $0.id == packID }
+    }
+
+    var packCues: [PoseCue] {
+        pack?.cues ?? []
+    }
+
+    /// Changes the pose of the current shot. The reducer accepts this in `ready` only.
+    func swapPose(to cueID: String) {
+        send(.swapCue(cueID))
+    }
+
+    /// Changes the pose of the current shot to a different pose of the pack.
+    func shufflePose() {
+        let others = packCues.map(\.id).filter { $0 != state.currentSlot.cueID }
+        if let next = others.randomElement() {
+            swapPose(to: next)
         }
     }
 

@@ -37,6 +37,16 @@ struct BoothReducerTests {
         return state
     }
 
+    @Test func swapCueChangesOnlyTheCurrentSlotAndOnlyInReady() {
+        var state = readyState()
+        _ = reducer.reduce(&state, .swapCue("z"))
+        #expect(state.slots.map(\.cueID) == ["z", "b", "c", "d"])
+
+        _ = reducer.reduce(&state, .start)
+        _ = reducer.reduce(&state, .swapCue("y"))
+        #expect(state.slots.map(\.cueID) == ["z", "b", "c", "d"])
+    }
+
     @Test func fourAcceptedShotsCompleteTheSession() throws {
         let state = try completedState()
         #expect(state.phase == .complete)

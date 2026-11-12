@@ -7,8 +7,8 @@ struct SlotCell: View {
     let isCurrent: Bool
 
     var body: some View {
-        Color.secondary.opacity(0.2)
-            .aspectRatio(3 / 4, contentMode: .fit)
+        (image == nil ? Color.clear : PeekTheme.panel)
+            .aspectRatio(4 / 3, contentMode: .fit)
             .overlay {
                 if let image {
                     Image(uiImage: image)
@@ -16,15 +16,15 @@ struct SlotCell: View {
                         .scaledToFill()
                 } else {
                     Text(number, format: .number)
-                        .font(.headline)
+                        .font(.title)
+                        .fontDesign(.serif)
+                        .foregroundStyle(isCurrent ? PeekTheme.cream : PeekTheme.mist)
                 }
             }
-            .clipShape(.rect(cornerRadius: 8))
+            .clipShape(.rect(cornerRadius: PeekTheme.corner))
             .overlay {
-                if isCurrent {
-                    RoundedRectangle(cornerRadius: 8)
-                        .strokeBorder(.tint, lineWidth: 3)
-                }
+                RoundedRectangle(cornerRadius: PeekTheme.corner)
+                    .strokeBorder(isCurrent ? PeekTheme.accent : PeekTheme.line, lineWidth: isCurrent ? 2 : 1)
             }
     }
 }

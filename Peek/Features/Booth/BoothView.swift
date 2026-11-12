@@ -13,13 +13,14 @@ struct BoothView: View {
     init(packID: String) {
         _model = State(initialValue: BoothSessionModel(
             capture: CaptureService(),
-            cueIDs: PoseLibrary.cueIDs(forPack: packID)
+            packID: packID
         ))
     }
 
     var body: some View {
         @Bindable var model = model
         BoothLayout(model: model)
+            .background(PeekTheme.ink)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button { posePicker = PosePickerRequest() } label: {

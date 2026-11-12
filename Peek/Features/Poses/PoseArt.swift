@@ -6,7 +6,7 @@ struct PoseArt: View {
     let cue: PoseCue
 
     var body: some View {
-        Color.secondary.opacity(0.2)
+        PeekTheme.panel
             .aspectRatio(3 / 4, contentMode: .fit)
             .overlay {
                 if let picture = UIImage(named: cue.assetName) {
@@ -18,10 +18,10 @@ struct PoseArt: View {
                         .resizable()
                         .scaledToFit()
                         .padding()
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(PeekTheme.mist)
                 }
             }
-            .clipShape(.rect(cornerRadius: 8))
+            .clipShape(.rect(cornerRadius: PeekTheme.corner))
             .accessibilityLabel(Text(cue.name))
     }
 }

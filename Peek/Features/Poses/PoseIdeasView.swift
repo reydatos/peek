@@ -9,6 +9,8 @@ struct PoseIdeasView: View {
             List(PoseLibrary.packs) { pack in
                 PosePackSection(pack: pack, onSelect: onSelect)
             }
+            .scrollContentBackground(.hidden)
+            .background(PeekTheme.ink)
             .navigationTitle(Text(.poseIdeas))
             .navigationBarTitleDisplayMode(.inline)
         }

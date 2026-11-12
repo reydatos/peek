@@ -13,7 +13,7 @@ struct BoothStageView: View {
     var usesFrameFeed = false
 
     var body: some View {
-        ZStack(alignment: .bottomLeading) {
+        ZStack(alignment: .topLeading) {
             ZStack {
                 Color.black
                 if let still = model.stillImage {

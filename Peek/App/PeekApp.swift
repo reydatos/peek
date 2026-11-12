@@ -8,6 +8,8 @@ struct PeekApp: App {
             NavigationStack {
                 BoothView(packID: PoseLibrary.classicID)
             }
+            .preferredColorScheme(.dark)
+            .tint(PeekTheme.cream)
         }
     }
 }
