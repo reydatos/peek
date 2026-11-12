@@ -17,8 +17,7 @@ struct SlotCell: View {
                         .scaledToFill()
                 } else {
                     Text(number, format: .number)
-                        .font(.title)
-                        .fontDesign(.serif)
+                        .font(PeekFont.serif(.title))
                         .foregroundStyle(isCurrent ? PeekTheme.cream : PeekTheme.mist)
                 }
             }

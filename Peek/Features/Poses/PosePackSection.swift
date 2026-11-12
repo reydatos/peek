@@ -12,7 +12,7 @@ struct PosePackSection: View {
                     VStack {
                         PoseArt(cue: cue)
                         Text(cue.name)
-                            .font(.caption)
+                            .font(PeekFont.sans(.caption))
                             .multilineTextAlignment(.center)
                     }
                 }
@@ -26,8 +26,7 @@ struct PosePackSection: View {
         } header: {
             HStack {
                 Text(pack.name)
-                    .font(.title2)
-                    .fontDesign(.serif)
+                    .font(PeekFont.serif(.title2))
                     .textCase(nil)
                     .foregroundStyle(PeekTheme.cream)
                 Spacer()

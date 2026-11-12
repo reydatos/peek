@@ -4,7 +4,7 @@ import SwiftUI
 struct PeekSectionLabel: ViewModifier {
     func body(content: Content) -> some View {
         content
-            .font(.caption)
+            .font(PeekFont.sans(.caption))
             .bold()
             .textCase(.uppercase)
             .tracking(1)

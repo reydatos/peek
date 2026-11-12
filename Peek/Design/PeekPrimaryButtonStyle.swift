@@ -4,7 +4,7 @@ import SwiftUI
 struct PeekPrimaryButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .font(.headline)
+            .font(PeekFont.sans(.headline))
             .padding()
             .frame(maxWidth: .infinity)
             .foregroundStyle(PeekTheme.ink)

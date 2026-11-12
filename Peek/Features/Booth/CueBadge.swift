@@ -9,8 +9,7 @@ struct CueBadge: View {
         if isSubjectFacing {
             // A cream card at the bottom, so it reads at portrait distance and stays clear of the camera housing.
             Text(text)
-                .font(.largeTitle)
-                .fontDesign(.serif)
+                .font(PeekFont.serif(.largeTitle))
                 .multilineTextAlignment(.center)
                 .foregroundStyle(PeekTheme.ink)
                 .padding()
@@ -20,7 +19,7 @@ struct CueBadge: View {
                 .padding()
         } else {
             Label(text, systemImage: systemImage)
-                .font(.headline)
+                .font(PeekFont.sans(.headline))
                 .padding()
                 .foregroundStyle(PeekTheme.cream)
                 .background(PeekTheme.ink, in: .capsule)

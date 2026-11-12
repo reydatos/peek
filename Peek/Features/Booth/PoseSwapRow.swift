@@ -17,7 +17,7 @@ struct PoseSwapRow: View {
                                 }
                             }
                         Text(cue.name)
-                            .font(.caption)
+                            .font(PeekFont.sans(.caption))
                             .lineLimit(2, reservesSpace: true)
                     }
                 }

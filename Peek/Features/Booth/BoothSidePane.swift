@@ -15,8 +15,7 @@ struct BoothSidePane: View {
             }
             .modifier(PeekSectionLabel())
             Text(model.currentCue?.name ?? .samplePrompt)
-                .font(.largeTitle)
-                .fontDesign(.serif)
+                .font(PeekFont.serif(.largeTitle))
             // The large reference takes all the free height, so the photographer can direct the pose.
             if let cue = model.currentCue {
                 PoseArt(cue: cue)

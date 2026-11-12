@@ -4,7 +4,7 @@ import SwiftUI
 struct PeekGhostButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .font(.headline)
+            .font(PeekFont.sans(.headline))
             .padding()
             .foregroundStyle(PeekTheme.cream)
             .background(Capsule().strokeBorder(PeekTheme.line))
