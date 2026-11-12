@@ -21,3 +21,19 @@ struct CueOverlay: View {
         }
     }
 }
+
+#Preview("Ready") {
+    CueOverlay(phase: .ready, isSubjectFacing: true)
+}
+
+#Preview("Countdown") {
+    CueOverlay(phase: .countdown(remaining: 3), isSubjectFacing: true)
+}
+
+#Preview("Capturing") {
+    CueOverlay(phase: .capturePending(CaptureToken()), isSubjectFacing: true)
+}
+
+#Preview("Paused") {
+    CueOverlay(phase: .paused(resumeTo: .countdown, reason: .outerDisplayLost), isSubjectFacing: true)
+}

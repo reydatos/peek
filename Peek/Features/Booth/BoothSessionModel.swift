@@ -65,6 +65,7 @@ final class BoothSessionModel {
 
     func stopCamera() {
         send(.pause(.interruption))
+        cameraStatus = .idle
         Task { [capture] in await capture.stop() }
     }
 

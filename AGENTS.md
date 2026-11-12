@@ -49,6 +49,6 @@ Verify the test COUNT. The tests use Swift Testing, so the XCTest line `Executed
 ## Dangers
 
 - Never commit a `.plist`, `.env`, or `Peek.xcodeproj`. `.gitignore` blocks them.
-- `DEVELOPMENT_TEAM` is empty in the repo. Set it locally. Do not commit it.
+- Signing: put `DEVELOPMENT_TEAM = <10-character Team ID>` in `Config/Local.xcconfig` (gitignored), then run `xcodegen generate`. Do not set the team in Xcode; `xcodegen generate` removes it.
 - The simulator has no camera. Camera, accessory, and rotation behavior are verified only on a physical iPhone Duo.
 - `xcodebuild` and `simctl` do not work inside the Claude Code sandbox.
