@@ -25,10 +25,10 @@ enum PoseLibrary {
             PoseCue(id: "director", name: .cueDirector, symbol: "megaphone"),
         ]),
         PosePack(id: "asiaTrendsHer", name: .packAsiaTrendsHer, isFree: false, cues: [
-            PoseCue(id: "cheekHeart", name: .cueCheekHeart, symbol: "heart"),
-            PoseCue(id: "peaceEye", name: .cuePeaceEye, symbol: "hand.raised.fingers.spread"),
-            PoseCue(id: "sitLow", name: .cueSitLow, symbol: "figure.mind.and.body"),
-            PoseCue(id: "hairTuck", name: .cueHairTuck, symbol: "person.crop.circle"),
+            PoseCue(id: "doubleCheekHeart", name: .cueDoubleCheekHeart, symbol: "heart"),
+            PoseCue(id: "gyaruPeace", name: .cueGyaruPeace, symbol: "hand.raised.fingers.spread"),
+            PoseCue(id: "flowerCup", name: .cueFlowerCup, symbol: "camera.macro"),
+            PoseCue(id: "catEars", name: .cueCatEars, symbol: "cat"),
         ]),
         PosePack(id: "asiaTrendsHim", name: .packAsiaTrendsHim, isFree: false, cues: [
             PoseCue(id: "fingerHeart", name: .cueFingerHeart, symbol: "heart.circle"),

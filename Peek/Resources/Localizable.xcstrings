@@ -221,13 +221,13 @@
         }
       }
     },
-    "cueCheekHeart" : {
+    "cueCatEars" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Cheek Heart"
+            "value" : "Cat Ears"
           }
         }
       }
@@ -254,6 +254,17 @@
         }
       }
     },
+    "cueDoubleCheekHeart" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Double Cheek Heart"
+          }
+        }
+      }
+    },
     "cueFingerHeart" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -276,6 +287,17 @@
         }
       }
     },
+    "cueFlowerCup" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Flower Cup"
+          }
+        }
+      }
+    },
     "cueFreeze" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -287,13 +309,13 @@
         }
       }
     },
-    "cueHairTuck" : {
+    "cueGyaruPeace" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Hair Tuck"
+            "value" : "Gyaru Peace"
           }
         }
       }
@@ -364,17 +386,6 @@
         }
       }
     },
-    "cuePeaceEye" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Peace by the Eye"
-          }
-        }
-      }
-    },
     "cueShadesPeek" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -404,17 +415,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Silly faces"
-          }
-        }
-      }
-    },
-    "cueSitLow" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sit Low"
           }
         }
       }
@@ -557,7 +557,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Asia Trends: Her"
+            "value" : "Seoul: Her"
           }
         }
       }
@@ -568,7 +568,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Asia Trends: Him"
+            "value" : "Seoul: Him"
           }
         }
       }
