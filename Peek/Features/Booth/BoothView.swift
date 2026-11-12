@@ -6,17 +6,19 @@ import SwiftUI
 /// Review is a state of this view, not a push or a sheet. The system shows the outer accessory
 /// only while this view is onscreen and the capture session runs.
 struct BoothView: View {
-    @State private var model = BoothSessionModel(capture: CaptureService())
+    @State private var model: BoothSessionModel
     @Environment(\.scenePhase) private var scenePhase
+
+    init(packID: String) {
+        _model = State(initialValue: BoothSessionModel(
+            capture: CaptureService(),
+            cueIDs: PoseLibrary.cueIDs(forPack: packID)
+        ))
+    }
 
     var body: some View {
         @Bindable var model = model
-        BoothStatusView(model: model)
-            .safeAreaInset(edge: .bottom) {
-                if model.cameraStatus == .running {
-                    BoothControls(model: model)
-                }
-            }
+        BoothLayout(model: model)
             .toolbar {
                 if model.isOuterDisplayAvailable {
                     ToolbarItemGroup {

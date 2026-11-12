@@ -5,8 +5,7 @@ import UIKit
 /// The one model that drives both displays. The outer accessory reads the same instance.
 @Observable
 final class BoothSessionModel {
-    /// The prototype runs one slot. The engine supports four.
-    private(set) var state = BoothState(cueIDs: ["sample"])
+    private(set) var state: BoothState
     private(set) var cameraStatus: CameraStatus = .idle
     private(set) var deviceID: String?
     private(set) var isOuterDisplayAvailable = false
@@ -24,10 +23,22 @@ final class BoothSessionModel {
 
     init(
         capture: any CaptureProviding,
+        cueIDs: [String] = PoseLibrary.cueIDs(forPack: PoseLibrary.classicID),
         sleep: @escaping @Sendable (Duration) async throws -> Void = { try await Task.sleep(for: $0) }
     ) {
         self.capture = capture
         self.sleep = sleep
+        state = BoothState(cueIDs: cueIDs)
+    }
+
+    /// The pose of the current slot. Nil when the cue ID is not in the library.
+    var currentCue: PoseCue? {
+        PoseLibrary.cue(for: state.currentSlot.cueID)
+    }
+
+    /// The accepted shot of a slot, for the slot rail.
+    func image(for slot: Slot) -> UIImage? {
+        slot.acceptedTake.flatMap { images[$0.id] }
     }
 
     var countdown: CountdownLength {

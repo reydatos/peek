@@ -5,11 +5,12 @@ import SwiftUI
 struct CueOverlay: View {
     let phase: BoothPhase
     let isSubjectFacing: Bool
+    var prompt: LocalizedStringResource = .samplePrompt
 
     var body: some View {
         switch phase {
         case .ready:
-            CueBadge(text: .samplePrompt, systemImage: "figure.wave", isSubjectFacing: isSubjectFacing)
+            CueBadge(text: prompt, systemImage: "figure.wave", isSubjectFacing: isSubjectFacing)
         case let .countdown(remaining):
             CountdownView(remaining: remaining, isSubjectFacing: isSubjectFacing)
         case .capturePending:

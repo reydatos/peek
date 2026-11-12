@@ -11,7 +11,7 @@ struct BoothSessionModelTests {
 
     @Test func countdownCapturesOnePhotoAndShowsItForReview() async {
         let capture = FakeCapture()
-        let model = BoothSessionModel(capture: capture, sleep: { _ in })
+        let model = BoothSessionModel(capture: capture, cueIDs: ["sample"], sleep: { _ in })
         await model.startCamera()
         #expect(model.cameraStatus == .running)
         #expect(model.state.phase == .ready)
@@ -60,5 +60,20 @@ struct BoothSessionModelTests {
         #expect(model.state.phase == .paused(resumeTo: .countdown, reason: .outerDisplayLost))
         #expect(model.countdownTask == nil)
         #expect(await capture.captureCount == 0)
+    }
+
+    @Test func acceptMovesToTheNextSlotAndKeepsTheShot() async {
+        let model = BoothSessionModel(capture: FakeCapture(), sleep: { _ in })
+        await model.startCamera()
+        #expect(model.state.slots.count == 4)
+
+        model.send(.start)
+        await settle(model)
+        model.send(.accept)
+
+        #expect(model.state.phase == .ready)
+        #expect(model.state.currentSlotID.index == 1)
+        #expect(model.image(for: model.state.slots[0]) != nil)
+        #expect(model.image(for: model.state.slots[1]) == nil)
     }
 }

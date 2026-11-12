@@ -1,3 +1,4 @@
 enum HomeRoute: Hashable {
-    case booth
+    case booth(packID: String)
+    case poseIdeas
 }

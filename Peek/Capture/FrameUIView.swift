@@ -19,7 +19,7 @@ final class FrameUIView: UIView {
     init(capture: any CaptureProviding) {
         self.capture = capture
         super.init(frame: .zero)
-        displayLayer.videoGravity = .resizeAspect
+        displayLayer.videoGravity = .resizeAspectFill
         capture.frameSource.attach(displayLayer.sampleBufferRenderer)
     }
 
