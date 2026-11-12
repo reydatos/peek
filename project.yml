@@ -1,0 +1,41 @@
+name: Peek
+options:
+  bundleIdPrefix: com.a8media
+  deploymentTarget:
+    iOS: "27.0"
+  createIntermediateGroups: true
+configFiles:
+  Debug: Config/Shared.xcconfig
+  Release: Config/Shared.xcconfig
+packages:
+  PeekCore:
+    path: Packages/PeekCore
+targets:
+  Peek:
+    type: application
+    platform: iOS
+    sources: [Peek]
+    dependencies:
+      - package: PeekCore
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.a8media.peek
+  PeekTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources: [PeekTests]
+    dependencies:
+      - target: Peek
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.a8media.peek.tests
+schemes:
+  Peek:
+    build:
+      targets:
+        Peek: all
+        PeekTests: [test]
+    test:
+      targets:
+        - PeekTests
+        - package: PeekCore/PeekCoreTests
