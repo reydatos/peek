@@ -7,6 +7,7 @@ import SwiftUI
 /// only while this view is onscreen and the capture session runs.
 struct BoothView: View {
     @State private var model: BoothSessionModel
+    @State private var posePicker: PosePickerRequest?
     @Environment(\.scenePhase) private var scenePhase
 
     init(packID: String) {
@@ -20,6 +21,11 @@ struct BoothView: View {
         @Bindable var model = model
         BoothLayout(model: model)
             .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button { posePicker = PosePickerRequest() } label: {
+                        Label(.poseIdeas, systemImage: "figure.wave")
+                    }
+                }
                 if model.isOuterDisplayAvailable {
                     ToolbarItemGroup {
                         Toggle(isOn: $model.isOuterDisplayEnabled) {
@@ -29,6 +35,12 @@ struct BoothView: View {
                             Label(.mirrorOuterPreview, systemImage: "arrow.left.and.right")
                         }
                     }
+                }
+            }
+            .sheet(item: $posePicker) { _ in
+                PoseIdeasView { pack in
+                    model.loadPack(pack.id)
+                    posePicker = nil
                 }
             }
             .modifier(OuterDisplayAccessory(model: model))

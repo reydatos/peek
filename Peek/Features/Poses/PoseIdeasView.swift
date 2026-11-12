@@ -2,16 +2,19 @@ import SwiftUI
 
 /// The pack browser. It stays on the photographer's side, outside the live session.
 struct PoseIdeasView: View {
+    let onSelect: (PosePack) -> Void
+
     var body: some View {
-        List(PoseLibrary.packs) { pack in
-            PosePackSection(pack: pack)
+        NavigationStack {
+            List(PoseLibrary.packs) { pack in
+                PosePackSection(pack: pack, onSelect: onSelect)
+            }
+            .navigationTitle(Text(.poseIdeas))
+            .navigationBarTitleDisplayMode(.inline)
         }
-        .navigationTitle(Text(.poseIdeas))
     }
 }
 
 #Preview {
-    NavigationStack {
-        PoseIdeasView()
-    }
+    PoseIdeasView { _ in }
 }

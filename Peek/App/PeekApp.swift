@@ -4,7 +4,10 @@ import SwiftUI
 struct PeekApp: App {
     var body: some Scene {
         WindowGroup {
-            HomeView()
+            // The app opens in the booth. There is no home screen.
+            NavigationStack {
+                BoothView(packID: PoseLibrary.classicID)
+            }
         }
     }
 }

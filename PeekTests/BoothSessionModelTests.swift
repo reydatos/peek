@@ -76,4 +76,19 @@ struct BoothSessionModelTests {
         #expect(model.image(for: model.state.slots[0]) != nil)
         #expect(model.image(for: model.state.slots[1]) == nil)
     }
+
+    @Test func loadPackStartsANewSessionWithThePackPoses() async {
+        let model = BoothSessionModel(capture: FakeCapture(), sleep: { _ in })
+        await model.startCamera()
+        model.send(.start)
+        await settle(model)
+        model.send(.accept)
+
+        model.loadPack("streetStyle")
+
+        #expect(model.state.phase == .ready)
+        #expect(model.state.slots.map(\.cueID) == ["walk", "lookBack", "lean", "yourTake"])
+        #expect(model.state.slots.allSatisfy { $0.acceptedTake == nil })
+        #expect(model.image(for: model.state.slots[0]) == nil)
+    }
 }

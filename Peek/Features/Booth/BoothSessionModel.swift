@@ -31,6 +31,17 @@ final class BoothSessionModel {
         state = BoothState(cueIDs: cueIDs)
     }
 
+    /// Starts a new four-shot session with the poses of a pack. The shots of the old session are discarded.
+    func loadPack(_ packID: String) {
+        countdownTask?.cancel()
+        captureTask?.cancel()
+        images.removeAll()
+        state = BoothState(cueIDs: PoseLibrary.cueIDs(forPack: packID), countdown: state.countdown)
+        if cameraStatus == .running {
+            send(.finishSetup)
+        }
+    }
+
     /// The pose of the current slot. Nil when the cue ID is not in the library.
     var currentCue: PoseCue? {
         PoseLibrary.cue(for: state.currentSlot.cueID)
