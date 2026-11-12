@@ -20,7 +20,13 @@ final class PreviewUIView: UIView {
         observedDeviceID = deviceID
         rotationObserver = deviceID
             .flatMap { AVCaptureDevice(uniqueID: $0) }
-            .map { RotationObserver(device: $0, previewLayer: previewLayer) }
+            .map { device in
+                RotationObserver(device: device, layer: previewLayer) { [previewLayer] angle in
+                    guard let connection = previewLayer.connection, connection.isVideoRotationAngleSupported(angle)
+                    else { return }
+                    connection.videoRotationAngle = angle
+                }
+            }
     }
 
     func setMirrored(_ isMirrored: Bool) {

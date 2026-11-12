@@ -9,6 +9,8 @@ struct BoothStageView: View {
     let isMirrored: Bool
     /// True when the people in the photo read this display. The cue is then large.
     let isSubjectFacing: Bool
+    /// True on the outer display, where a preview layer shows no picture.
+    var usesFrameFeed = false
 
     var body: some View {
         ZStack {
@@ -18,6 +20,9 @@ struct BoothStageView: View {
                     .resizable()
                     .scaledToFit()
                     .accessibilityLabel(Text(.capturedPhoto))
+            } else if usesFrameFeed {
+                FramePreviewView(capture: model.capture, deviceID: model.deviceID, isMirrored: isMirrored)
+                    .accessibilityLabel(Text(.livePreview))
             } else {
                 CameraPreviewView(session: model.capture.session, deviceID: model.deviceID, isMirrored: isMirrored)
                     .accessibilityLabel(Text(.livePreview))

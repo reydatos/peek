@@ -3,7 +3,9 @@ import AVFoundation
 /// Owns the one capture session. PRD FR-02: one verified rear-camera configuration.
 actor CaptureService: CaptureProviding {
     nonisolated(unsafe) let session = AVCaptureSession()
+    nonisolated let frameSource = FrameSource()
     private let photoOutput = AVCapturePhotoOutput()
+    private let frameOutput = AVCaptureVideoDataOutput()
     private var device: AVCaptureDevice?
     private var rotationCoordinator: AVCaptureDevice.RotationCoordinator?
     private var inFlight: PhotoCaptureDelegate?
@@ -21,6 +23,12 @@ actor CaptureService: CaptureProviding {
         if session.isRunning {
             session.stopRunning()
         }
+    }
+
+    func setFrameRotationAngle(_ angle: CGFloat) {
+        guard let connection = frameOutput.connection(with: .video), connection.isVideoRotationAngleSupported(angle)
+        else { return }
+        connection.videoRotationAngle = angle
     }
 
     func capturePhoto() async throws -> CapturedPhoto {
@@ -67,6 +75,12 @@ actor CaptureService: CaptureProviding {
         }
         session.addInput(input)
         session.addOutput(photoOutput)
+        // The frame feed is an enhancement for the outer display. The booth works without it.
+        if session.canAddOutput(frameOutput) {
+            frameOutput.alwaysDiscardsLateVideoFrames = true
+            frameOutput.setSampleBufferDelegate(frameSource, queue: frameSource.queue)
+            session.addOutput(frameOutput)
+        }
         rotationCoordinator = AVCaptureDevice.RotationCoordinator(device: camera, previewLayer: nil)
         device = camera
         return camera

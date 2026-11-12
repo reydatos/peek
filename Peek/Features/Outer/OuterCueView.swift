@@ -5,6 +5,6 @@ struct OuterCueView: View {
     let model: BoothSessionModel
 
     var body: some View {
-        BoothStageView(model: model, isMirrored: model.isOuterPreviewMirrored, isSubjectFacing: true)
+        BoothStageView(model: model, isMirrored: model.isOuterPreviewMirrored, isSubjectFacing: true, usesFrameFeed: true)
     }
 }
