@@ -32,9 +32,9 @@ enum PoseLibrary {
         ]),
         PosePack(id: "asiaTrendsHim", name: .packAsiaTrendsHim, isFree: false, cues: [
             PoseCue(id: "fingerHeart", name: .cueFingerHeart, symbol: "heart.circle"),
-            PoseCue(id: "fixCollar", name: .cueFixCollar, symbol: "tshirt"),
-            PoseCue(id: "lowSquat", name: .cueLowSquat, symbol: "figure.strengthtraining.functional"),
-            PoseCue(id: "lookDown", name: .cueLookDown, symbol: "figure.walk.motion"),
+            PoseCue(id: "hairSweep", name: .cueHairSweep, symbol: "comb"),
+            PoseCue(id: "jacketShoulder", name: .cueJacketShoulder, symbol: "jacket"),
+            PoseCue(id: "neckHold", name: .cueNeckHold, symbol: "figure.stand"),
         ]),
         PosePack(id: "hongKongHer", name: .packHongKongHer, isFree: false, cues: [
             PoseCue(id: "hkStepPause", name: .cueStepPause, symbol: "figure.stairs"),

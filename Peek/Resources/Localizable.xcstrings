@@ -276,17 +276,6 @@
         }
       }
     },
-    "cueFixCollar" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Fix the Collar"
-          }
-        }
-      }
-    },
     "cueFlowerCup" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -316,6 +305,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Gyaru Peace"
+          }
+        }
+      }
+    },
+    "cueHairSweep" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hair Sweep"
+          }
+        }
+      }
+    },
+    "cueJacketShoulder" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jacket on the Shoulder"
           }
         }
       }
@@ -364,24 +375,13 @@
         }
       }
     },
-    "cueLookDown" : {
+    "cueNeckHold" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Look Down"
-          }
-        }
-      }
-    },
-    "cueLowSquat" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Low Squat"
+            "value" : "Hand on the Neck"
           }
         }
       }
