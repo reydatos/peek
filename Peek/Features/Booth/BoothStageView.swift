@@ -44,8 +44,9 @@ struct BoothStageView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             // PRD FR-05: the people in the photo see the reference. It clears at countdown.
             if usesFrameFeed, model.state.phase == .ready, let cue = model.currentCue {
+                // Large, so the people in the photo can copy the pose from portrait distance.
                 PoseArt(cue: cue)
-                    .containerRelativeFrame(.horizontal, count: 3, spacing: 0)
+                    .containerRelativeFrame(.horizontal, count: 5, span: 3, spacing: 0)
                     .padding()
             }
         }

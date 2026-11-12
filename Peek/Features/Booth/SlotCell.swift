@@ -9,6 +9,7 @@ struct SlotCell: View {
     var body: some View {
         (image == nil ? Color.clear : PeekTheme.panel)
             .aspectRatio(4 / 3, contentMode: .fit)
+            .containerRelativeFrame(.vertical, count: 10, spacing: 0)
             .overlay {
                 if let image {
                     Image(uiImage: image)

@@ -10,6 +10,7 @@ struct PoseSwapRow: View {
                 Button { model.swapPose(to: cue.id) } label: {
                     VStack(alignment: .leading) {
                         PoseArt(cue: cue)
+                            .containerRelativeFrame(.vertical, count: 9, spacing: 0)
                             .overlay {
                                 if cue.id == model.currentCue?.id {
                                     Rectangle().strokeBorder(PeekTheme.accent, lineWidth: 2)
