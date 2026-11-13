@@ -3,6 +3,7 @@ import SwiftUI
 /// The actions for a finished strip: save, share, save the shots, or start again.
 struct FinishedControls: View {
     let model: BoothSessionModel
+    @State private var isConfirmingNewSet = false
 
     var body: some View {
         VStack {
@@ -26,10 +27,17 @@ struct FinishedControls: View {
                 }
                 .buttonStyle(PeekGhostButtonStyle())
             }
-            Button { model.startNewSet() } label: {
+            // A new set discards the shots, so the photographer confirms first.
+            Button { isConfirmingNewSet = true } label: {
                 Label(.newSet, systemImage: "plus")
             }
             .buttonStyle(PeekGhostButtonStyle())
+            .confirmationDialog(Text(.discardShotsTitle), isPresented: $isConfirmingNewSet, titleVisibility: .visible) {
+                Button(role: .destructive) { model.startNewSet() } label: { Text(.discardShots) }
+                Button(role: .cancel) {} label: { Text(.cancel) }
+            } message: {
+                Text(.discardShotsMessage)
+            }
         }
         .disabled(model.saveStatus == .saving)
     }
