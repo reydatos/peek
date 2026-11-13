@@ -551,6 +551,39 @@
         }
       }
     },
+    "layoutGrid" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "2×2"
+          }
+        }
+      }
+    },
+    "layoutLabel" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Layout"
+          }
+        }
+      }
+    },
+    "layoutStrip" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Strip"
+          }
+        }
+      }
+    },
     "livePreview" : {
       "extractionState" : "manual",
       "localizations" : {

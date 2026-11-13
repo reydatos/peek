@@ -14,6 +14,16 @@ final class BoothSessionModel {
     /// PRD open decision: default mirroring. Off until hardware tests decide.
     var isOuterPreviewMirrored = false
 
+    /// The layout of the finished picture. A change draws the picture again.
+    var layout: PeekCore.Layout = .verticalStrip {
+        didSet {
+            guard layout != oldValue else { return }
+            strip = nil
+            saveStatus = .idle
+            updateStrip()
+        }
+    }
+
     /// The finished strip. It exists only while the session is complete.
     private(set) var strip: UIImage?
     private(set) var saveStatus: SaveStatus = .idle
@@ -159,7 +169,7 @@ final class BoothSessionModel {
     private func updateStrip() {
         if isComplete {
             if strip == nil {
-                strip = StripRenderer.render(state.slots.compactMap { image(for: $0) })
+                strip = StripRenderer.render(state.slots.compactMap { image(for: $0) }, layout: layout)
             }
         } else if strip != nil {
             strip = nil

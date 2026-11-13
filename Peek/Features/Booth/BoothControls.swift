@@ -14,6 +14,7 @@ struct BoothControls: View {
                 if model.state.lastFailure != nil {
                     Text(.captureFailed)
                 }
+                LayoutPicker(model: model)
                 Picker(selection: $model.countdown) {
                     Text(.countdownManual).tag(CountdownLength.manual)
                     Text(.countdownThree).tag(CountdownLength.three)

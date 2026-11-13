@@ -1,36 +1,54 @@
+import PeekCore
 import UIKit
 
-/// Draws the finished strip: the accepted shots in a column on cream paper, with a footer.
+/// Draws the finished picture: the accepted shots on cream paper, with a footer.
+/// The vertical strip has one column. The 2x2 layout has two.
 ///
-/// The sizes are design values. PRD M3 asks for 600 x 1800 pixels or more; four shots give 1200 x 3744.
+/// The sizes are design values. PRD M3 asks for 600 x 1800 pixels or more for the strip; four shots give
+/// 1200 x 3744. The PRD gives no size for 2x2; the same cells give 2352 x 1992.
 /// Pose reference pictures are never drawn here.
 enum StripRenderer {
-    static let width: CGFloat = 1200
     static let margin: CGFloat = 48
     static let footer: CGFloat = 192
     /// Each shot is cropped to 4:3.
-    static let cell = CGSize(width: width - 2 * margin, height: (width - 2 * margin) * 3 / 4)
+    static let cell = CGSize(width: 1104, height: 828)
 
-    static func size(shotCount: Int) -> CGSize {
-        CGSize(width: width, height: margin + CGFloat(shotCount) * (cell.height + margin) + footer)
+    static func columns(shotCount: Int, layout: PeekCore.Layout) -> Int {
+        layout == .grid2x2 ? max(1, min(2, shotCount)) : 1
     }
 
-    static func render(_ shots: [UIImage], date: Date = .now) -> UIImage {
+    static func size(shotCount: Int, layout: PeekCore.Layout = .verticalStrip) -> CGSize {
+        let columns = columns(shotCount: shotCount, layout: layout)
+        let rows = (shotCount + columns - 1) / columns
+        return CGSize(
+            width: margin + CGFloat(columns) * (cell.width + margin),
+            height: margin + CGFloat(rows) * (cell.height + margin) + footer
+        )
+    }
+
+    static func render(_ shots: [UIImage], layout: PeekCore.Layout = .verticalStrip, date: Date = .now) -> UIImage {
         let format = UIGraphicsImageRendererFormat()
         format.scale = 1
         format.opaque = true
-        let size = size(shotCount: shots.count)
+        let size = size(shotCount: shots.count, layout: layout)
+        let columns = columns(shotCount: shots.count, layout: layout)
         return UIGraphicsImageRenderer(size: size, format: format).image { context in
             UIColor(PeekTheme.cream).setFill()
             context.fill(CGRect(origin: .zero, size: size))
             for (index, shot) in shots.enumerated() {
                 let frame = CGRect(
-                    origin: CGPoint(x: margin, y: margin + CGFloat(index) * (cell.height + margin)),
+                    origin: CGPoint(
+                        x: margin + CGFloat(index % columns) * (cell.width + margin),
+                        y: margin + CGFloat(index / columns) * (cell.height + margin)
+                    ),
                     size: cell
                 )
                 draw(shot, filling: frame, in: context.cgContext)
             }
-            drawFooter(date: date, in: CGRect(x: margin, y: size.height - footer, width: cell.width, height: footer))
+            drawFooter(
+                date: date,
+                in: CGRect(x: margin, y: size.height - footer, width: size.width - 2 * margin, height: footer)
+            )
         }
     }
 

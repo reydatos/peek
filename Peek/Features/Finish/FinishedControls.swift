@@ -8,6 +8,7 @@ struct FinishedControls: View {
     var body: some View {
         VStack {
             statusText
+            LayoutPicker(model: model)
             Button { Task { await model.saveStrip() } } label: {
                 Label(.saveStrip, systemImage: "square.and.arrow.down")
             }
