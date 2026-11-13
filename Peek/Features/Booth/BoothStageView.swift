@@ -39,19 +39,31 @@ struct BoothStageView: View {
             // clear of the camera housing.
             // The finished strip stays inside the safe area, so the camera housing hides no shot.
             .ignoresSafeArea(edges: model.isComplete ? [] : (usesFrameFeed ? .all : (isSubjectFacing ? [] : .horizontal)))
-            CueOverlay(
-                phase: model.state.phase,
-                isSubjectFacing: isSubjectFacing,
-                prompt: model.currentCue?.name ?? .samplePrompt
-            )
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            // PRD FR-05: the people in the photo see the reference. It clears at countdown.
-            if usesFrameFeed, model.state.phase == .ready, let cue = model.currentCue {
-                // Large, so the people in the photo can copy the pose from portrait distance.
-                PoseArt(cue: cue)
-                    .containerRelativeFrame(.horizontal, count: 5, span: 3, spacing: 0)
-                    .padding()
+            if canStepPose, !isSubjectFacing {
+                PoseStepper(model: model)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else {
+                CueOverlay(
+                    phase: model.state.phase,
+                    isSubjectFacing: isSubjectFacing,
+                    prompt: model.currentCue?.name ?? .samplePrompt,
+                    art: usesFrameFeed ? model.currentCue : nil
+                )
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }
+        // A sideways swipe on the inner display changes the pose.
+        .gesture(
+            DragGesture().onEnded { drag in
+                guard canStepPose, abs(drag.translation.width) > abs(drag.translation.height) else { return }
+                model.stepPose(by: drag.translation.width < 0 ? 1 : -1)
+            },
+            isEnabled: canStepPose
+        )
+    }
+
+    /// True on the inner display while the booth waits for a shot.
+    private var canStepPose: Bool {
+        !usesFrameFeed && model.state.phase == .ready
     }
 }

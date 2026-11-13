@@ -14,6 +14,7 @@ struct BoothControls: View {
                 if model.state.lastFailure != nil {
                     Text(.captureFailed)
                 }
+                LayoutPicker(model: model)
                 Picker(selection: $model.countdown) {
                     Text(.countdownManual).tag(CountdownLength.manual)
                     Text(.countdownThree).tag(CountdownLength.three)
@@ -34,7 +35,11 @@ struct BoothControls: View {
             case .capturePending:
                 ProgressView()
             case let .paused(_, reason):
-                Text(reason == .outerDisplayLost ? .pausedOuterDisplayLost : .paused)
+                switch reason {
+                case .outerDisplayLost: Text(.pausedOuterDisplayLost)
+                case .recovered: Text(.draftRestored)
+                case .photographer, .interruption: Text(.paused)
+                }
                 Button { model.send(.resume) } label: {
                     Label(.resume, systemImage: "play")
                 }

@@ -32,6 +32,21 @@ struct FinishedStripTests {
         #expect(size.height >= 1800)
     }
 
+    @Test func gridLayoutDrawsTheShotsTwoByTwo() async {
+        let model = await completedModel(saver: FakeSaver())
+        await model.saveStrip()
+
+        model.layout = .grid2x2
+
+        #expect(model.strip?.size == CGSize(width: 2352, height: 1992))
+        #expect(model.saveStatus == .idle)
+    }
+
+    @Test func gridWithOneShotHasOneCell() {
+        #expect(StripRenderer.size(shotCount: 1, layout: .grid2x2) == CGSize(width: 1200, height: 1116))
+        #expect(StripRenderer.render([UIImage()], layout: .grid2x2).size == CGSize(width: 1200, height: 1116))
+    }
+
     @Test func saveStripSendsOnePictureAndReportsSaved() async {
         let saver = FakeSaver()
         let model = await completedModel(saver: saver)

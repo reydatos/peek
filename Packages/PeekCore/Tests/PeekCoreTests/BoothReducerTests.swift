@@ -37,6 +37,37 @@ struct BoothReducerTests {
         return state
     }
 
+    func restoredState(acceptedSlots: Int) -> BoothState {
+        let slots = (0 ..< 4).map { index in
+            Slot(
+                id: SlotID(index),
+                cueID: "cue",
+                acceptedTake: index < acceptedSlots
+                    ? Take(slotID: SlotID(index), token: CaptureToken(), assetName: "asset\(index)") : nil
+            )
+        }
+        return BoothState(restoring: SessionRecord(templateID: "t", templateVersion: 1, countdown: .five, slots: slots))
+    }
+
+    @Test func restoredDraftWaitsForAnExplicitResumeAtTheFirstOpenSlot() {
+        var state = restoredState(acceptedSlots: 2)
+        #expect(state.phase == .setup)
+        #expect(state.countdown == .five)
+
+        #expect(reducer.reduce(&state, .finishSetup).isEmpty)
+        #expect(state.phase == .paused(resumeTo: .ready, reason: .recovered))
+        #expect(state.currentSlotID == SlotID(2))
+
+        _ = reducer.reduce(&state, .resume)
+        #expect(state.phase == .ready)
+    }
+
+    @Test func restoredDraftWithAllShotsIsComplete() {
+        var state = restoredState(acceptedSlots: 4)
+        _ = reducer.reduce(&state, .finishSetup)
+        #expect(state.phase == .complete)
+    }
+
     @Test func swapCueChangesOnlyTheCurrentSlotAndOnlyInReady() {
         var state = readyState()
         _ = reducer.reduce(&state, .swapCue("z"))

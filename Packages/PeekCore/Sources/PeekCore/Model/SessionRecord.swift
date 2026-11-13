@@ -6,13 +6,22 @@ public struct SessionRecord: Identifiable, Equatable, Sendable, Codable {
     public let templateID: String
     public let templateVersion: Int
     public var countdown: CountdownLength
+    public var layout: Layout
     public var slots: [Slot]
 
-    public init(id: UUID = UUID(), templateID: String, templateVersion: Int, countdown: CountdownLength, slots: [Slot]) {
+    public init(
+        id: UUID = UUID(),
+        templateID: String,
+        templateVersion: Int,
+        countdown: CountdownLength,
+        layout: Layout = .verticalStrip,
+        slots: [Slot]
+    ) {
         self.id = id
         self.templateID = templateID
         self.templateVersion = templateVersion
         self.countdown = countdown
+        self.layout = layout
         self.slots = slots
     }
 }

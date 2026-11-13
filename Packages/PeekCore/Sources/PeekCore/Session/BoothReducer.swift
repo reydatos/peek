@@ -12,7 +12,16 @@ public struct BoothReducer: Sendable {
     public func reduce(_ state: inout BoothState, _ event: BoothEvent) -> [BoothEffect] {
         switch (state.phase, event) {
         case (.setup, .finishSetup):
-            state.phase = .ready
+            // Only a restored draft has an accepted take in setup. It shows the finished picture,
+            // or it waits for an explicit resume.
+            guard state.slots.contains(where: { $0.acceptedTake != nil }) else {
+                state.phase = .ready
+                return []
+            }
+            state.advance()
+            if state.phase == .ready {
+                state.phase = .paused(resumeTo: .ready, reason: .recovered)
+            }
             return []
 
         case let (.ready, .swapCue(cueID)):
