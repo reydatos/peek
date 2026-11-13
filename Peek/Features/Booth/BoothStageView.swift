@@ -16,15 +16,17 @@ struct BoothStageView: View {
         ZStack(alignment: .topLeading) {
             ZStack {
                 Color.black
-                if let still = model.stillImage {
+                if model.isComplete, let strip = model.strip {
+                    FinishedStripView(strip: strip)
+                } else if let still = model.stillImage {
                     Color.clear
                         .overlay {
                             Image(uiImage: still)
                                 .resizable()
-                                .aspectRatio(contentMode: usesFrameFeed && !model.isComplete ? .fill : .fit)
+                                .aspectRatio(contentMode: usesFrameFeed ? .fill : .fit)
                         }
                         .clipped()
-                        .accessibilityLabel(Text(model.isComplete ? .finishedStrip : .capturedPhoto))
+                        .accessibilityLabel(Text(.capturedPhoto))
                 } else if usesFrameFeed {
                     FramePreviewView(capture: model.capture, deviceID: model.deviceID, isMirrored: isMirrored)
                         .accessibilityLabel(Text(.livePreview))
