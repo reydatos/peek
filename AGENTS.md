@@ -30,8 +30,8 @@ Verify the test COUNT. The tests use Swift Testing, so the XCTest line `Executed
 |---|---|
 | `project.yml` | XcodeGen spec. `Peek.xcodeproj` is generated and gitignored. |
 | `Config/Shared.xcconfig` | Build settings. The Info.plist is generated from `INFOPLIST_KEY_*`. |
-| `Packages/PeekCore` | Pure Swift. Session reducer, data records, templates, `DraftStore` protocol. No AVFoundation or UIKit. |
-| `Peek/Features` | SwiftUI by feature: `Booth` (inner display), `Poses` (pose packs and picker), `Outer` (outer display accessory). The app opens in the booth. There is no home screen. |
+| `Packages/PeekCore` | Pure Swift. Session reducer, data records, templates, `DraftStore` protocol and `FileDraftStore`. No AVFoundation or UIKit. |
+| `Peek/Features` | SwiftUI by feature: `Booth` (inner display), `Poses` (pose packs and picker), `Finish` (strip and 2x2 renderer, save, share), `Outer` (outer display accessory). The app opens in the booth. There is no home screen. |
 | `Peek/Capture` | `CaptureService` actor, preview layer view (inner), `FrameSource` frame feed view (outer), rotation. |
 | `Peek/Resources/Localizable.xcstrings` | Manual keys. Use generated symbols: `Text(.poseIdeas)`. |
 | `PeekTests` | App tests with `FakeCapture`. |
@@ -40,6 +40,7 @@ Verify the test COUNT. The tests use Swift Testing, so the XCTest line `Executed
 
 - Deployment target is iOS 27.0. Gate every iPhone Duo API (`CameraCaptureAccessory`, `onHingeChange`, direction coordinator) with `#available(iOS 27.1, *)`. Run the iOS 27.0 test command after any change to these.
 - Look up every Duo symbol on sosumi.ai before use. These APIs are newer than most model training data.
+- Drafts: `BoothSessionModel` stores the bytes of a take first, then the record, in one serial chain (`persistTask`). The model default is no store, so tests stay isolated; `BoothView` passes the `FileDraftStore`.
 - `BoothReducer` is the one authority for session state. It is pure: no timers, no I/O. Add a state rule there with a test, not in a view.
 - Review is a state of `BoothView`. Do not move it to a sheet or a navigation push. The system shows the outer accessory only while the registering view is onscreen and the capture session runs.
 - The outer display is an enhancement. Every flow must complete on the inner display alone.

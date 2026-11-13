@@ -1,3 +1,4 @@
+import Foundation
 import Observation
 import PeekCore
 import UIKit
@@ -21,6 +22,7 @@ final class BoothSessionModel {
             strip = nil
             saveStatus = .idle
             updateStrip()
+            persist()
         }
     }
 
@@ -30,12 +32,22 @@ final class BoothSessionModel {
 
     private(set) var countdownTask: Task<Void, Never>?
     private(set) var captureTask: Task<Void, Never>?
+    /// The last storage operation. Each operation waits for the one before it.
+    private(set) var persistTask: Task<Void, Never>?
 
     let capture: any CaptureProviding
     private let saver: any PhotoSaving
     private var images: [Take.ID: UIImage] = [:]
     /// The camera's bytes for each take, so a save keeps the full quality.
     private var originals: [Take.ID: Data] = [:]
+    private let drafts: (any DraftStore)?
+    private var draftID = UUID()
+    /// True when storage holds a record for this session.
+    private var hasDraft = false
+    private var didRestore = false
+    /// The takes that have their bytes in storage.
+    private var stored: Set<Take.ID> = []
+    private var takesToDelete: [Take] = []
     private let reducer = BoothReducer()
     private let sleep: @Sendable (Duration) async throws -> Void
 
@@ -44,10 +56,12 @@ final class BoothSessionModel {
         packID: String = PoseLibrary.classicID,
         cueIDs: [String]? = nil,
         saver: any PhotoSaving = PhotoLibrarySaver(),
+        drafts: (any DraftStore)? = nil,
         sleep: @escaping @Sendable (Duration) async throws -> Void = { try await Task.sleep(for: $0) }
     ) {
         self.capture = capture
         self.saver = saver
+        self.drafts = drafts
         self.sleep = sleep
         self.packID = packID
         state = BoothState(cueIDs: cueIDs ?? PoseLibrary.cueIDs(forPack: packID))
@@ -61,6 +75,7 @@ final class BoothSessionModel {
         originals.removeAll()
         strip = nil
         saveStatus = .idle
+        deleteDraft()
         self.packID = packID
         state = BoothState(cueIDs: PoseLibrary.cueIDs(forPack: packID), countdown: state.countdown)
         if cameraStatus == .running {
@@ -109,7 +124,10 @@ final class BoothSessionModel {
 
     var countdown: CountdownLength {
         get { state.countdown }
-        set { state.countdown = newValue }
+        set {
+            state.countdown = newValue
+            persist()
+        }
     }
 
     /// True when the system shows the accessory on the outer display.
@@ -155,10 +173,108 @@ final class BoothSessionModel {
     }
 
     func send(_ event: BoothEvent) {
+        let slots = state.slots
         for effect in reducer.reduce(&state, event) {
             run(effect)
         }
         updateStrip()
+        if state.slots != slots || !takesToDelete.isEmpty {
+            persist()
+        }
+    }
+
+    // MARK: Drafts
+
+    /// Brings back the draft from storage. Call this before the camera starts.
+    /// The reducer then shows the finished picture, or waits for an explicit resume.
+    func restoreDraft() async {
+        guard let drafts, !didRestore, state.phase == .setup else { return }
+        didRestore = true
+        guard let record = try? await drafts.loadDraft(), !record.slots.isEmpty else { return }
+        var loaded: [Take.ID: Data] = [:]
+        for take in record.slots.flatMap({ [$0.acceptedTake, $0.previousTake] }).compactMap(\.self) {
+            if let data = try? await drafts.media(for: take), UIImage(data: data) != nil {
+                loaded[take.id] = data
+            }
+        }
+        let slots = record.slots.map { slot in
+            Slot(
+                id: slot.id,
+                cueID: slot.cueID,
+                acceptedTake: slot.acceptedTake.flatMap { loaded[$0.id] == nil ? nil : $0 },
+                previousTake: slot.previousTake.flatMap { loaded[$0.id] == nil ? nil : $0 }
+            )
+        }
+        guard state.phase == .setup, slots.contains(where: { $0.acceptedTake != nil }) else { return }
+        originals = loaded
+        images = loaded.compactMapValues(UIImage.init(data:))
+        stored = Set(loaded.keys)
+        draftID = record.id
+        hasDraft = true
+        packID = record.templateID
+        var restored = record
+        restored.slots = slots
+        state = BoothState(restoring: restored)
+        // The layout changes last: its observer stores the session, and the state is now the draft.
+        layout = record.layout
+    }
+
+    /// Stores the session: the bytes of each new take first, then the record, then the deletes.
+    private func persist() {
+        guard drafts != nil else { return }
+        let takes = state.slots.flatMap { [$0.acceptedTake, $0.previousTake] }.compactMap(\.self)
+        guard hasDraft || !takes.isEmpty else {
+            takesToDelete.removeAll()
+            return
+        }
+        hasDraft = true
+        let media = takes.filter { !stored.contains($0.id) }.compactMap { take in
+            originals[take.id].map { (take, $0) }
+        }
+        stored.formUnion(media.map(\.0.id))
+        let deletes = takesToDelete.filter { stored.contains($0.id) }
+        stored.subtract(deletes.map(\.id))
+        takesToDelete.removeAll()
+        let record = SessionRecord(
+            id: draftID,
+            templateID: packID,
+            templateVersion: 1,
+            countdown: state.countdown,
+            layout: layout,
+            slots: state.slots
+        )
+        enqueue { [weak self] drafts in
+            do {
+                for (take, data) in media {
+                    try await drafts.writeMedia(data, for: take)
+                }
+                try await drafts.commit(record)
+                for take in deletes {
+                    try await drafts.deleteMedia(for: take)
+                }
+            } catch {
+                // The record in storage is still the last good one. The next change writes the bytes again.
+                self?.stored.subtract(media.map(\.0.id))
+            }
+        }
+    }
+
+    private func deleteDraft() {
+        let id = draftID
+        draftID = UUID()
+        hasDraft = false
+        stored.removeAll()
+        takesToDelete.removeAll()
+        enqueue { drafts in try? await drafts.deleteDraft(id) }
+    }
+
+    /// Runs the storage operations one at a time, in order.
+    private func enqueue(_ operation: @escaping (any DraftStore) async -> Void) {
+        guard let drafts else { return }
+        persistTask = Task { [persistTask] in
+            await persistTask?.value
+            await operation(drafts)
+        }
     }
 
     var isComplete: Bool {
@@ -243,6 +359,7 @@ final class BoothSessionModel {
         case let .discardTake(take):
             images[take.id] = nil
             originals[take.id] = nil
+            takesToDelete.append(take)
         }
     }
 }

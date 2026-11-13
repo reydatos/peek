@@ -13,6 +13,16 @@ public struct BoothState: Equatable, Sendable {
         self.countdown = countdown
     }
 
+    /// The state of a draft that comes back from storage. It starts in `setup`, at the first open slot.
+    ///
+    /// - Precondition: the record has one slot or more.
+    public init(restoring record: SessionRecord) {
+        precondition(!record.slots.isEmpty, "A session needs at least one slot.")
+        slots = record.slots
+        currentSlotID = record.slots.first { $0.acceptedTake == nil }?.id ?? record.slots[0].id
+        countdown = record.countdown
+    }
+
     public var currentSlot: Slot {
         slots[currentSlotID.index]
     }

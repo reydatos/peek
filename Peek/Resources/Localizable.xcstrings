@@ -529,6 +529,17 @@
         }
       }
     },
+    "draftRestored" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your shots are back."
+          }
+        }
+      }
+    },
     "finishedStrip" : {
       "extractionState" : "manual",
       "localizations" : {

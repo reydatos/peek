@@ -14,7 +14,8 @@ struct BoothView: View {
     init(packID: String) {
         _model = State(initialValue: BoothSessionModel(
             capture: CaptureService(),
-            packID: packID
+            packID: packID,
+            drafts: FileDraftStore(directory: .applicationSupportDirectory.appending(path: "Draft"))
         ))
     }
 
@@ -70,7 +71,10 @@ struct BoothView: View {
             .modifier(OuterDisplayAccessory(model: model))
             .navigationTitle(Text(.boothTitle))
             .navigationBarTitleDisplayMode(.inline)
-            .task { await model.startCamera() }
+            .task {
+                await model.restoreDraft()
+                await model.startCamera()
+            }
             .onDisappear { model.stopCamera() }
             .onChange(of: scenePhase) { _, phase in
                 if phase != .active {

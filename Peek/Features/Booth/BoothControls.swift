@@ -35,7 +35,11 @@ struct BoothControls: View {
             case .capturePending:
                 ProgressView()
             case let .paused(_, reason):
-                Text(reason == .outerDisplayLost ? .pausedOuterDisplayLost : .paused)
+                switch reason {
+                case .outerDisplayLost: Text(.pausedOuterDisplayLost)
+                case .recovered: Text(.draftRestored)
+                case .photographer, .interruption: Text(.paused)
+                }
                 Button { model.send(.resume) } label: {
                     Label(.resume, systemImage: "play")
                 }
