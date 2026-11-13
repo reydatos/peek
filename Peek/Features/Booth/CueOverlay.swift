@@ -6,11 +6,13 @@ struct CueOverlay: View {
     let phase: BoothPhase
     let isSubjectFacing: Bool
     var prompt: LocalizedStringResource = .samplePrompt
+    /// The pose picture for the people in the photo. It clears at countdown. PRD FR-05.
+    var art: PoseCue?
 
     var body: some View {
         switch phase {
         case .ready:
-            CueBadge(text: prompt, systemImage: "figure.wave", isSubjectFacing: isSubjectFacing)
+            CueBadge(text: prompt, systemImage: "figure.wave", isSubjectFacing: isSubjectFacing, art: art)
         case let .countdown(remaining):
             CountdownView(remaining: remaining, isSubjectFacing: isSubjectFacing)
         case .capturePending:

@@ -33,6 +33,19 @@ struct BoothSessionModelTests {
         #expect(model.stillImage != nil)
     }
 
+    @Test func stepPoseMovesThroughThePackAndWraps() async {
+        let model = BoothSessionModel(capture: FakeCapture(), sleep: { _ in })
+        await model.startCamera()
+        let ids = model.packCues.map(\.id)
+
+        model.stepPose(by: 1)
+        #expect(model.currentCue?.id == ids[1])
+        model.stepPose(by: -2)
+        #expect(model.currentCue?.id == ids.last)
+        model.stepPose(by: 1)
+        #expect(model.currentCue?.id == ids[0])
+    }
+
     @Test func deniedCameraKeepsTheSessionInSetup() async {
         let model = BoothSessionModel(capture: FakeCapture(startError: .permissionDenied), sleep: { _ in })
         await model.startCamera()

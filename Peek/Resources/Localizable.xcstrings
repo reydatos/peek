@@ -425,7 +425,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Big smiles"
+            "value" : "Big smile, big teeth"
           }
         }
       }
@@ -628,6 +628,17 @@
         }
       }
     },
+    "nextPose" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Next pose"
+          }
+        }
+      }
+    },
     "openSettings" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -767,6 +778,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Preview"
+          }
+        }
+      }
+    },
+    "previousPose" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Previous pose"
           }
         }
       }

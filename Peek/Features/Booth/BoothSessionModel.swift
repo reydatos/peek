@@ -112,6 +112,14 @@ final class BoothSessionModel {
         }
     }
 
+    /// Changes the pose of the current shot to the next or the previous pose of the pack. It wraps at the ends.
+    func stepPose(by offset: Int) {
+        let ids = packCues.map(\.id)
+        guard !ids.isEmpty else { return }
+        let index = ids.firstIndex(of: state.currentSlot.cueID) ?? 0
+        swapPose(to: ids[((index + offset) % ids.count + ids.count) % ids.count])
+    }
+
     /// The pose of the current slot. Nil when the cue ID is not in the library.
     var currentCue: PoseCue? {
         PoseLibrary.cue(for: state.currentSlot.cueID)
