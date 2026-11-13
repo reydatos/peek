@@ -1,0 +1,12 @@
+{
+  "images" : [
+    {
+      "filename" : "pose-doubleCheekHeart.jpg",
+      "idiom" : "universal"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}

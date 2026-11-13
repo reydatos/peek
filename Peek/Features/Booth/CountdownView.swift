@@ -7,20 +7,19 @@ struct CountdownView: View {
 
     var body: some View {
         if isSubjectFacing {
-            Image(systemName: "\(remaining).circle.fill")
-                .resizable()
-                .scaledToFit()
-                .symbolRenderingMode(.palette)
-                .foregroundStyle(.white, .black)
-                .padding()
-                .accessibilityLabel(Text(remaining, format: .number))
+            Text(remaining, format: .number)
+                .font(PeekFont.serif(.largeTitle))
+                .scaleEffect(6)
+                .foregroundStyle(PeekTheme.cream)
+                .shadow(color: PeekTheme.ink, radius: 8)
         } else {
             Text(remaining, format: .number)
-                .font(.largeTitle)
+                .font(PeekFont.sans(.largeTitle))
                 .bold()
                 .monospacedDigit()
                 .padding()
-                .background(.regularMaterial, in: .circle)
+                .foregroundStyle(PeekTheme.cream)
+                .background(PeekTheme.ink, in: .circle)
         }
     }
 }

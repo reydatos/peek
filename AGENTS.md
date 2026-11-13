@@ -31,9 +31,9 @@ Verify the test COUNT. The tests use Swift Testing, so the XCTest line `Executed
 | `project.yml` | XcodeGen spec. `Peek.xcodeproj` is generated and gitignored. |
 | `Config/Shared.xcconfig` | Build settings. The Info.plist is generated from `INFOPLIST_KEY_*`. |
 | `Packages/PeekCore` | Pure Swift. Session reducer, data records, templates, `DraftStore` protocol. No AVFoundation or UIKit. |
-| `Peek/Features` | SwiftUI by feature: `Home`, `Booth` (inner display), `Outer` (outer display accessory). |
+| `Peek/Features` | SwiftUI by feature: `Booth` (inner display), `Poses` (pose packs and picker), `Outer` (outer display accessory). The app opens in the booth. There is no home screen. |
 | `Peek/Capture` | `CaptureService` actor, preview layer view (inner), `FrameSource` frame feed view (outer), rotation. |
-| `Peek/Resources/Localizable.xcstrings` | Manual keys. Use generated symbols: `Text(.startBooth)`. |
+| `Peek/Resources/Localizable.xcstrings` | Manual keys. Use generated symbols: `Text(.poseIdeas)`. |
 | `PeekTests` | App tests with `FakeCapture`. |
 
 ## Rules

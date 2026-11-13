@@ -15,6 +15,10 @@ public struct BoothReducer: Sendable {
             state.phase = .ready
             return []
 
+        case let (.ready, .swapCue(cueID)):
+            state.slots[state.currentSlotID.index].cueID = cueID
+            return []
+
         case (.ready, .start):
             state.lastFailure = nil
             return begin(&state)

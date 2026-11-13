@@ -25,12 +25,12 @@ struct BoothControls: View {
                 Button { model.send(.start) } label: {
                     Label(.start, systemImage: "camera.shutter.button")
                 }
-                .buttonStyle(.borderedProminent)
+                .buttonStyle(PeekPrimaryButtonStyle())
             case .countdown:
                 Button(role: .cancel) { model.send(.cancel) } label: {
                     Label(.cancel, systemImage: "xmark")
                 }
-                .buttonStyle(.bordered)
+                .buttonStyle(PeekGhostButtonStyle())
             case .capturePending:
                 ProgressView()
             case let .paused(_, reason):
@@ -38,28 +38,24 @@ struct BoothControls: View {
                 Button { model.send(.resume) } label: {
                     Label(.resume, systemImage: "play")
                 }
-                .buttonStyle(.borderedProminent)
+                .buttonStyle(PeekPrimaryButtonStyle())
             case .review:
                 HStack {
                     Button { model.send(.redo) } label: {
                         Label(.redo, systemImage: "arrow.counterclockwise")
                     }
-                    .buttonStyle(.bordered)
+                    .buttonStyle(PeekGhostButtonStyle())
                     Button { model.send(.accept) } label: {
                         Label(.accept, systemImage: "checkmark")
                     }
-                    .buttonStyle(.borderedProminent)
+                    .buttonStyle(PeekPrimaryButtonStyle())
                 }
             case .complete:
-                Button { model.send(.retake(model.state.currentSlotID)) } label: {
-                    Label(.shootAgain, systemImage: "arrow.counterclockwise")
-                }
-                .buttonStyle(.bordered)
+                FinishedControls(model: model)
             }
         }
         .controlSize(.large)
-        .padding()
         .frame(maxWidth: .infinity)
-        .background(.bar)
+        .foregroundStyle(PeekTheme.cream)
     }
 }
