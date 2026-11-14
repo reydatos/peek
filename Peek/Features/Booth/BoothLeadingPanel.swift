@@ -13,6 +13,7 @@ struct BoothLeadingPanel: View {
                     .font(.title2)
                     .bold()
                 LayoutPicker(model: model)
+                FramePicker(model: model)
                 Spacer()
             } else if let cue = model.currentCue {
                 PeekChip(text: .poseReference, background: PeekTheme.fill)

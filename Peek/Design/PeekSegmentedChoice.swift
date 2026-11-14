@@ -11,12 +11,14 @@ struct PeekSegmentedChoice<Value: Hashable>: View {
             ForEach(options, id: \.value) { option in
                 let isSelected = option.value == selection
                 Button { selection = option.value } label: {
-                    HStack(spacing: PeekTheme.tightSpace) {
+                    HStack(spacing: PeekTheme.tightSpace / 2) {
                         if isSelected {
                             Image(systemName: "checkmark")
                                 .accessibilityHidden(true)
                         }
                         Text(option.label)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.6)
                     }
                     .font(.subheadline)
                     .fontWeight(.semibold)

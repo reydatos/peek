@@ -24,14 +24,28 @@ final class BoothSessionModel {
     /// The layout of the finished picture. A change draws the picture again.
     var layout: PeekCore.Layout = .verticalStrip {
         didSet {
-            guard layout != oldValue else { return }
-            stripTask?.cancel()
-            stripTask = nil
-            strip = nil
-            saveStatus = .idle
-            updateStrip()
-            persist()
+            if layout != oldValue {
+                redrawStrip()
+            }
         }
+    }
+
+    /// The paper color of the finished picture. A change draws the picture again.
+    var frame: FrameColor = .cream {
+        didSet {
+            if frame != oldValue {
+                redrawStrip()
+            }
+        }
+    }
+
+    private func redrawStrip() {
+        stripTask?.cancel()
+        stripTask = nil
+        strip = nil
+        saveStatus = .idle
+        updateStrip()
+        persist()
     }
 
     /// The finished strip. It exists only while the session is complete.
@@ -274,7 +288,8 @@ final class BoothSessionModel {
         var restored = record
         restored.slots = slots
         state = BoothState(restoring: restored)
-        // The layout changes last: its observer stores the session, and the state is now the draft.
+        // The layout and the frame change last: an observer stores the session, and the state is now the draft.
+        frame = record.frame
         layout = record.layout
     }
 
@@ -315,6 +330,7 @@ final class BoothSessionModel {
             templateVersion: 1,
             countdown: state.countdown,
             layout: layout,
+            frame: frame,
             slots: state.slots
         )
         do {
@@ -368,8 +384,8 @@ final class BoothSessionModel {
         if isComplete {
             guard strip == nil, stripTask == nil else { return }
             let shots = state.slots.compactMap { image(for: $0) }
-            stripTask = Task { [layout] in
-                let picture = await StripRenderer.renderInBackground(shots, layout: layout, style: .current)
+            stripTask = Task { [layout, frame] in
+                let picture = await StripRenderer.renderInBackground(shots, layout: layout, style: .paper(frame))
                 // A retake, a new layout, or a new set cancels this draw.
                 guard !Task.isCancelled else { return }
                 strip = picture

@@ -14,7 +14,7 @@ struct BoothLayout: View {
             if model.cameraStatus == .running, isWide(proxy) {
                 HStack(spacing: 0) {
                     BoothLeadingPanel(model: model)
-                        .frame(width: proxy.size.width / 5)
+                        .frame(width: proxy.size.width / 4)
                     BoothStatusView(model: model, showsPoseArt: false)
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                     BoothSideRail(model: model, actions: actions)

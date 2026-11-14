@@ -32,6 +32,9 @@ enum PeekTheme {
     static let paperInk = fixed(0x1D1D1F)
     /// The wordmark on the paper of a strip.
     static let paperWordmark = fixed(0xBA011C)
+    /// The white paper and the black paper of a strip. On black paper the text and the wordmark are white.
+    static let paperWhite = fixed(0xFFFFFF)
+    static let paperBlack = fixed(0x000000)
     /// The shade behind a white label on a photo.
     static let scrim = Color.black.opacity(0.6)
 
