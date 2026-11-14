@@ -63,11 +63,13 @@ enum PeekTheme {
     /// The width of the side rail in a wide booth.
     static let railWidth: CGFloat = 150
 
-    private static func fixed(_ hex: UInt32) -> Color {
+    private nonisolated static func fixed(_ hex: UInt32) -> Color {
         Color(uiColor(hex))
     }
 
-    private static func dynamic(light: UInt32, dark: UInt32) -> Color {
+    /// This function is `nonisolated`, so its color provider is not bound to the main actor.
+    /// SwiftUI resolves a color on a render thread during an animation. A provider on the main actor stops the app there.
+    private nonisolated static func dynamic(light: UInt32, dark: UInt32) -> Color {
         Color(UIColor { $0.userInterfaceStyle == .dark ? uiColor(dark) : uiColor(light) })
     }
 
