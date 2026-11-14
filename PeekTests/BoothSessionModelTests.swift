@@ -33,6 +33,44 @@ struct BoothSessionModelTests {
         #expect(model.stillImage != nil)
     }
 
+    @Test func flipToTheFrontCameraKeepsTheShotsAndDoesNotPause() async {
+        let model = BoothSessionModel(capture: FakeCapture(), sleep: { _ in })
+        await model.startCamera()
+        model.setOuterDisplayAvailable(true)
+        model.send(.start)
+        await settle(model)
+        model.send(.accept)
+        #expect(model.isOuterDisplayPresenting)
+
+        await model.flipCamera()
+
+        #expect(model.isSelfie)
+        #expect(model.deviceID == "fake-front-camera")
+        #expect(!model.isOuterDisplayPresenting)
+        #expect(model.state.phase == .ready)
+        #expect(model.state.slots[0].acceptedTake != nil)
+
+        // The system closes the outer display. The booth does not pause, because the selfie does not use it.
+        model.setOuterDisplayAvailable(false)
+        #expect(model.state.phase == .ready)
+
+        await model.flipCamera()
+        #expect(!model.isSelfie)
+        #expect(model.deviceID == "fake-camera")
+    }
+
+    @Test func flipIsIgnoredWhileTheBoothDoesNotWaitForAShot() async {
+        let model = BoothSessionModel(capture: FakeCapture(), cueIDs: ["sample"], sleep: { _ in })
+        await model.startCamera()
+        model.send(.start)
+        await settle(model)
+
+        await model.flipCamera()
+
+        #expect(!model.isSelfie)
+        #expect(model.deviceID == "fake-camera")
+    }
+
     @Test func stepPoseMovesThroughThePackAndWraps() async {
         let model = BoothSessionModel(capture: FakeCapture(), sleep: { _ in })
         await model.startCamera()

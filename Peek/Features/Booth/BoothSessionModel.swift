@@ -10,6 +10,9 @@ final class BoothSessionModel {
     private(set) var packID: String
     private(set) var cameraStatus: CameraStatus = .idle
     private(set) var deviceID: String?
+    /// The camera in use. The front camera makes a group selfie: the people in the photo read the inner display.
+    private(set) var cameraFacing: CameraFacing = .rear
+    private var isSwitchingCamera = false
     private(set) var isOuterDisplayAvailable = false
     var isOuterDisplayEnabled = true
     /// PRD open decision: default mirroring. Off until hardware tests decide.
@@ -132,7 +135,24 @@ final class BoothSessionModel {
 
     /// True when the system shows the accessory on the outer display.
     var isOuterDisplayPresenting: Bool {
-        isOuterDisplayAvailable && isOuterDisplayEnabled
+        isOuterDisplayAvailable && isOuterDisplayEnabled && !isSelfie
+    }
+
+    var isSelfie: Bool {
+        cameraFacing == .front
+    }
+
+    /// Changes between the rear camera and the front camera. The booth accepts this only while it waits for a shot.
+    /// The accepted shots stay. When the change fails, the booth keeps the camera it has.
+    func flipCamera() async {
+        guard cameraStatus == .running, state.phase == .ready, !isSwitchingCamera else { return }
+        isSwitchingCamera = true
+        defer { isSwitchingCamera = false }
+        let next = cameraFacing.opposite
+        guard let id = try? await capture.selectCamera(next) else { return }
+        // The facing changes first, so the outer display closes with no "outer display lost" pause.
+        cameraFacing = next
+        deviceID = id
     }
 
     /// The still to show in place of the live frame: the take in review, or the strip when complete.

@@ -1,12 +1,14 @@
 import AVFoundation
 
-/// Owns the one capture session. PRD FR-02: one verified rear-camera configuration.
+/// Owns the one capture session. It starts with the rear camera (PRD FR-02).
+/// The UX lookbook (page 07A) adds the front camera for a group selfie. The session has one input at a time.
 actor CaptureService: CaptureProviding {
     nonisolated(unsafe) let session = AVCaptureSession()
     nonisolated let frameSource = FrameSource()
     private let photoOutput = AVCapturePhotoOutput()
     private let frameOutput = AVCaptureVideoDataOutput()
     private var device: AVCaptureDevice?
+    private var input: AVCaptureDeviceInput?
     private var rotationCoordinator: AVCaptureDevice.RotationCoordinator?
     private var inFlight: PhotoCaptureDelegate?
 
@@ -17,6 +19,32 @@ actor CaptureService: CaptureProviding {
             session.startRunning()
         }
         return device.uniqueID
+    }
+
+    func selectCamera(_ facing: CameraFacing) throws -> String {
+        guard let current = device, let oldInput = input else { throw CaptureError.notRunning }
+        let position: AVCaptureDevice.Position = facing == .front ? .front : .back
+        guard current.position != position else { return current.uniqueID }
+        // On iPhone Duo the front wide-angle camera is the virtual front camera. It follows the display in use.
+        guard let camera = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: position) else {
+            throw CaptureError.cameraUnavailable
+        }
+        guard let newInput = try? AVCaptureDeviceInput(device: camera) else {
+            throw CaptureError.configurationFailed
+        }
+        session.beginConfiguration()
+        defer { session.commitConfiguration() }
+        session.removeInput(oldInput)
+        guard session.canAddInput(newInput) else {
+            // The old camera comes back, so the booth continues.
+            session.addInput(oldInput)
+            throw CaptureError.configurationFailed
+        }
+        session.addInput(newInput)
+        input = newInput
+        rotationCoordinator = AVCaptureDevice.RotationCoordinator(device: camera, previewLayer: nil)
+        device = camera
+        return camera.uniqueID
     }
 
     func stop() {
@@ -83,6 +111,7 @@ actor CaptureService: CaptureProviding {
         }
         rotationCoordinator = AVCaptureDevice.RotationCoordinator(device: camera, previewLayer: nil)
         device = camera
+        self.input = input
         return camera
     }
 }
