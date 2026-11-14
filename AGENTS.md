@@ -46,7 +46,7 @@ Verify the test COUNT. The tests use Swift Testing, so the XCTest line `Executed
 - The outer display is an enhancement. Every flow must complete on the inner display alone.
 - The outer display draws frames from `FrameSource` (`AVCaptureVideoDataOutput`). Do not put a second `AVCaptureVideoPreviewLayer` there. On a physical Duo that layer showed no picture.
 - Keep purchase prompts, links, and account requests off the outer (subject) display.
-- The look follows the UX lookbook (`PEEK-UX-Lookbook.pdf`): colors and corners live in `PeekTheme`. Each state has one filled main action (`PeekPrimaryButtonStyle`).
+- The look follows the UI handoff in `docs/design` (`DESIGN.md`, `tokens.json`): light and dark from the same semantic tokens, the system font, and one red. Colors and corners live in `PeekTheme`; do not put a hex value or `Color.white` in a view. Each state has one red main action (`PeekPrimaryButtonStyle`). The exported strip has fixed colors.
 - The app target uses `SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor`. Mark types that must leave the main actor `nonisolated`.
 
 ## Dangers

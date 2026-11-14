@@ -30,6 +30,6 @@ struct OuterFrameStage: View {
             )
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
-        .background(PeekTheme.ink)
+        .background(PeekTheme.page)
     }
 }

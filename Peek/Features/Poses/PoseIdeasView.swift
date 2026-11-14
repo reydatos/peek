@@ -10,7 +10,7 @@ struct PoseIdeasView: View {
                 PackList(packs: PoseLibrary.packs, onSelect: onSelect)
                     .padding()
             }
-            .background(PeekTheme.ink)
+            .background(PeekTheme.page)
             .navigationTitle(Text(.poseIdeas))
             .navigationBarTitleDisplayMode(.inline)
         }

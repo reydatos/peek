@@ -8,22 +8,22 @@ struct CountdownView: View {
     var body: some View {
         if isSubjectFacing {
             Text(remaining, format: .number)
-                .font(PeekFont.sans(.largeTitle))
+                .font(.largeTitle)
                 .bold()
                 .monospacedDigit()
                 .scaleEffect(3, anchor: .bottom)
                 .foregroundStyle(Color.white)
-                .shadow(color: PeekTheme.ink, radius: 8)
+                .shadow(color: PeekTheme.scrim, radius: 8)
                 .frame(maxHeight: .infinity, alignment: .bottom)
                 .padding()
         } else {
             Text(remaining, format: .number)
-                .font(PeekFont.sans(.largeTitle))
+                .font(.largeTitle)
                 .bold()
                 .monospacedDigit()
                 .padding()
-                .foregroundStyle(Color.white)
-                .background(PeekTheme.panel, in: .circle)
+                .foregroundStyle(PeekTheme.ink)
+                .background(PeekTheme.surface, in: .circle)
         }
     }
 }

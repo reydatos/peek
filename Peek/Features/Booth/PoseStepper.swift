@@ -16,10 +16,10 @@ struct PoseStepper: View {
                     .labelStyle(.iconOnly)
             }
         }
-        .font(PeekFont.sans(.headline))
+        .font(.headline)
         .padding()
-        .foregroundStyle(Color.white)
-        .background(PeekTheme.ink, in: .capsule)
+        .foregroundStyle(PeekTheme.ink)
+        .background(PeekTheme.surface, in: .capsule)
         .frame(maxHeight: .infinity, alignment: .top)
         .padding()
     }

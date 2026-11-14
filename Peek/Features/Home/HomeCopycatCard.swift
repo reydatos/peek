@@ -7,8 +7,8 @@ struct HomeCopycatCard: View {
     var body: some View {
         VStack(alignment: .leading) {
             Text(.copycat)
-                .font(PeekFont.sans(.largeTitle))
-                .foregroundStyle(Color.white)
+                .font(.largeTitle)
+                .foregroundStyle(PeekTheme.ink)
             PackList(packs: PoseLibrary.copycatPacks, onSelect: onSelect)
         }
         .frame(maxWidth: .infinity, alignment: .leading)

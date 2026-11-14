@@ -8,16 +8,16 @@ struct BoothRail: View {
         VStack(alignment: .leading) {
             if model.isComplete {
                 Text(.yourStrip)
-                    .font(PeekFont.sans(.title2))
+                    .font(.title2)
                 Spacer()
             } else if let cue = model.currentCue {
-                PeekChip(text: .poseReference)
+                PeekChip(text: .poseReference, background: PeekTheme.fill)
                     .lineLimit(1)
                     .minimumScaleFactor(0.5)
                 VStack(alignment: .leading) {
                     PoseArt(cue: cue)
                     Text(cue.name)
-                        .font(PeekFont.sans(.headline))
+                        .font(.headline)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             } else {
@@ -26,6 +26,6 @@ struct BoothRail: View {
             SlotRail(model: model, axis: .vertical)
         }
         .padding()
-        .foregroundStyle(Color.white)
+        .foregroundStyle(PeekTheme.ink)
     }
 }

@@ -1,17 +1,19 @@
 import SwiftUI
 
-/// A secondary action: a soft fill with dark text.
+/// A secondary action: the soft fill with an ink label.
 struct PeekSecondaryButtonStyle: ButtonStyle {
+    @Environment(\.isEnabled) private var isEnabled
+
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .font(PeekFont.sans(.headline))
+            .font(.headline)
             .multilineTextAlignment(.leading)
             .fixedSize(horizontal: false, vertical: true)
             .padding()
             .frame(maxWidth: .infinity, alignment: .leading)
-            .foregroundStyle(PeekTheme.ink)
-            .background(PeekTheme.mist, in: .rect(cornerRadius: PeekTheme.corner))
-            .contentShape(.rect(cornerRadius: PeekTheme.corner))
+            .foregroundStyle(isEnabled ? PeekTheme.ink : PeekTheme.inkSecondary)
+            .background(PeekTheme.fill, in: .rect(cornerRadius: PeekTheme.buttonCorner))
+            .contentShape(.rect(cornerRadius: PeekTheme.buttonCorner))
             .opacity(configuration.isPressed ? 0.7 : 1)
     }
 }

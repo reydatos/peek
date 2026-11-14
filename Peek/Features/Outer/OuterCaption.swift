@@ -27,20 +27,20 @@ struct OuterCaption: View {
                 EmptyView()
             }
         }
-        .font(PeekFont.sans(.largeTitle))
+        .font(.largeTitle)
         .bold()
         .multilineTextAlignment(.center)
-        .foregroundStyle(Color.white)
+        .foregroundStyle(PeekTheme.ink)
         .padding()
     }
 }
 
 #Preview("Countdown") {
     OuterCaption(phase: .countdown(remaining: 3), cueName: .samplePrompt, shotNumber: 2)
-        .background(PeekTheme.ink)
+        .background(PeekTheme.page)
 }
 
 #Preview("Shot") {
     OuterCaption(phase: .review(.init(slotID: .init(1), token: .init(), assetName: "", rotationAngle: 0)), cueName: .samplePrompt, shotNumber: 2)
-        .background(PeekTheme.ink)
+        .background(PeekTheme.page)
 }

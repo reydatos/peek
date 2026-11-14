@@ -1,7 +1,7 @@
 import PeekCore
 import UIKit
 
-/// Draws the finished picture: the accepted shots on cream paper, with a footer.
+/// Draws the finished picture: the accepted shots on photo paper, with a footer.
 /// The vertical strip has one column. The 2x2 layout has two.
 ///
 /// The sizes are design values. PRD M3 asks for 600 x 1800 pixels or more for the strip; four shots give
@@ -26,19 +26,18 @@ nonisolated enum StripRenderer {
         )
     }
 
-    /// The values that come from the main actor: the theme colors, the font name, and the wordmark.
+    /// The values that come from the main actor: the paper colors and the wordmark.
+    /// The strip is a picture, so its colors are the same in light mode and in dark mode.
     struct Style: Sendable {
         let paper: UIColor
         let ink: UIColor
-        let fontName: String
         let wordmark: UIImage?
 
         @MainActor static var current: Style {
             Style(
-                paper: UIColor(PeekTheme.cream),
-                ink: UIColor(PeekTheme.ink),
-                fontName: PeekFont.sansName,
-                wordmark: UIImage(named: "peek-wordmark")
+                paper: UIColor(PeekTheme.photoPaper),
+                ink: UIColor(PeekTheme.paperInk),
+                wordmark: UIImage(named: "peek-wordmark")?.withTintColor(UIColor(PeekTheme.paperWordmark), renderingMode: .alwaysOriginal)
             )
         }
     }
@@ -97,7 +96,7 @@ nonisolated enum StripRenderer {
 
     private static func drawFooter(date: Date, style: Style, in frame: CGRect) {
         let ink = style.ink
-        let dateFont = UIFont(name: style.fontName, size: footer / 6) ?? .systemFont(ofSize: footer / 6)
+        let dateFont = UIFont.systemFont(ofSize: footer / 6, weight: .semibold)
         let day = NSAttributedString(
             string: date.formatted(date: .abbreviated, time: .omitted),
             attributes: [.font: dateFont, .foregroundColor: ink]

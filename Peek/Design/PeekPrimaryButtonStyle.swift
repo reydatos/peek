@@ -1,20 +1,19 @@
 import SwiftUI
 
-/// The one filled main action of a task: warm ivory with dark text. Lookbook: "One filled primary action per task".
+/// The one filled main action of a screen: red with a white label.
 struct PeekPrimaryButtonStyle: ButtonStyle {
-    /// The red fill is for the booth entry only.
-    var isBoothEntry = false
+    @Environment(\.isEnabled) private var isEnabled
 
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .font(PeekFont.sans(.headline))
+            .font(.headline)
             .multilineTextAlignment(.leading)
             .fixedSize(horizontal: false, vertical: true)
             .padding()
             .frame(maxWidth: .infinity, alignment: .leading)
-            .foregroundStyle(isBoothEntry ? Color.white : PeekTheme.ink)
-            .background(isBoothEntry ? PeekTheme.accent : PeekTheme.cream, in: .rect(cornerRadius: PeekTheme.corner))
-            .contentShape(.rect(cornerRadius: PeekTheme.corner))
+            .foregroundStyle(isEnabled ? PeekTheme.onRed : PeekTheme.inkSecondary)
+            .background(isEnabled ? PeekTheme.red : PeekTheme.fill, in: .rect(cornerRadius: PeekTheme.primaryButtonCorner))
+            .contentShape(.rect(cornerRadius: PeekTheme.primaryButtonCorner))
             .opacity(configuration.isPressed ? 0.7 : 1)
     }
 }

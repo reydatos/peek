@@ -1,27 +1,28 @@
 import SwiftUI
 
-/// A small state label: "LIVE", "POSE REFERENCE", "SHOT 2 OF 4". The text states the condition; the color supports it.
+/// A small state label: "LIVE", "POSE REFERENCE", "SHOT 2 OF 4". The text states the condition.
 struct PeekChip: View {
     let text: LocalizedStringResource
-    var isLive = false
+    /// The fill. On a photo it is `surface`. On the page it is `fill`.
+    var background = PeekTheme.surface
 
     var body: some View {
         Text(text)
-            .font(PeekFont.sans(.caption))
+            .font(.caption)
             .bold()
             .textCase(.uppercase)
             .padding(.horizontal)
-            .padding(.vertical, PeekTheme.smallCorner)
+            .padding(.vertical, PeekTheme.tightSpace)
             .foregroundStyle(PeekTheme.ink)
-            .background(isLive ? PeekTheme.live : Color.white, in: .rect(cornerRadius: PeekTheme.smallCorner))
+            .background(background, in: .rect(cornerRadius: PeekTheme.chipCorner))
     }
 }
 
 #Preview {
     VStack {
-        PeekChip(text: .poseReference)
-        PeekChip(text: .live, isLive: true)
+        PeekChip(text: .poseReference, background: PeekTheme.fill)
+        PeekChip(text: .live)
     }
     .padding()
-    .background(PeekTheme.ink)
+    .background(PeekTheme.page)
 }

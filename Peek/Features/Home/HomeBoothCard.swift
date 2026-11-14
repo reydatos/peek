@@ -11,6 +11,7 @@ struct HomeBoothCard: View {
         VStack(alignment: .leading) {
             Image("peek-wordmark")
                 .resizable()
+                .foregroundStyle(PeekTheme.wordmark)
                 .scaledToFit()
                 .frame(height: wordmarkHeight)
                 .accessibilityLabel(Text(.appName))
@@ -22,7 +23,7 @@ struct HomeBoothCard: View {
                         .resizable()
                         .scaledToFill()
                 }
-                .clipShape(.rect(cornerRadius: PeekTheme.smallCorner))
+                .clipShape(.rect(cornerRadius: PeekTheme.photoCorner))
                 .accessibilityHidden(true)
             Button(action: onStart) {
                 HStack {
@@ -32,7 +33,7 @@ struct HomeBoothCard: View {
                         .accessibilityHidden(true)
                 }
             }
-            .buttonStyle(PeekPrimaryButtonStyle(isBoothEntry: true))
+            .buttonStyle(PeekPrimaryButtonStyle())
             if hasDraft {
                 Button(action: onResume) {
                     Text(.resumeDraft)
