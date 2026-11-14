@@ -26,6 +26,11 @@ public struct BoothReducer: Sendable {
 
         case let (.ready, .swapCue(cueID)):
             state.slots[state.currentSlotID.index].cueID = cueID
+            state.subjectView = .reference
+            return []
+
+        case let (.ready, .showSubject(view)):
+            state.subjectView = view
             return []
 
         case (.ready, .start):
@@ -52,6 +57,11 @@ public struct BoothReducer: Sendable {
         case (.countdown, .outerDisplayLost):
             state.phase = .paused(resumeTo: .countdown, reason: .outerDisplayLost)
             return [.stopCountdown]
+
+        case (.capturePending, .outerDisplayLost):
+            // A fold just before the shot cancels the shot. The pending token is dropped, so a late take is discarded.
+            state.phase = .paused(resumeTo: .countdown, reason: .outerDisplayLost)
+            return []
 
         case let (.capturePending, .pause(reason)):
             // The pending token is dropped. A late callback is stale and its take is discarded.
@@ -83,7 +93,9 @@ public struct BoothReducer: Sendable {
             return dropped.map { [.discardTake($0)] } ?? []
 
         case let (.review(take), .redo):
+            // A retake brings back the pose reference.
             state.phase = .ready
+            state.subjectView = .reference
             return [.discardTake(take)]
 
         case let (.review(take), .cancel):
@@ -98,6 +110,7 @@ public struct BoothReducer: Sendable {
             guard state.slots.indices.contains(id.index) else { return [] }
             state.currentSlotID = id
             state.phase = .ready
+            state.subjectView = .reference
             return []
 
         case let (.ready, .undo(id)), let (.complete, .undo(id)):

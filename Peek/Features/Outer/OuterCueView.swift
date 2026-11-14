@@ -1,11 +1,11 @@
 import PeekCore
 import SwiftUI
+import UIKit
 
-/// What the people in front of the lens see on the outer display.
+/// What the people in front of the lens see on the outer display. They see one thing at a time:
+/// the pose reference, the live frame, the countdown, the captured shot, or the finished strip.
 ///
-/// While the booth waits for a shot, the pose picture fills the display and the live frame is small.
-/// At countdown the picture clears (PRD FR-05). The live frame, the countdown, and the captured shot then
-/// use one fixed crop with a caption below it (lookbook page 03).
+/// The live frame, the countdown, and the captured shot use one fixed crop with a caption below it.
 struct OuterCueView: View {
     let model: BoothSessionModel
 
@@ -14,8 +14,10 @@ struct OuterCueView: View {
             // The finished strip stays inside the safe area, so the camera housing hides no shot.
             FinishedStripView(strip: strip)
                 .background(PeekTheme.page)
-        } else if model.state.phase == .ready, let cue = model.currentCue, let picture = UIImage(named: cue.assetName) {
-            OuterPoseStage(cue: cue, picture: picture, model: model, isMirrored: model.isOuterPreviewMirrored)
+        } else if model.state.phase == .ready, model.state.subjectView == .reference,
+                  let cue = model.currentCue, UIImage(named: cue.assetName) != nil
+        {
+            OuterReferenceStage(cue: cue, accent: model.accent)
         } else {
             OuterFrameStage(model: model)
         }

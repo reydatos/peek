@@ -14,4 +14,6 @@ public enum BoothEvent: Equatable, Sendable {
     case undo(SlotID)
     /// Changes the prompt of the current slot. Valid in `ready` only.
     case swapCue(String)
+    /// Changes what the people in the photo see. Valid in `ready` only.
+    case showSubject(SubjectView)
 }

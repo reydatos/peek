@@ -1,21 +1,32 @@
+import PeekCore
 import SwiftUI
 
-/// The inner display's picture: the live frame, the shot in review, or the finished strip, with the cue for the state.
+/// The inner display's picture, inset with rounded corners, and the cue line below it.
 ///
-/// The inner display shows the full frame (aspect-fit). The outer display has its own views in `Features/Outer`.
+/// The picture is the live frame, the shot in review, or the finished strip. The inner display shows the full
+/// frame (aspect-fit). The outer display has its own views in `Features/Outer`.
 struct BoothStageView: View {
     let model: BoothSessionModel
-    /// True when no outer display shows the cue. The people in the photo then read this display, so the cue is large.
+    /// True when no outer display shows the cue. The people in the photo then read this display.
     let isSubjectFacing: Bool
-    /// False in the wide booth: the side rail shows the pose reference there.
+    /// False in the wide booth: the leading panel shows the pose reference there.
     var showsPoseArt = true
 
     var body: some View {
+        VStack(alignment: .leading) {
+            photo
+            CueLine(model: model, isSubjectFacing: isSubjectFacing)
+        }
+        .padding()
+    }
+
+    private var photo: some View {
         ZStack {
-            PeekTheme.page
+            PeekTheme.fill
             if model.isComplete, let strip = model.strip {
                 // The finished strip stays inside the safe area, so the camera housing hides no shot.
                 FinishedStripView(strip: strip)
+                    .padding()
             } else if model.isComplete {
                 // The strip is not drawn yet.
                 ProgressView()
@@ -29,20 +40,21 @@ struct BoothStageView: View {
                 CameraPreviewView(session: model.capture.session, deviceID: model.deviceID, isMirrored: model.isSelfie)
                     .accessibilityLabel(Text(.livePreview))
             }
-            if canStepPose, !isSubjectFacing {
-                PoseStepper(model: model)
-            } else {
-                CueOverlay(
-                    phase: model.state.phase,
-                    isSubjectFacing: isSubjectFacing,
-                    prompt: model.currentCue?.name ?? .samplePrompt,
-                    art: showsPoseArt ? model.currentCue : nil
-                )
+        }
+        .clipShape(.rect(cornerRadius: PeekTheme.photoCorner))
+        .overlay(alignment: .topLeading) {
+            VStack(alignment: .leading) {
+                StageChips(model: model)
+                BoothBanners(model: model)
             }
-            // The pose name is at the top with two displays, and the cue card is at the bottom with one.
-            StageChips(model: model)
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: isSubjectFacing ? .topLeading : .bottomLeading)
-                .padding()
+            .padding()
+        }
+        .overlay(alignment: .bottomLeading) {
+            // With one screen, the pose reference moves into the camera view.
+            if showsPoseArt, isSubjectFacing, canStepPose, let cue = model.currentCue {
+                PoseGuide(cue: cue, accent: model.accent, isLarge: true)
+                    .padding()
+            }
         }
         // A sideways swipe changes the pose.
         .gesture(

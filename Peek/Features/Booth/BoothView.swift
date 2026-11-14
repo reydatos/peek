@@ -10,6 +10,7 @@ struct BoothView: View {
     @State private var posePicker: PosePickerRequest?
     @State private var packToConfirm: PosePack?
     @Environment(\.scenePhase) private var scenePhase
+    @Environment(\.dismiss) private var dismiss
 
     private let resumesDraft: Bool
 
@@ -23,77 +24,55 @@ struct BoothView: View {
     }
 
     var body: some View {
-        @Bindable var model = model
-        BoothLayout(model: model)
-            .background(PeekTheme.page)
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    Button { posePicker = PosePickerRequest() } label: {
-                        Label(.poseIdeas, systemImage: "figure.wave")
-                    }
-                }
-                ToolbarItem {
-                    Button { Task { await model.flipCamera() } } label: {
-                        Label(.flipCamera, systemImage: "arrow.triangle.2.circlepath.camera")
-                    }
-                    .disabled(model.state.phase != .ready)
-                }
-                if model.isOuterDisplayAvailable, !model.isSelfie {
-                    ToolbarItemGroup {
-                        Toggle(isOn: $model.isOuterDisplayEnabled) {
-                            Label(.showOnOuterDisplay, systemImage: "rectangle.on.rectangle")
-                        }
-                        Toggle(isOn: $model.isOuterPreviewMirrored) {
-                            Label(.mirrorOuterPreview, systemImage: "arrow.left.and.right")
-                        }
-                    }
-                }
-            }
-            .sheet(item: $posePicker) { _ in
-                // The warning shows on the sheet, so the photographer decides before the sheet closes.
-                PoseIdeasView { pack in
-                    if model.hasShots {
-                        packToConfirm = pack
-                    } else {
-                        load(pack)
-                    }
-                }
-                .confirmationDialog(
-                    Text(.discardShotsTitle),
-                    isPresented: Binding(
-                        get: { packToConfirm != nil },
-                        set: {
-                            if !$0 {
-                                packToConfirm = nil
-                            }
-                        }
-                    ),
-                    titleVisibility: .visible,
-                    presenting: packToConfirm
-                ) { pack in
-                    Button(role: .destructive) { load(pack) } label: { Text(.discardShots) }
-                    Button(role: .cancel) {} label: { Text(.cancel) }
-                } message: { _ in
-                    Text(.discardShotsMessage)
-                }
-            }
-            .modifier(OuterDisplayAccessory(model: model))
-            .navigationTitle(Text(model.pack?.name ?? .boothTitle))
-            .navigationBarTitleDisplayMode(.inline)
-            .task {
-                if resumesDraft {
-                    await model.restoreDraft()
+        BoothLayout(model: model, actions: BoothActions(
+            close: { dismiss() },
+            showPoses: { posePicker = PosePickerRequest() }
+        ))
+        .background(PeekTheme.page)
+        .toolbar(.hidden, for: .navigationBar)
+        .sheet(item: $posePicker) { _ in
+            // The warning shows on the sheet, so the photographer decides before the sheet closes.
+            PoseIdeasView { pack in
+                if model.hasShots {
+                    packToConfirm = pack
                 } else {
-                    await model.discardStoredDraft()
-                }
-                await model.startCamera()
-            }
-            .onDisappear { model.stopCamera() }
-            .onChange(of: scenePhase) { _, phase in
-                if phase != .active {
-                    model.send(.pause(.interruption))
+                    load(pack)
                 }
             }
+            .confirmationDialog(
+                Text(.discardShotsTitle),
+                isPresented: Binding(
+                    get: { packToConfirm != nil },
+                    set: {
+                        if !$0 {
+                            packToConfirm = nil
+                        }
+                    }
+                ),
+                titleVisibility: .visible,
+                presenting: packToConfirm
+            ) { pack in
+                Button(role: .destructive) { load(pack) } label: { Text(.discardShots) }
+                Button(role: .cancel) {} label: { Text(.cancel) }
+            } message: { _ in
+                Text(.discardShotsMessage)
+            }
+        }
+        .modifier(OuterDisplayAccessory(model: model))
+        .task {
+            if resumesDraft {
+                await model.restoreDraft()
+            } else {
+                await model.discardStoredDraft()
+            }
+            await model.startCamera()
+        }
+        .onDisappear { model.stopCamera() }
+        .onChange(of: scenePhase) { _, phase in
+            if phase != .active {
+                model.send(.pause(.interruption))
+            }
+        }
     }
 
     private func load(_ pack: PosePack) {

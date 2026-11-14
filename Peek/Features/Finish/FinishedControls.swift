@@ -7,10 +7,12 @@ struct FinishedControls: View {
 
     var body: some View {
         VStack(alignment: .leading) {
-            statusText
+            SaveStatusLabel(status: model.saveStatus)
             LayoutPicker(model: model)
-            Button { Task { await model.saveStrip() } } label: { Text(.saveStrip) }
-                .buttonStyle(PeekPrimaryButtonStyle())
+            Button { Task { await model.saveStrip() } } label: {
+                Label(.saveStrip, systemImage: "square.and.arrow.down")
+            }
+            .buttonStyle(PeekPrimaryButtonStyle())
             if let strip = model.strip {
                 ShareLink(
                     item: Image(uiImage: strip),
@@ -36,15 +38,5 @@ struct FinishedControls: View {
             }
         }
         .disabled(model.saveStatus == .saving)
-    }
-
-    @ViewBuilder private var statusText: some View {
-        switch model.saveStatus {
-        case .idle: EmptyView()
-        case .saving: ProgressView()
-        case .saved: Label(.savedToPhotos, systemImage: "checkmark.circle")
-        case .denied: Text(.photosDenied)
-        case .failed: Text(.saveFailed)
-        }
     }
 }

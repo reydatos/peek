@@ -49,6 +49,53 @@ struct BoothReducerTests {
         return BoothState(restoring: SessionRecord(templateID: "t", templateVersion: 1, countdown: .five, slots: slots))
     }
 
+    @Test func subjectSeesThePoseReferenceFirstAndTheLiveFrameAfterTheChange() throws {
+        var state = readyState()
+        #expect(state.subjectView == .reference)
+
+        _ = reducer.reduce(&state, .showSubject(.live))
+        #expect(state.subjectView == .live)
+
+        // The next slot starts with the pose reference again.
+        try shoot(&state)
+        _ = reducer.reduce(&state, .showSubject(.reference))
+        #expect(state.subjectView == .live)
+        _ = reducer.reduce(&state, .accept)
+        #expect(state.subjectView == .reference)
+    }
+
+    @Test func retakeAndNewPoseBringBackThePoseReference() throws {
+        var state = readyState()
+        _ = reducer.reduce(&state, .showSubject(.live))
+        try shoot(&state)
+        _ = reducer.reduce(&state, .redo)
+        #expect(state.subjectView == .reference)
+
+        _ = reducer.reduce(&state, .showSubject(.live))
+        _ = reducer.reduce(&state, .swapCue("b"))
+        #expect(state.subjectView == .reference)
+
+        try shoot(&state)
+        _ = reducer.reduce(&state, .accept)
+        _ = reducer.reduce(&state, .showSubject(.live))
+        _ = reducer.reduce(&state, .retake(SlotID(0)))
+        #expect(state.subjectView == .reference)
+    }
+
+    @Test func outerDisplayLossDuringThePendingShotCancelsTheShot() throws {
+        var state = readyState()
+        _ = reducer.reduce(&state, .start)
+        let token = try pendingToken(state)
+
+        #expect(reducer.reduce(&state, .outerDisplayLost).isEmpty)
+        #expect(state.phase == .paused(resumeTo: .countdown, reason: .outerDisplayLost))
+
+        // The late take is not kept.
+        let take = Take(slotID: state.currentSlotID, token: token, assetName: "late")
+        #expect(reducer.reduce(&state, .captureSucceeded(token, take)) == [.discardTake(take)])
+        #expect(state.slots.allSatisfy { $0.acceptedTake == nil })
+    }
+
     @Test func restoredDraftWaitsForAnExplicitResumeAtTheFirstOpenSlot() {
         var state = restoredState(acceptedSlots: 2)
         #expect(state.phase == .setup)

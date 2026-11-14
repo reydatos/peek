@@ -3,7 +3,7 @@ import SwiftUI
 /// The live frame or the captured shot in one fixed 4:3 crop, with the caption below it.
 ///
 /// The crop does not move between live framing, countdown, and the captured shot. The caption is below the crop,
-/// so the numeral stays below faces. Lookbook page 03.
+/// so the numeral stays below faces.
 struct OuterFrameStage: View {
     let model: BoothSessionModel
 
@@ -22,11 +22,25 @@ struct OuterFrameStage: View {
                             .accessibilityLabel(Text(.capturedPhoto))
                     }
                 }
-                .clipped()
+                .clipShape(.rect(cornerRadius: PeekTheme.photoCorner))
+                .overlay(alignment: .topLeading) {
+                    // The label and the pose guide show during live framing only. They are clear of the outer camera.
+                    if model.state.phase == .ready {
+                        VStack(alignment: .leading) {
+                            PeekChip(text: .live)
+                            if let cue = model.currentCue {
+                                PoseGuide(cue: cue, accent: model.accent)
+                            }
+                        }
+                        .padding()
+                    }
+                }
+                .padding()
             OuterCaption(
                 phase: model.state.phase,
                 cueName: model.currentCue?.name ?? .samplePrompt,
-                shotNumber: model.state.currentSlotID.index + 1
+                shotNumber: model.state.currentSlotID.index + 1,
+                countdownLength: model.countdown.seconds
             )
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         }

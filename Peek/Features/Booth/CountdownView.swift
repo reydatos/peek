@@ -1,33 +1,37 @@
 import SwiftUI
 
-/// The time remaining. The subject-facing form is large and at the bottom, so the numeral stays below faces.
+/// The time remaining: the numeral with pips beside it. A filled pip is one second that remains.
+/// It goes below the photo, so the numeral never covers a face.
 struct CountdownView: View {
     let remaining: Int
-    let isSubjectFacing: Bool
+    /// The full length of the countdown.
+    let total: Int
+    /// The large form is for the people in the photo. It reads at portrait distance.
+    var isLarge = false
+    @ScaledMetric(relativeTo: .largeTitle) private var largeSize = 120
+    @ScaledMetric(relativeTo: .title) private var pip = 12
 
     var body: some View {
-        if isSubjectFacing {
+        HStack(spacing: pip) {
             Text(remaining, format: .number)
-                .font(.largeTitle)
-                .bold()
+                .font(isLarge ? .system(size: largeSize, weight: .bold) : .largeTitle.bold())
                 .monospacedDigit()
-                .scaleEffect(3, anchor: .bottom)
-                .foregroundStyle(Color.white)
-                .shadow(color: PeekTheme.scrim, radius: 8)
-                .frame(maxHeight: .infinity, alignment: .bottom)
-                .padding()
-        } else {
-            Text(remaining, format: .number)
-                .font(.largeTitle)
-                .bold()
-                .monospacedDigit()
-                .padding()
                 .foregroundStyle(PeekTheme.ink)
-                .background(PeekTheme.surface, in: .circle)
+            VStack(spacing: pip / 2) {
+                ForEach(0 ..< max(total, 1), id: \.self) { index in
+                    Circle()
+                        .fill(index < remaining ? PeekTheme.strong : PeekTheme.fill)
+                        .overlay { Circle().strokeBorder(PeekTheme.separator) }
+                        .frame(width: pip, height: pip)
+                }
+            }
+            .accessibilityHidden(true)
         }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(Text(.secondsLeft(remaining)))
     }
 }
 
 #Preview("Subject") {
-    CountdownView(remaining: 3, isSubjectFacing: true)
+    CountdownView(remaining: 2, total: 3, isLarge: true)
 }

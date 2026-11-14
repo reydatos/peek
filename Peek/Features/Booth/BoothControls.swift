@@ -1,40 +1,22 @@
 import PeekCore
 import SwiftUI
 
-/// The photographer's controls. They stay on the inner display. Each state has one filled main action.
+/// The photographer's controls on a tall display. Each state has one red main action.
+/// The status messages are on the photo (`BoothBanners`).
 struct BoothControls: View {
-    @Bindable var model: BoothSessionModel
-    /// True at the side of a wide booth: the main action of the ready state is the round shutter.
-    var usesShutter = false
+    let model: BoothSessionModel
 
     var body: some View {
         VStack(alignment: .leading) {
-            if model.isDraftUnsaved {
-                Text(.draftNotSaved)
-            }
             switch model.state.phase {
             case .setup:
                 EmptyView()
             case .ready:
-                if model.state.lastFailure != nil {
-                    Text(.captureFailed)
+                Button { model.send(.start) } label: {
+                    Text(model.countdown == .manual ? .takeShot : .startAfterSeconds(model.countdown.seconds))
                 }
-                LayoutPicker(model: model)
-                Picker(selection: $model.countdown) {
-                    Text(.countdownManual).tag(CountdownLength.manual)
-                    Text(.countdownThree).tag(CountdownLength.three)
-                    Text(.countdownFive).tag(CountdownLength.five)
-                } label: {
-                    Text(.countdownLabel)
-                }
-                .pickerStyle(.segmented)
-                if usesShutter {
-                    ShutterButton(label: startLabel) { model.send(.start) }
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                } else {
-                    Button { model.send(.start) } label: { Text(startLabel) }
-                        .buttonStyle(PeekPrimaryButtonStyle())
-                }
+                .buttonStyle(PeekPrimaryButtonStyle())
+                .accessibilityLabel(Text(model.countdown == .manual ? .takeShot : .startCountdown))
             case .countdown:
                 Button(role: .cancel) { model.send(.cancel) } label: { Text(.cancel) }
                     .buttonStyle(PeekSecondaryButtonStyle())
@@ -42,47 +24,26 @@ struct BoothControls: View {
                 ProgressView()
                     .frame(maxWidth: .infinity)
             case let .paused(_, reason):
-                switch reason {
-                case .outerDisplayLost:
-                    // Lookbook page 07: the countdown starts again only after an explicit action.
-                    Text(.countdownPaused)
-                        .font(.title3)
-                    if let cue = model.currentCue {
-                        Text(cue.name)
-                    }
-                    Button { model.send(.resume) } label: { Text(.continueOneScreen) }
-                        .buttonStyle(PeekPrimaryButtonStyle())
-                case .recovered:
-                    Text(.draftRestored)
-                    resumeButton
-                case .photographer, .interruption:
-                    Text(.paused)
-                    resumeButton
+                Button { model.resume() } label: {
+                    Text(reason == .outerDisplayLost && !model.isOuterDisplayAvailable ? .continueOneScreen : .resume)
                 }
+                .buttonStyle(PeekPrimaryButtonStyle())
             case .review:
-                let stack = usesShutter ? AnyLayout(VStackLayout()) : AnyLayout(HStackLayout())
-                stack {
-                    Button { model.send(.redo) } label: { Text(.retakeShotNumber(model.state.currentSlotID.index + 1)) }
-                        .buttonStyle(PeekSecondaryButtonStyle())
-                    Button { model.send(.accept) } label: { Text(.keepShot) }
-                        .buttonStyle(PeekPrimaryButtonStyle())
+                HStack {
+                    Button { model.send(.redo) } label: {
+                        Label(.retakeShotNumber(model.state.currentSlotID.index + 1), systemImage: "arrow.counterclockwise")
+                    }
+                    .buttonStyle(PeekSecondaryButtonStyle())
+                    Button { model.send(.accept) } label: {
+                        Label(.keepShot, systemImage: "checkmark")
+                    }
+                    .buttonStyle(PeekPrimaryButtonStyle())
                 }
             case .complete:
                 FinishedControls(model: model)
             }
         }
-        .controlSize(.large)
         .frame(maxWidth: .infinity)
         .foregroundStyle(PeekTheme.ink)
-    }
-
-    /// With no countdown, the action takes the shot at once.
-    private var startLabel: LocalizedStringResource {
-        model.countdown == .manual ? .takeShot : .startCountdown
-    }
-
-    private var resumeButton: some View {
-        Button { model.send(.resume) } label: { Text(.resume) }
-            .buttonStyle(PeekPrimaryButtonStyle())
     }
 }

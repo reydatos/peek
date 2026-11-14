@@ -47,8 +47,13 @@ enum PeekTheme {
     static let primaryButtonCorner: CGFloat = 16
     static let chipCorner: CGFloat = 16
     static let slotCorner: CGFloat = 8
+    static let thumbnailCorner: CGFloat = 14
     /// The smallest spacing step.
     static let tightSpace: CGFloat = 6
+    /// The smallest touch target.
+    static let touchTarget: CGFloat = 44
+    /// The width of the side rail in a wide booth.
+    static let railWidth: CGFloat = 150
 
     private static func fixed(_ hex: UInt32) -> Color {
         Color(uiColor(hex))

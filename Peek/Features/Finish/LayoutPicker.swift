@@ -6,12 +6,11 @@ struct LayoutPicker: View {
     @Bindable var model: BoothSessionModel
 
     var body: some View {
-        Picker(selection: $model.layout) {
-            Text(.layoutStrip).tag(PeekCore.Layout.verticalStrip)
-            Text(.layoutGrid).tag(PeekCore.Layout.grid2x2)
-        } label: {
-            Text(.layoutLabel)
-        }
-        .pickerStyle(.segmented)
+        PeekSegmentedChoice(selection: $model.layout, options: [
+            (PeekCore.Layout.verticalStrip, .layoutStrip),
+            (PeekCore.Layout.grid2x2, .layoutGrid),
+        ])
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel(Text(.layoutLabel))
     }
 }

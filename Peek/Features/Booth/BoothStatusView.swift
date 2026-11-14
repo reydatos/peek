@@ -4,7 +4,7 @@ import UIKit
 /// Shows the stage when the camera runs, or a recovery message when it does not.
 struct BoothStatusView: View {
     let model: BoothSessionModel
-    /// False in the wide booth: the side rail shows the pose reference there.
+    /// False in the wide booth: the leading panel shows the pose reference there.
     var showsPoseArt = true
 
     var body: some View {
