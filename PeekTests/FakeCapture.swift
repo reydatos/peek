@@ -34,6 +34,24 @@ actor FakeCapture: CaptureProviding {
 
     func stop() {}
 
+    private(set) var zoom = 1.0
+    var zoomError: CaptureError?
+
+    func failZoom(_ fails: Bool) {
+        zoomError = fails ? .configurationFailed : nil
+    }
+
+    func zoomFactors() -> [Double] {
+        [1, 2]
+    }
+
+    func setZoom(_ factor: Double) throws {
+        if let zoomError {
+            throw zoomError
+        }
+        zoom = factor
+    }
+
     func setFrameRotationAngle(_: CGFloat) {}
 
     func capturePhoto() throws -> CapturedPhoto {

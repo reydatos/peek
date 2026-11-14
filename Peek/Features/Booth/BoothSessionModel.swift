@@ -14,6 +14,9 @@ final class BoothSessionModel {
     /// The camera in use. The front camera makes a group selfie: the people in the photo read the inner display.
     private(set) var cameraFacing: CameraFacing = .rear
     private var isSwitchingCamera = false
+    /// The zoom factors of the camera in use. With one value or none, the booth shows no zoom control.
+    private(set) var zoomFactors: [Double] = []
+    private(set) var zoom = 1.0
     private(set) var isOuterDisplayAvailable = false
     /// True after the photographer continued on one screen. The outer display then waits for an explicit action.
     private(set) var isOnOneScreen = false
@@ -215,6 +218,25 @@ final class BoothSessionModel {
         // The facing changes first, so the outer display closes with no "outer display lost" pause.
         cameraFacing = next
         deviceID = id
+        await loadZoom()
+    }
+
+    /// Reads the zoom factors of the camera in use, and sets the camera to 1.
+    /// So the model and the camera agree after the booth opens again and after a flip.
+    private func loadZoom() async {
+        zoomFactors = await capture.zoomFactors()
+        if zoomFactors.count > 1 {
+            try? await capture.setZoom(1)
+        }
+        zoom = 1
+    }
+
+    /// Changes the zoom. The booth accepts this only while it waits for a shot.
+    /// When the change fails, the booth keeps the zoom it has.
+    func setZoom(_ factor: Double) async {
+        guard cameraStatus == .running, state.phase == .ready, zoomFactors.contains(factor) else { return }
+        guard await (try? capture.setZoom(factor)) != nil else { return }
+        zoom = factor
     }
 
     /// The still to show in place of the live frame: the take in review, or the strip when complete.
@@ -231,6 +253,7 @@ final class BoothSessionModel {
         cameraStatus = .starting
         do {
             deviceID = try await capture.start()
+            await loadZoom()
             cameraStatus = .running
             send(.finishSetup)
         } catch let error as CaptureError {

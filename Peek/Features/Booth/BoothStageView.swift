@@ -61,6 +61,10 @@ struct BoothStageView: View {
             // On a tall display, the close button and the More menu are above the labels.
             .padding(.top, isFullBleed ? PeekTheme.touchTarget : 0)
         }
+        .overlay(alignment: .bottomTrailing) {
+            ZoomChips(model: model)
+                .padding()
+        }
         .overlay(alignment: .bottomLeading) {
             // With one screen, the pose reference moves into the camera view.
             if showsPoseArt, isSubjectFacing, canStepPose, let cue = model.currentCue {

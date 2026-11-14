@@ -53,6 +53,28 @@ actor CaptureService: CaptureProviding {
         }
     }
 
+    /// The factors come from the camera: 1, and each factor at which the sensor gives its native resolution.
+    /// A camera with no such factor has one value, and the booth then shows no zoom control.
+    func zoomFactors() -> [Double] {
+        guard let device else { return [] }
+        let range = device.minAvailableVideoZoomFactor ... device.maxAvailableVideoZoomFactor
+        let native = device.activeFormat.secondaryNativeResolutionZoomFactors.filter(range.contains)
+        return [1] + native.map(Double.init).filter { $0 != 1 }.sorted()
+    }
+
+    func setZoom(_ factor: Double) throws {
+        guard let device else { throw CaptureError.notRunning }
+        let range = device.minAvailableVideoZoomFactor ... device.maxAvailableVideoZoomFactor
+        guard range.contains(CGFloat(factor)) else { throw CaptureError.configurationFailed }
+        do {
+            try device.lockForConfiguration()
+        } catch {
+            throw CaptureError.configurationFailed
+        }
+        device.videoZoomFactor = CGFloat(factor)
+        device.unlockForConfiguration()
+    }
+
     func setFrameRotationAngle(_ angle: CGFloat) {
         guard let connection = frameOutput.connection(with: .video), connection.isVideoRotationAngleSupported(angle)
         else { return }
