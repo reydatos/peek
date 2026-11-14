@@ -3,6 +3,8 @@ public struct BoothState: Equatable, Sendable {
     public internal(set) var currentSlotID: SlotID
     public internal(set) var phase: BoothPhase = .setup
     public internal(set) var lastFailure: CaptureFailure?
+    /// Each slot starts with the pose reference. The photographer changes to the live frame.
+    public internal(set) var subjectView: SubjectView = .reference
     public var countdown: CountdownLength
 
     /// - Precondition: `cueIDs` is not empty.
@@ -48,6 +50,7 @@ public struct BoothState: Equatable, Sendable {
         if let open = slots.first(where: { $0.acceptedTake == nil }) {
             currentSlotID = open.id
             phase = .ready
+            subjectView = .reference
         } else {
             phase = .complete
         }

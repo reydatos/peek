@@ -6,6 +6,7 @@ struct OuterCaption: View {
     let phase: BoothPhase
     let cueName: LocalizedStringResource
     let shotNumber: Int
+    var countdownLength = 3
 
     var body: some View {
         Group {
@@ -14,9 +15,7 @@ struct OuterCaption: View {
                 Text(cueName)
             case let .countdown(remaining):
                 // The numeral is large, so it reads at portrait distance.
-                Text(remaining, format: .number)
-                    .monospacedDigit()
-                    .scaleEffect(4)
+                CountdownView(remaining: remaining, total: countdownLength, isLarge: true)
             case .capturePending:
                 Text(.capturing)
             case .paused:

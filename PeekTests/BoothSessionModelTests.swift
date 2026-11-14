@@ -114,6 +114,43 @@ struct BoothSessionModelTests {
         #expect(await capture.captureCount == 0)
     }
 
+    @Test func outerDisplayThatComesBackWaitsForThePhotographer() async {
+        let model = BoothSessionModel(capture: FakeCapture(), sleep: { _ in try await Task.sleep(for: .seconds(3600)) })
+        await model.startCamera()
+        model.setOuterDisplayAvailable(true)
+        model.send(.start)
+        model.setOuterDisplayAvailable(false)
+
+        // The photographer continues on one screen. The countdown starts again only now.
+        model.resume()
+        #expect(model.state.phase == .countdown(remaining: 3))
+        #expect(model.isOnOneScreen)
+        model.send(.cancel)
+
+        model.setOuterDisplayAvailable(true)
+        #expect(!model.isOuterDisplayPresenting)
+        #expect(model.canRestoreOuterDisplay)
+
+        model.restoreOuterDisplay()
+        #expect(model.isOuterDisplayPresenting)
+        #expect(!model.canRestoreOuterDisplay)
+        #expect(model.state.phase == .ready)
+    }
+
+    @Test func outerDisplayThatComesBackBeforeTheResumeNeedsNoSecondAction() async {
+        let model = BoothSessionModel(capture: FakeCapture(), sleep: { _ in try await Task.sleep(for: .seconds(3600)) })
+        await model.startCamera()
+        model.setOuterDisplayAvailable(true)
+        model.send(.start)
+        model.setOuterDisplayAvailable(false)
+        model.setOuterDisplayAvailable(true)
+
+        model.resume()
+
+        #expect(!model.isOnOneScreen)
+        #expect(model.isOuterDisplayPresenting)
+    }
+
     @Test func acceptMovesToTheNextSlotAndKeepsTheShot() async {
         let model = BoothSessionModel(capture: FakeCapture(), sleep: { _ in })
         await model.startCamera()

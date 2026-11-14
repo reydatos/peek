@@ -8,11 +8,12 @@ struct OuterDisplayAccessory: ViewModifier {
     @Bindable var model: BoothSessionModel
 
     /// The outer display is off with the front camera: the people in the photo then face the inner display.
+    /// It is also off after the photographer continued on one screen.
     private var isEnabled: Binding<Bool> {
         Binding(
-            get: { model.isOuterDisplayEnabled && !model.isSelfie },
+            get: { model.isOuterDisplayWanted },
             set: {
-                if !model.isSelfie {
+                if !model.isSelfie, !model.isOnOneScreen {
                     model.isOuterDisplayEnabled = $0
                 }
             }

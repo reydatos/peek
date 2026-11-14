@@ -4,6 +4,7 @@ import UIKit
 /// The reference picture of a pose, or a symbol when the app has no picture for it.
 struct PoseArt: View {
     let cue: PoseCue
+    var cornerRadius = PeekTheme.smallPhotoCorner
 
     var body: some View {
         PeekTheme.fill
@@ -21,7 +22,7 @@ struct PoseArt: View {
                         .foregroundStyle(PeekTheme.inkSecondary)
                 }
             }
-            .clipShape(.rect(cornerRadius: PeekTheme.smallPhotoCorner))
+            .clipShape(.rect(cornerRadius: cornerRadius))
             .accessibilityLabel(Text(cue.name))
     }
 }

@@ -1,6 +1,7 @@
 import Foundation
 import Observation
 import PeekCore
+import SwiftUI
 import UIKit
 
 /// The one model that drives both displays. The outer accessory reads the same instance.
@@ -14,6 +15,8 @@ final class BoothSessionModel {
     private(set) var cameraFacing: CameraFacing = .rear
     private var isSwitchingCamera = false
     private(set) var isOuterDisplayAvailable = false
+    /// True after the photographer continued on one screen. The outer display then waits for an explicit action.
+    private(set) var isOnOneScreen = false
     var isOuterDisplayEnabled = true
     /// PRD open decision: default mirroring. Off until hardware tests decide.
     var isOuterPreviewMirrored = false
@@ -85,6 +88,7 @@ final class BoothSessionModel {
         strip = nil
         saveStatus = .idle
         deleteDraft()
+        isOnOneScreen = false
         self.packID = packID
         state = BoothState(cueIDs: PoseLibrary.cueIDs(forPack: packID), countdown: state.countdown)
         if cameraStatus == .running {
@@ -141,7 +145,35 @@ final class BoothSessionModel {
 
     /// True when the system shows the accessory on the outer display.
     var isOuterDisplayPresenting: Bool {
-        isOuterDisplayAvailable && isOuterDisplayEnabled && !isSelfie
+        isOuterDisplayAvailable && isOuterDisplayWanted
+    }
+
+    /// True when the booth asks the system for the outer display.
+    var isOuterDisplayWanted: Bool {
+        isOuterDisplayEnabled && !isSelfie && !isOnOneScreen
+    }
+
+    /// True when the outer display came back after the photographer continued on one screen.
+    /// The photographer then decides when the people in the photo get their view back.
+    var canRestoreOuterDisplay: Bool {
+        isOnOneScreen && isOuterDisplayAvailable && isOuterDisplayEnabled && !isSelfie
+    }
+
+    func restoreOuterDisplay() {
+        isOnOneScreen = false
+    }
+
+    /// Continues a paused session. After the loss of the outer display, the session continues on one screen.
+    func resume() {
+        if case .paused(_, .outerDisplayLost) = state.phase, !isOuterDisplayAvailable {
+            isOnOneScreen = true
+        }
+        send(.resume)
+    }
+
+    /// The accent of the pack: the reference frame and the current slot.
+    var accent: Color {
+        pack?.accent ?? PeekTheme.strong
     }
 
     var isSelfie: Bool {

@@ -133,6 +133,17 @@
         }
       }
     },
+    "close" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Close"
+          }
+        }
+      }
+    },
     "continueOneScreen" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -804,6 +815,17 @@
         }
       }
     },
+    "more" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "More"
+          }
+        }
+      }
+    },
     "newSet" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -833,6 +855,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Open Settings"
+          }
+        }
+      }
+    },
+    "outerDisplayAvailable" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The outer display is available again."
+          }
+        }
+      }
+    },
+    "outerDisplayUnavailable" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Outer display unavailable. Countdown paused."
           }
         }
       }
@@ -1101,6 +1145,17 @@
         }
       }
     },
+    "poses" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Poses"
+          }
+        }
+      }
+    },
     "previousPose" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1130,6 +1185,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Resume Draft"
+          }
+        }
+      }
+    },
+    "retake" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Retake"
           }
         }
       }
@@ -1200,6 +1266,17 @@
         }
       }
     },
+    "secondsLeft" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld seconds"
+          }
+        }
+      }
+    },
     "shareStrip" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1244,6 +1321,17 @@
         }
       }
     },
+    "showLive" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Show live"
+          }
+        }
+      }
+    },
     "showOnOuterDisplay" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1251,6 +1339,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Show on Outer Display"
+          }
+        }
+      }
+    },
+    "showPose" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Show pose"
+          }
+        }
+      }
+    },
+    "startAfterSeconds" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Start · %lld s"
           }
         }
       }
@@ -1284,6 +1394,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Take shot"
+          }
+        }
+      }
+    },
+    "useOuterDisplay" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Use outer display"
           }
         }
       }

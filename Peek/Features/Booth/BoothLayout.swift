@@ -1,27 +1,43 @@
 import SwiftUI
 
-/// Arranges the booth. Lookbook pages 02, 05, and 07A.
+/// Arranges the booth. `docs/design/DESIGN.md`, "Components" and "Layout rules for iPhone Duo".
 ///
-/// A wide display has the slot rail at one side, the live crop in the center, and the controls at the other side.
-/// So the controls stay clear of the fold. A tall display has the live crop above the rail and the controls.
+/// A wide display has the pose reference on the leading side, the photo in the center, and the side rail on the
+/// trailing side. So the controls stay clear of the fold; only the photo can cross it.
+/// A tall display has the photo above the slots and the controls.
 struct BoothLayout: View {
     let model: BoothSessionModel
+    let actions: BoothActions
 
     var body: some View {
         GeometryReader { proxy in
             if model.cameraStatus == .running, isWide(proxy) {
                 HStack(spacing: 0) {
-                    BoothRail(model: model)
-                        .frame(width: proxy.size.width / 6)
+                    BoothLeadingPanel(model: model)
+                        .frame(width: proxy.size.width / 5)
                     BoothStatusView(model: model, showsPoseArt: false)
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    BoothControls(model: model, usesShutter: true)
-                        .padding()
-                        .frame(width: proxy.size.width / 4)
+                    BoothSideRail(model: model, actions: actions)
+                        .frame(width: PeekTheme.railWidth)
                 }
             } else {
                 BoothStatusView(model: model)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .safeAreaInset(edge: .top) {
+                        HStack {
+                            Button(action: actions.close) {
+                                PeekIconLabel(text: .close, systemImage: "xmark")
+                            }
+                            Spacer()
+                            if model.cameraStatus == .running {
+                                Button(action: actions.showPoses) {
+                                    PeekIconLabel(text: .poses, systemImage: "square.grid.2x2")
+                                }
+                                BoothMoreMenu(model: model)
+                            }
+                        }
+                        .padding(.horizontal)
+                    }
                     .safeAreaInset(edge: .bottom) {
                         if model.cameraStatus == .running {
                             VStack {
