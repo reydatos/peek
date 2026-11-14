@@ -83,4 +83,17 @@ struct FileDraftStoreTests {
         #expect(try await store.loadDraft() == nil)
         await #expect(throws: (any Error).self) { try await store.media(for: first) }
     }
+
+    /// A draft that an older app version wrote has no frame color. It must still load.
+    @Test func draftWithNoFrameColorLoadsWithCreamPaper() throws {
+        let saved = SessionRecord(templateID: "classic", templateVersion: 1, countdown: .three, frame: .black, slots: [])
+        var json = try #require(JSONSerialization.jsonObject(with: JSONEncoder().encode(saved)) as? [String: Any])
+        #expect(json["frame"] as? String == "black")
+        json["frame"] = nil
+
+        let loaded = try JSONDecoder().decode(SessionRecord.self, from: JSONSerialization.data(withJSONObject: json))
+
+        #expect(loaded.frame == .cream)
+        #expect(loaded.id == saved.id)
+    }
 }

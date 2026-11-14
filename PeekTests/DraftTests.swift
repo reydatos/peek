@@ -27,6 +27,7 @@ struct DraftTests {
         await first.startCamera()
         first.loadPack("streetStyle")
         first.layout = .grid2x2
+        first.frame = .black
         await accept(2, in: first)
 
         let second = model()
@@ -36,6 +37,7 @@ struct DraftTests {
         #expect(second.state.phase == .paused(resumeTo: .ready, reason: .recovered))
         #expect(second.packID == "streetStyle")
         #expect(second.layout == .grid2x2)
+        #expect(second.frame == .black)
         #expect(second.state.slots.map { second.image(for: $0) != nil } == [true, true, false, false])
         #expect(second.state.currentSlotID == SlotID(2))
 

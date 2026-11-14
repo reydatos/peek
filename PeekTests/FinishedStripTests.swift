@@ -124,12 +124,44 @@ struct FinishedStripTests {
 
     /// The strip is a picture. Its paper and its text must not follow dark mode.
     @Test func stripColorsAreTheSameInLightAndDarkMode() {
-        let style = StripRenderer.Style.current
         let light = UITraitCollection(userInterfaceStyle: .light)
         let dark = UITraitCollection(userInterfaceStyle: .dark)
 
-        #expect(style.paper.resolvedColor(with: light) == style.paper.resolvedColor(with: dark))
-        #expect(style.ink.resolvedColor(with: light) == style.ink.resolvedColor(with: dark))
-        #expect(style.wordmark != nil)
+        for frame in FrameColor.allCases {
+            let style = StripRenderer.Style.paper(frame)
+            #expect(style.paper.resolvedColor(with: light) == style.paper.resolvedColor(with: dark))
+            #expect(style.ink.resolvedColor(with: light) == style.ink.resolvedColor(with: dark))
+            #expect(style.wordmark != nil)
+            // The text must be readable on the paper.
+            #expect(style.paper.resolvedColor(with: light) != style.ink.resolvedColor(with: light))
+        }
+    }
+
+    @Test func frameColorChangeDrawsTheStripAgainOnTheNewPaper() async throws {
+        let model = await completedModel(saver: FakeSaver())
+        await model.saveStrip()
+        let cream = try #require(model.strip)
+
+        model.frame = .black
+        #expect(model.strip == nil)
+        #expect(model.saveStatus == .idle)
+        await model.stripTask?.value
+
+        let black = try #require(model.strip)
+        #expect(black.size == cream.size)
+        #expect(cornerPixel(of: black) != cornerPixel(of: cream))
+    }
+
+    /// The color of the top left pixel: the paper.
+    func cornerPixel(of image: UIImage) -> [UInt8] {
+        var pixel = [UInt8](repeating: 0, count: 4)
+        let context = CGContext(
+            data: &pixel, width: 1, height: 1, bitsPerComponent: 8, bytesPerRow: 4,
+            space: CGColorSpaceCreateDeviceRGB(), bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
+        )
+        if let cgImage = image.cgImage {
+            context?.draw(cgImage, in: CGRect(x: 0, y: -CGFloat(cgImage.height - 1), width: CGFloat(cgImage.width), height: CGFloat(cgImage.height)))
+        }
+        return pixel
     }
 }

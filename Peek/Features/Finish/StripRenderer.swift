@@ -33,17 +33,29 @@ nonisolated enum StripRenderer {
         let ink: UIColor
         let wordmark: UIImage?
 
-        @MainActor static var current: Style {
-            Style(
-                paper: UIColor(PeekTheme.photoPaper),
-                ink: UIColor(PeekTheme.paperInk),
-                wordmark: UIImage(named: "peek-wordmark")?.withTintColor(UIColor(PeekTheme.paperWordmark), renderingMode: .alwaysOriginal)
+        @MainActor static func paper(_ frame: FrameColor) -> Style {
+            let paper = switch frame {
+            case .cream: PeekTheme.photoPaper
+            case .white: PeekTheme.paperWhite
+            case .black: PeekTheme.paperBlack
+            }
+            let ink = frame == .black ? PeekTheme.paperWhite : PeekTheme.paperInk
+            let mark = frame == .black ? PeekTheme.paperWhite : PeekTheme.paperWordmark
+            return Style(
+                paper: UIColor(paper),
+                ink: UIColor(ink),
+                wordmark: UIImage(named: "peek-wordmark")?.withTintColor(UIColor(mark), renderingMode: .alwaysOriginal)
             )
         }
     }
 
-    @MainActor static func render(_ shots: [UIImage], layout: PeekCore.Layout = .verticalStrip, date: Date = .now) -> UIImage {
-        draw(shots, layout: layout, date: date, style: .current)
+    @MainActor static func render(
+        _ shots: [UIImage],
+        layout: PeekCore.Layout = .verticalStrip,
+        frame: FrameColor = .cream,
+        date: Date = .now
+    ) -> UIImage {
+        draw(shots, layout: layout, date: date, style: .paper(frame))
     }
 
     /// Draws the picture off the main actor, so the decode of the full-size shots does not stop the interface.
