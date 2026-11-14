@@ -4,6 +4,8 @@ import SwiftUI
 struct ShutterButton: View {
     let label: LocalizedStringResource
     let action: () -> Void
+    /// The ring is white on the black camera bar.
+    var ringColor = PeekTheme.strong
     @ScaledMetric(relativeTo: .largeTitle) private var diameter = 78
     @ScaledMetric(relativeTo: .largeTitle) private var ring = 4
 
@@ -13,7 +15,7 @@ struct ShutterButton: View {
                 .fill(PeekTheme.red)
                 .padding(ring * 2)
                 .overlay {
-                    Circle().strokeBorder(PeekTheme.strong, lineWidth: ring)
+                    Circle().strokeBorder(ringColor, lineWidth: ring)
                 }
                 .frame(width: diameter, height: diameter)
         }

@@ -6,13 +6,20 @@ struct BoothStatusView: View {
     let model: BoothSessionModel
     /// False in the wide booth: the leading panel shows the pose reference there.
     var showsPoseArt = true
+    /// True on a tall display: the photo runs edge to edge, and the camera bar has the cue line.
+    var isFullBleed = false
 
     var body: some View {
         switch model.cameraStatus {
         case .idle, .starting:
             ProgressView()
         case .running:
-            BoothStageView(model: model, isSubjectFacing: !model.isOuterDisplayPresenting, showsPoseArt: showsPoseArt)
+            BoothStageView(
+                model: model,
+                isSubjectFacing: !model.isOuterDisplayPresenting,
+                showsPoseArt: showsPoseArt,
+                isFullBleed: isFullBleed
+            )
         case .denied:
             ContentUnavailableView {
                 Label(.cameraDeniedTitle, systemImage: "camera")
