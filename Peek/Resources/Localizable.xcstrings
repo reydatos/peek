@@ -12,6 +12,17 @@
         }
       }
     },
+    "boothKind" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Booth type"
+          }
+        }
+      }
+    },
     "boothTitle" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -129,6 +140,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Hold still"
+          }
+        }
+      }
+    },
+    "classic" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Classic"
           }
         }
       }
@@ -1273,6 +1295,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%lld seconds"
+          }
+        }
+      }
+    },
+    "selected" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Selected"
           }
         }
       }

@@ -1,12 +1,16 @@
 import SwiftUI
 
-/// The first screen: start a classic booth, resume the draft, or choose a Copycat pack. Lookbook page 01.
+/// The first screen: choose the classic booth or a Copycat pack, then start. Or resume the draft.
+/// `docs/design/DESIGN.md`, screen 1. The classic booth is selected first.
 ///
 /// The camera starts in the booth, not here. So the system asks for camera access after an explicit action.
 struct HomeView: View {
     @State private var request: BoothRequest?
     @State private var packToConfirm: PosePack?
     @State private var hasDraft = false
+    @State private var isCopycat = false
+    /// The Copycat pack that Start a Booth opens.
+    @State private var copycatID = PoseLibrary.copycatPacks.first?.id
     /// True on a display that is wider than tall, such as an open iPhone Duo.
     @State private var isWide = false
 
@@ -15,13 +19,30 @@ struct HomeView: View {
         ScrollView {
             layout {
                 HomeBoothCard(
+                    isCopycat: $isCopycat,
+                    pack: selectedPack,
                     hasDraft: hasDraft,
-                    onStart: { start(PoseLibrary.packs[0]) },
-                    onResume: { request = BoothRequest(packID: PoseLibrary.classicID, resumesDraft: true) }
+                    onStart: { start(selectedPack) },
+                    onResume: resume,
+                    showsActions: isWide
                 )
-                HomeCopycatCard(onSelect: start)
+                // A wide display shows the packs at all times, on the other side of the fold.
+                if isWide || isCopycat {
+                    HomeCopycatCard(selectedID: isCopycat ? copycatID : nil) { pack in
+                        copycatID = pack.id
+                        isCopycat = true
+                    }
+                }
             }
             .padding()
+        }
+        .safeAreaInset(edge: .bottom) {
+            // On a tall display the actions stay in view below the pack list.
+            if !isWide {
+                HomeActions(pack: selectedPack, hasDraft: hasDraft, onStart: { start(selectedPack) }, onResume: resume)
+                    .padding()
+                    .background(PeekTheme.page)
+            }
         }
         .background(PeekTheme.page)
         .onGeometryChange(for: Bool.self) { $0.size.width > $0.size.height } action: { isWide = $0 }
@@ -54,6 +75,15 @@ struct HomeView: View {
                 hasDraft = await BoothDraftStore.hasDraft()
             }
         }
+    }
+
+    private var selectedPack: PosePack {
+        let copycat = PoseLibrary.copycatPacks.first { $0.id == copycatID }
+        return (isCopycat ? copycat : nil) ?? PoseLibrary.packs[0]
+    }
+
+    private func resume() {
+        request = BoothRequest(packID: PoseLibrary.classicID, resumesDraft: true)
     }
 
     private func start(_ pack: PosePack) {
