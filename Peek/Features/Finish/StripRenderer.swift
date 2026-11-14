@@ -70,20 +70,17 @@ enum StripRenderer {
 
     private static func drawFooter(date: Date, in frame: CGRect) {
         let ink = UIColor(PeekTheme.ink)
-        // The PEEK wordmark: red, bold, capital letters. It matches the wordmark on the Home screen.
-        let sans = UIFont(name: PeekFont.sansName, size: footer / 3) ?? .systemFont(ofSize: footer / 3)
-        let titleFont = sans.fontDescriptor.withSymbolicTraits(.traitBold).map { UIFont(descriptor: $0, size: footer / 3) }
-            ?? .boldSystemFont(ofSize: footer / 3)
         let dateFont = UIFont(name: PeekFont.sansName, size: footer / 6) ?? .systemFont(ofSize: footer / 6)
-        let title = NSAttributedString(
-            string: "PEEK",
-            attributes: [.font: titleFont, .foregroundColor: UIColor(PeekTheme.accent)]
-        )
         let day = NSAttributedString(
             string: date.formatted(date: .abbreviated, time: .omitted),
             attributes: [.font: dateFont, .foregroundColor: ink]
         )
-        title.draw(at: CGPoint(x: frame.minX, y: frame.midY - title.size().height / 2))
+        // The PEEK wordmark, one third of the footer height.
+        if let wordmark = UIImage(named: "peek-wordmark"), wordmark.size.height > 0 {
+            let height = footer / 3
+            let width = height * wordmark.size.width / wordmark.size.height
+            wordmark.draw(in: CGRect(x: frame.minX, y: frame.midY - height / 2, width: width, height: height))
+        }
         day.draw(at: CGPoint(x: frame.maxX - day.size().width, y: frame.midY - day.size().height / 2))
     }
 }

@@ -5,13 +5,15 @@ struct HomeBoothCard: View {
     let hasDraft: Bool
     let onStart: () -> Void
     let onResume: () -> Void
+    @ScaledMetric(relativeTo: .largeTitle) private var wordmarkHeight = 40
 
     var body: some View {
         VStack(alignment: .leading) {
-            Text(.appName)
-                .font(PeekFont.sans(.largeTitle))
-                .bold()
-                .foregroundStyle(PeekTheme.accent)
+            Image("peek-wordmark")
+                .resizable()
+                .scaledToFit()
+                .frame(height: wordmarkHeight)
+                .accessibilityLabel(Text(.appName))
             // A stored picture, not the camera. The camera starts in the booth.
             Color.clear
                 .aspectRatio(4 / 3, contentMode: .fit)
