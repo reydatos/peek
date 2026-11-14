@@ -4,31 +4,51 @@ import AVFoundation
 ///
 /// The outer display uses this path. A second `AVCaptureVideoPreviewLayer` showed no picture
 /// in the camera capture accessory on a physical iPhone Duo (2026-11-11).
+///
+/// iOS 27 sends frames through a receiver: the renderer goes to a render synchronizer, and the synchronizer
+/// gives the receiver that accepts the frames.
 final nonisolated class FrameSource: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, @unchecked Sendable {
     let queue = DispatchQueue(label: "com.a8media.peek.frames")
     private let lock = NSLock()
-    private var renderer: AVSampleBufferVideoRenderer?
+    private var target: Target?
+
+    /// One renderer with its synchronizer and its receiver. Each renderer gets its own synchronizer,
+    /// so a renderer that goes away takes its synchronizer with it.
+    private struct Target {
+        let renderer: AVSampleBufferVideoRenderer
+        let synchronizer: AVSampleBufferRenderSynchronizer
+        let receiver: AVSampleBufferVideoRenderer.Receiver
+    }
 
     func attach(_ renderer: AVSampleBufferVideoRenderer) {
-        lock.withLock { self.renderer = renderer }
+        let synchronizer = AVSampleBufferRenderSynchronizer()
+        let receiver = synchronizer.sampleBufferReceiver(adding: renderer)
+        // The frames have host-clock timestamps. The timeline runs on the same clock.
+        synchronizer.setRate(1, time: CMClockGetTime(CMClockGetHostTimeClock()))
+        lock.withLock { target = Target(renderer: renderer, synchronizer: synchronizer, receiver: receiver) }
     }
 
     func detach(_ renderer: AVSampleBufferVideoRenderer) {
         lock.withLock {
-            if self.renderer === renderer {
-                self.renderer = nil
+            if target?.renderer === renderer {
+                target = nil
             }
         }
     }
 
     func captureOutput(_: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from _: AVCaptureConnection) {
-        guard let renderer = lock.withLock({ self.renderer }) else { return }
-        if renderer.status == .failed {
-            renderer.flush()
-        }
-        guard renderer.isReadyForMoreMediaData else { return }
+        guard let receiver = lock.withLock({ target?.receiver }) else { return }
         markForImmediateDisplay(sampleBuffer)
-        renderer.enqueue(sampleBuffer)
+        // The ready buffer takes the frame. This method does not use the frame after that line.
+        nonisolated(unsafe) let frame = sampleBuffer
+        // A live frame does not wait: a frame that the receiver cannot take is dropped.
+        switch receiver.enqueueImmediately(CMReadySampleBuffer(unsafeBuffer: frame)) {
+        case .cancelledDueToFlushRequiredToResume, .cancelledDueToError:
+            // The receiver takes frames again after a flush.
+            receiver.flush()
+        default:
+            break
+        }
     }
 
     /// Live frames have capture-clock timestamps. The renderer must show each frame at once.
