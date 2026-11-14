@@ -41,6 +41,7 @@ struct DraftTests {
 
         second.send(.resume)
         await accept(2, in: second)
+        await second.stripTask?.value
         #expect(second.strip?.size == CGSize(width: 2352, height: 1992))
     }
 
@@ -69,6 +70,7 @@ struct DraftTests {
         await second.startCamera()
 
         #expect(second.state.phase == .complete)
+        await second.stripTask?.value
         #expect(second.strip?.size == CGSize(width: 1200, height: 3744))
         await second.saveShots()
         #expect(await saver.saved == [Array(repeating: FakeCapture.photoData, count: 4)])

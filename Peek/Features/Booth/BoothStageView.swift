@@ -16,6 +16,10 @@ struct BoothStageView: View {
             if model.isComplete, let strip = model.strip {
                 // The finished strip stays inside the safe area, so the camera housing hides no shot.
                 FinishedStripView(strip: strip)
+            } else if model.isComplete {
+                // The strip is not drawn yet.
+                ProgressView()
+                    .tint(.white)
             } else if let still = model.stillImage {
                 Image(uiImage: still)
                     .resizable()

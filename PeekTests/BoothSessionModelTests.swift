@@ -30,6 +30,7 @@ struct BoothSessionModelTests {
 
         model.send(.accept)
         #expect(model.state.phase == .complete)
+        await model.stripTask?.value
         #expect(model.stillImage != nil)
     }
 
