@@ -25,6 +25,13 @@ actor FakeCapture: CaptureProviding {
         return "fake-camera"
     }
 
+    func selectCamera(_ facing: CameraFacing) throws -> String {
+        if let startError {
+            throw startError
+        }
+        return facing == .front ? "fake-front-camera" : "fake-camera"
+    }
+
     func stop() {}
 
     func setFrameRotationAngle(_: CGFloat) {}

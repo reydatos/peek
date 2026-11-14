@@ -32,7 +32,13 @@ struct BoothView: View {
                         Label(.poseIdeas, systemImage: "figure.wave")
                     }
                 }
-                if model.isOuterDisplayAvailable {
+                ToolbarItem {
+                    Button { Task { await model.flipCamera() } } label: {
+                        Label(.flipCamera, systemImage: "arrow.triangle.2.circlepath.camera")
+                    }
+                    .disabled(model.state.phase != .ready)
+                }
+                if model.isOuterDisplayAvailable, !model.isSelfie {
                     ToolbarItemGroup {
                         Toggle(isOn: $model.isOuterDisplayEnabled) {
                             Label(.showOnOuterDisplay, systemImage: "rectangle.on.rectangle")

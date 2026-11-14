@@ -10,6 +10,8 @@ nonisolated protocol CaptureProviding: Sendable {
     func setFrameRotationAngle(_ angle: CGFloat) async
     /// Asks for camera access if needed, then starts the session. Returns the camera's unique ID.
     func start() async throws -> String
+    /// Changes the one camera input. Returns the unique ID of the new camera.
+    func selectCamera(_ facing: CameraFacing) async throws -> String
     func stop() async
     func capturePhoto() async throws -> CapturedPhoto
 }

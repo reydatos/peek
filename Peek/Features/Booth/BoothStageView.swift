@@ -22,7 +22,8 @@ struct BoothStageView: View {
                     .scaledToFit()
                     .accessibilityLabel(Text(.capturedPhoto))
             } else {
-                CameraPreviewView(session: model.capture.session, deviceID: model.deviceID, isMirrored: false)
+                // The front camera shows a mirror picture, as a selfie does. The saved shot is not a mirror picture.
+                CameraPreviewView(session: model.capture.session, deviceID: model.deviceID, isMirrored: model.isSelfie)
                     .accessibilityLabel(Text(.livePreview))
             }
             if canStepPose, !isSubjectFacing {

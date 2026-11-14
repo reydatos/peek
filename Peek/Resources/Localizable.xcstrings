@@ -672,6 +672,17 @@
         }
       }
     },
+    "flipCamera" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Flip camera"
+          }
+        }
+      }
+    },
     "keepShot" : {
       "extractionState" : "manual",
       "localizations" : {
