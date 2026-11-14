@@ -2,7 +2,7 @@ import CoreText
 import SwiftUI
 import UIKit
 
-/// The PEEK typefaces: Inter Tight for the interface, Instrument Serif for the footer of the finished strip.
+/// The PEEK typeface is Inter Tight. Instrument Serif stays in the bundle; no screen uses it now.
 ///
 /// Each font starts at the system size of its text style and scales with Dynamic Type.
 enum PeekFont {

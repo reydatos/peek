@@ -13,7 +13,7 @@ struct BoothLayout: View {
                 HStack(spacing: 0) {
                     BoothRail(model: model)
                         .frame(width: proxy.size.width / 6)
-                    BoothStatusView(model: model)
+                    BoothStatusView(model: model, showsPoseArt: false)
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                     BoothControls(model: model, usesShutter: true)
                         .padding()

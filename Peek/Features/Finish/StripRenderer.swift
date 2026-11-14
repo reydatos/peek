@@ -70,10 +70,15 @@ enum StripRenderer {
 
     private static func drawFooter(date: Date, in frame: CGRect) {
         let ink = UIColor(PeekTheme.ink)
-        let titleFont = UIFont(name: "InstrumentSerif-Italic", size: footer / 2)
-            ?? .italicSystemFont(ofSize: footer / 2)
+        // The PEEK wordmark: red, bold, capital letters. It matches the wordmark on the Home screen.
+        let sans = UIFont(name: PeekFont.sansName, size: footer / 3) ?? .systemFont(ofSize: footer / 3)
+        let titleFont = sans.fontDescriptor.withSymbolicTraits(.traitBold).map { UIFont(descriptor: $0, size: footer / 3) }
+            ?? .boldSystemFont(ofSize: footer / 3)
         let dateFont = UIFont(name: PeekFont.sansName, size: footer / 6) ?? .systemFont(ofSize: footer / 6)
-        let title = NSAttributedString(string: "Peek", attributes: [.font: titleFont, .foregroundColor: ink])
+        let title = NSAttributedString(
+            string: "PEEK",
+            attributes: [.font: titleFont, .foregroundColor: UIColor(PeekTheme.accent)]
+        )
         let day = NSAttributedString(
             string: date.formatted(date: .abbreviated, time: .omitted),
             attributes: [.font: dateFont, .foregroundColor: ink]

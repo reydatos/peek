@@ -7,6 +7,8 @@ struct BoothStageView: View {
     let model: BoothSessionModel
     /// True when no outer display shows the cue. The people in the photo then read this display, so the cue is large.
     let isSubjectFacing: Bool
+    /// False in the wide booth: the side rail shows the pose reference there.
+    var showsPoseArt = true
 
     var body: some View {
         ZStack {
@@ -30,7 +32,7 @@ struct BoothStageView: View {
                     phase: model.state.phase,
                     isSubjectFacing: isSubjectFacing,
                     prompt: model.currentCue?.name ?? .samplePrompt,
-                    art: model.currentCue
+                    art: showsPoseArt ? model.currentCue : nil
                 )
             }
             // The pose name is at the top with two displays, and the cue card is at the bottom with one.

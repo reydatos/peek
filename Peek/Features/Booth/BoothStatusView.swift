@@ -4,13 +4,15 @@ import UIKit
 /// Shows the stage when the camera runs, or a recovery message when it does not.
 struct BoothStatusView: View {
     let model: BoothSessionModel
+    /// False in the wide booth: the side rail shows the pose reference there.
+    var showsPoseArt = true
 
     var body: some View {
         switch model.cameraStatus {
         case .idle, .starting:
             ProgressView()
         case .running:
-            BoothStageView(model: model, isSubjectFacing: !model.isOuterDisplayPresenting)
+            BoothStageView(model: model, isSubjectFacing: !model.isOuterDisplayPresenting, showsPoseArt: showsPoseArt)
         case .denied:
             ContentUnavailableView {
                 Label(.cameraDeniedTitle, systemImage: "camera")
