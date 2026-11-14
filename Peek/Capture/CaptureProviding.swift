@@ -13,5 +13,9 @@ nonisolated protocol CaptureProviding: Sendable {
     /// Changes the one camera input. Returns the unique ID of the new camera.
     func selectCamera(_ facing: CameraFacing) async throws -> String
     func stop() async
+    /// The zoom factors that the camera in use gives with no upscale. The first one is 1.
+    func zoomFactors() async -> [Double]
+    /// Sets the zoom of the camera in use.
+    func setZoom(_ factor: Double) async throws
     func capturePhoto() async throws -> CapturedPhoto
 }

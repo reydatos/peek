@@ -151,6 +151,43 @@ struct BoothSessionModelTests {
         #expect(model.isOuterDisplayPresenting)
     }
 
+    @Test func zoomComesFromTheCameraAndChangesOnlyWhileTheBoothWaits() async {
+        let capture = FakeCapture()
+        let model = BoothSessionModel(capture: capture, sleep: { _ in try await Task.sleep(for: .seconds(3600)) })
+        #expect(model.zoomFactors.isEmpty)
+        await model.startCamera()
+        #expect(model.zoomFactors == [1, 2])
+        #expect(model.zoom == 1)
+
+        await model.setZoom(2)
+        #expect(model.zoom == 2)
+        #expect(await capture.zoom == 2)
+
+        // A factor that the camera does not give is ignored.
+        await model.setZoom(3)
+        #expect(model.zoom == 2)
+
+        // The countdown runs: the zoom does not change.
+        model.send(.start)
+        await model.setZoom(1)
+        #expect(model.zoom == 2)
+        #expect(await capture.zoom == 2)
+    }
+
+    @Test func failedZoomKeepsTheOldZoomAndANewCameraStartsAtOne() async {
+        let capture = FakeCapture()
+        let model = BoothSessionModel(capture: capture, sleep: { _ in })
+        await model.startCamera()
+        await model.setZoom(2)
+
+        await capture.failZoom()
+        await model.setZoom(1)
+        #expect(model.zoom == 2)
+
+        await model.flipCamera()
+        #expect(model.zoom == 1)
+    }
+
     @Test func acceptMovesToTheNextSlotAndKeepsTheShot() async {
         let model = BoothSessionModel(capture: FakeCapture(), sleep: { _ in })
         await model.startCamera()
