@@ -1,7 +1,7 @@
 import SwiftUI
 
 /// The packs that ship in the app. Cue names come from PRD FR-05 and from the UX lookbook (pages 04 and 04C).
-/// The Animations pack is not here: no source names its cues.
+/// No source names the cues of the Animations pack. The owner chose them on 2026-11-14.
 ///
 /// The lookbook gives a tile color for Street Style and Kids Poses. The other tile colors are design values:
 /// cyan for editorial packs, lime for kids packs, pink for trend packs.
@@ -40,6 +40,12 @@ enum PoseLibrary {
             PoseCue(id: "tooMuchPopcorn", name: .cueTooMuchPopcorn, symbol: "popcorn"),
             PoseCue(id: "youSawWhat", name: .cueYouSawWhat, symbol: "exclamationmark.bubble"),
             PoseCue(id: "slowMoSuperhero", name: .cueSlowMoSuperhero, symbol: "bolt"),
+            director,
+        ]),
+        PosePack(id: "animations", name: .packAnimations, subtitle: .packAnimationsSubtitle, accent: PeekTheme.lime, isFree: false, cues: [
+            PoseCue(id: "squashAndStretch", name: .cueSquashAndStretch, symbol: "arrow.up.and.down"),
+            PoseCue(id: "doubleTake", name: .cueDoubleTake, symbol: "eyes"),
+            PoseCue(id: "jawDrop", name: .cueJawDrop, symbol: "mouth"),
             director,
         ]),
         PosePack(id: "grownUpsCopyMe", name: .packGrownUps, subtitle: .packGrownUpsSubtitle, accent: PeekTheme.lime, isFree: false, cues: [
