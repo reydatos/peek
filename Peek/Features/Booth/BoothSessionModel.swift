@@ -253,7 +253,8 @@ final class BoothSessionModel {
 
     /// Stores the session: the bytes of each new take first, then the record, then the deletes.
     private func persist() {
-        enqueue { [weak self] drafts in await self?.store(in: drafts) }
+        // The operation holds the model, so the write completes after the booth view goes away.
+        enqueue { drafts in await self.store(in: drafts) }
     }
 
     /// One storage operation. It reads the session when it runs, not when it was queued.

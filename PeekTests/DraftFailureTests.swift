@@ -92,4 +92,18 @@ struct DraftFailureTests {
         #expect(!first.isDraftUnsaved)
         #expect(await restoredShots() == 4)
     }
+
+    /// The booth view can release the model before storage starts. The shot must still go to storage.
+    @Test func writeCompletesAfterTheModelIsReleased() async throws {
+        var first: BoothSessionModel? = model(drafts: store)
+        await first?.startCamera()
+        if let first {
+            await accept(in: first)
+        }
+        let task = first?.persistTask
+        first = nil
+        await task?.value
+
+        #expect(try await store.loadDraft()?.slots.first?.acceptedTake != nil)
+    }
 }
