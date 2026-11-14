@@ -10,7 +10,10 @@ struct CueLine: View {
     var body: some View {
         let number = model.state.currentSlotID.index + 1
         let count = model.state.slots.count
-        Group {
+        ZStack(alignment: .leading) {
+            // The line keeps the height of the countdown, so the photo does not change size when the countdown starts.
+            CountdownView(remaining: 0, total: model.countdown.seconds, isLarge: isSubjectFacing)
+                .hidden()
             switch model.state.phase {
             case let .countdown(remaining):
                 CountdownView(remaining: remaining, total: model.countdown.seconds, isLarge: isSubjectFacing)

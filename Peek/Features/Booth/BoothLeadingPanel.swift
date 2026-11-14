@@ -42,5 +42,7 @@ struct BoothLeadingPanel: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .foregroundStyle(PeekTheme.ink)
         .padding()
+        // The panel is narrow. Above this text size, its labels do not fit.
+        .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
     }
 }

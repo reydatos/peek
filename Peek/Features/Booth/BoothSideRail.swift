@@ -10,6 +10,18 @@ struct BoothSideRail: View {
     @ScaledMetric(relativeTo: .body) private var thumbnailHeight = 124
 
     var body: some View {
+        GeometryReader { proxy in
+            ScrollView {
+                content
+                    .frame(minHeight: proxy.size.height)
+            }
+            .scrollBounceBehavior(.basedOnSize)
+        }
+        // The rail has a fixed width. Above this text size, its labels do not fit.
+        .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
+    }
+
+    private var content: some View {
         VStack {
             HStack {
                 Button(action: actions.close) {
