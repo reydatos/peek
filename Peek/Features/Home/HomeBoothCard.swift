@@ -8,6 +8,8 @@ struct HomeBoothCard: View {
     let hasDraft: Bool
     let onStart: () -> Void
     let onResume: () -> Void
+    /// False on a tall display: the actions are then at the bottom of the screen, below the pack list.
+    var showsActions = true
     @ScaledMetric(relativeTo: .largeTitle) private var wordmarkHeight = 40
 
     var body: some View {
@@ -31,24 +33,8 @@ struct HomeBoothCard: View {
             PeekSegmentedChoice(selection: $isCopycat, options: [(false, .classic), (true, .copycat)])
                 .accessibilityElement(children: .contain)
                 .accessibilityLabel(Text(.boothKind))
-            Button(action: onStart) {
-                HStack {
-                    VStack(alignment: .leading) {
-                        Text(.startBooth)
-                        Text(pack.name)
-                            .font(.subheadline)
-                    }
-                    Spacer()
-                    Image(systemName: "arrow.right")
-                        .accessibilityHidden(true)
-                }
-            }
-            .buttonStyle(PeekPrimaryButtonStyle())
-            if hasDraft {
-                Button(action: onResume) {
-                    Label(.resumeDraft, systemImage: "arrow.counterclockwise")
-                }
-                .buttonStyle(PeekSecondaryButtonStyle())
+            if showsActions {
+                HomeActions(pack: pack, hasDraft: hasDraft, onStart: onStart, onResume: onResume)
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)

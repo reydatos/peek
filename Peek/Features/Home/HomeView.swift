@@ -23,7 +23,8 @@ struct HomeView: View {
                     pack: selectedPack,
                     hasDraft: hasDraft,
                     onStart: { start(selectedPack) },
-                    onResume: { request = BoothRequest(packID: PoseLibrary.classicID, resumesDraft: true) }
+                    onResume: resume,
+                    showsActions: isWide
                 )
                 // A wide display shows the packs at all times, on the other side of the fold.
                 if isWide || isCopycat {
@@ -34,6 +35,14 @@ struct HomeView: View {
                 }
             }
             .padding()
+        }
+        .safeAreaInset(edge: .bottom) {
+            // On a tall display the actions stay in view below the pack list.
+            if !isWide {
+                HomeActions(pack: selectedPack, hasDraft: hasDraft, onStart: { start(selectedPack) }, onResume: resume)
+                    .padding()
+                    .background(PeekTheme.page)
+            }
         }
         .background(PeekTheme.page)
         .onGeometryChange(for: Bool.self) { $0.size.width > $0.size.height } action: { isWide = $0 }
@@ -71,6 +80,10 @@ struct HomeView: View {
     private var selectedPack: PosePack {
         let copycat = PoseLibrary.copycatPacks.first { $0.id == copycatID }
         return (isCopycat ? copycat : nil) ?? PoseLibrary.packs[0]
+    }
+
+    private func resume() {
+        request = BoothRequest(packID: PoseLibrary.classicID, resumesDraft: true)
     }
 
     private func start(_ pack: PosePack) {
