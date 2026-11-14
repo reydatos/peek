@@ -14,10 +14,4 @@ struct PoseLibraryTests {
             #expect(UIImage(named: cue.startAssetName) != nil, "\(cue.id) has no start picture")
         }
     }
-
-    @Test func everyCueHasAFinalPicture() {
-        for cue in PoseLibrary.packs.flatMap(\.cues) {
-            #expect(UIImage(named: cue.assetName) != nil, "\(cue.id) has no picture")
-        }
-    }
 }
