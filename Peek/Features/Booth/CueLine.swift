@@ -12,8 +12,11 @@ struct CueLine: View {
         let count = model.state.slots.count
         ZStack(alignment: .leading) {
             // The line keeps the height of the countdown, so the photo does not change size when the countdown starts.
-            CountdownView(remaining: 0, total: model.countdown.seconds, isLarge: isSubjectFacing)
-                .hidden()
+            // A finished set has no countdown, so it keeps no height.
+            if !model.isComplete {
+                CountdownView(remaining: 0, total: model.countdown.seconds, isLarge: isSubjectFacing)
+                    .hidden()
+            }
             switch model.state.phase {
             case let .countdown(remaining):
                 CountdownView(remaining: remaining, total: model.countdown.seconds, isLarge: isSubjectFacing)

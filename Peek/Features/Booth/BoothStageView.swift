@@ -23,7 +23,11 @@ struct BoothStageView: View {
     private var photo: some View {
         ZStack {
             PeekTheme.fill
-            if model.isComplete, let strip = model.strip {
+            if model.isComplete, !showsPoseArt {
+                // The wide booth shows the two layouts side by side.
+                FinishedPairView(model: model)
+                    .padding()
+            } else if model.isComplete, let strip = model.strip {
                 // The finished strip stays inside the safe area, so the camera housing hides no shot.
                 FinishedStripView(strip: strip)
                     .padding()
