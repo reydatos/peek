@@ -28,7 +28,15 @@ struct BoothView: View {
     var body: some View {
         BoothLayout(model: model, actions: BoothActions(
             close: { dismiss() },
-            showPoses: { isTrayOpen.toggle() }
+            showPoses: {
+                // The tray changes the poses of the open shots, so it opens only while the booth waits.
+                // In other states the button opens the pose library.
+                if model.state.phase == .ready {
+                    isTrayOpen.toggle()
+                } else {
+                    posePicker = PosePickerRequest()
+                }
+            }
         ))
         .overlay(alignment: .bottomTrailing) {
             // The tray changes the poses of the open shots. The reducer accepts this only while the booth waits.
@@ -45,6 +53,12 @@ struct BoothView: View {
             }
         }
         .animation(.default, value: isTrayOpen)
+        .onChange(of: model.state.phase) { _, phase in
+            // The tray does not come back by itself when the booth waits again.
+            if phase != .ready {
+                isTrayOpen = false
+            }
+        }
         .background(PeekTheme.page)
         .toolbar(.hidden, for: .navigationBar)
         .sheet(item: $posePicker) { _ in
