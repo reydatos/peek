@@ -221,9 +221,13 @@ final class BoothSessionModel {
         await loadZoom()
     }
 
-    /// Reads the zoom factors of the camera in use. A new camera starts at 1.
+    /// Reads the zoom factors of the camera in use, and sets the camera to 1.
+    /// So the model and the camera agree after the booth opens again and after a flip.
     private func loadZoom() async {
         zoomFactors = await capture.zoomFactors()
+        if zoomFactors.count > 1 {
+            try? await capture.setZoom(1)
+        }
         zoom = 1
     }
 

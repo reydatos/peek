@@ -180,12 +180,16 @@ struct BoothSessionModelTests {
         await model.startCamera()
         await model.setZoom(2)
 
-        await capture.failZoom()
+        await capture.failZoom(true)
         await model.setZoom(1)
         #expect(model.zoom == 2)
+        #expect(await capture.zoom == 2)
 
+        // The model and the camera agree after the flip.
+        await capture.failZoom(false)
         await model.flipCamera()
         #expect(model.zoom == 1)
+        #expect(await capture.zoom == 1)
     }
 
     @Test func acceptMovesToTheNextSlotAndKeepsTheShot() async {

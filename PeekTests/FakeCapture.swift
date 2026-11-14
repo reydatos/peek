@@ -37,8 +37,8 @@ actor FakeCapture: CaptureProviding {
     private(set) var zoom = 1.0
     var zoomError: CaptureError?
 
-    func failZoom() {
-        zoomError = .configurationFailed
+    func failZoom(_ fails: Bool) {
+        zoomError = fails ? .configurationFailed : nil
     }
 
     func zoomFactors() -> [Double] {
