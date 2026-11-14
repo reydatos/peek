@@ -276,6 +276,17 @@
         }
       }
     },
+    "cueDoubleTake" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Double take"
+          }
+        }
+      }
+    },
     "cueFingerHeart" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -349,6 +360,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Jacket on the Shoulder"
+          }
+        }
+      }
+    },
+    "cueJawDrop" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jaw drop"
           }
         }
       }
@@ -525,6 +547,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Big smile, big teeth"
+          }
+        }
+      }
+    },
+    "cueSquashAndStretch" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Squash and stretch"
           }
         }
       }
@@ -800,6 +833,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Open Settings"
+          }
+        }
+      }
+    },
+    "packAnimations" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Animations"
+          }
+        }
+      }
+    },
+    "packAnimationsSubtitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Classic cartoon moves"
           }
         }
       }
