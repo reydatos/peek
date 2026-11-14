@@ -144,6 +144,11 @@ final class BoothSessionModel {
         PoseLibrary.cue(for: state.currentSlot.cueID)
     }
 
+    /// The numbers of the slots that have no accepted shot, in slot order.
+    var openSlotNumbers: [Int] {
+        state.slots.filter { $0.acceptedTake == nil }.map { $0.id.index + 1 }
+    }
+
     /// The accepted shots in slot order, for a picture of the finished set.
     var finishedShots: [UIImage] {
         state.slots.compactMap { image(for: $0) }

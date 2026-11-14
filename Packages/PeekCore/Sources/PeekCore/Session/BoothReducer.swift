@@ -29,6 +29,15 @@ public struct BoothReducer: Sendable {
             state.subjectView = .reference
             return []
 
+        case let (.ready, .assignCues(cueIDs)):
+            // An accepted shot keeps its pose. More poses than open slots: the remainder is ignored.
+            let open = state.slots.filter { $0.acceptedTake == nil }.map(\.id)
+            for (id, cueID) in zip(open, cueIDs) {
+                state.slots[id.index].cueID = cueID
+            }
+            state.subjectView = .reference
+            return []
+
         case let (.ready, .showSubject(view)):
             state.subjectView = view
             return []
