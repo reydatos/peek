@@ -2,16 +2,12 @@ import CoreText
 import SwiftUI
 import UIKit
 
-/// The PEEK typefaces, from the design canvas: Instrument Serif for display text, Inter Tight for the rest.
+/// The PEEK typeface is Inter Tight. Instrument Serif stays in the bundle; no screen uses it now.
 ///
 /// Each font starts at the system size of its text style and scales with Dynamic Type.
 enum PeekFont {
     static let serifName = "InstrumentSerif-Regular"
     static let sansName = "Inter Tight"
-
-    static func serif(_ style: Font.TextStyle) -> Font {
-        .custom(serifName, size: baseSize(style), relativeTo: style)
-    }
 
     static func sans(_ style: Font.TextStyle) -> Font {
         let font = Font.custom(sansName, size: baseSize(style), relativeTo: style)

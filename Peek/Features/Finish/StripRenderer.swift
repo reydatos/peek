@@ -70,15 +70,17 @@ enum StripRenderer {
 
     private static func drawFooter(date: Date, in frame: CGRect) {
         let ink = UIColor(PeekTheme.ink)
-        let titleFont = UIFont(name: "InstrumentSerif-Italic", size: footer / 2)
-            ?? .italicSystemFont(ofSize: footer / 2)
         let dateFont = UIFont(name: PeekFont.sansName, size: footer / 6) ?? .systemFont(ofSize: footer / 6)
-        let title = NSAttributedString(string: "Peek", attributes: [.font: titleFont, .foregroundColor: ink])
         let day = NSAttributedString(
             string: date.formatted(date: .abbreviated, time: .omitted),
             attributes: [.font: dateFont, .foregroundColor: ink]
         )
-        title.draw(at: CGPoint(x: frame.minX, y: frame.midY - title.size().height / 2))
+        // The PEEK wordmark, one third of the footer height.
+        if let wordmark = UIImage(named: "peek-wordmark"), wordmark.size.height > 0 {
+            let height = footer / 3
+            let width = height * wordmark.size.width / wordmark.size.height
+            wordmark.draw(in: CGRect(x: frame.minX, y: frame.midY - height / 2, width: width, height: height))
+        }
         day.draw(at: CGPoint(x: frame.maxX - day.size().width, y: frame.midY - day.size().height / 2))
     }
 }

@@ -31,7 +31,7 @@ Verify the test COUNT. The tests use Swift Testing, so the XCTest line `Executed
 | `project.yml` | XcodeGen spec. `Peek.xcodeproj` is generated and gitignored. |
 | `Config/Shared.xcconfig` | Build settings. The Info.plist is generated from `INFOPLIST_KEY_*`. |
 | `Packages/PeekCore` | Pure Swift. Session reducer, data records, templates, `DraftStore` protocol and `FileDraftStore`. No AVFoundation or UIKit. |
-| `Peek/Features` | SwiftUI by feature: `Booth` (inner display), `Poses` (pose packs and picker), `Finish` (strip and 2x2 renderer, save, share), `Outer` (outer display accessory). The app opens in the booth. There is no home screen. |
+| `Peek/Features` | SwiftUI by feature: `Home` (first screen: booth entry, draft, pack tiles), `Booth` (inner display), `Poses` (pose packs and picker), `Finish` (strip and 2x2 renderer, save, share), `Outer` (outer display accessory). The app opens on Home. The camera starts in the booth, after an explicit action. |
 | `Peek/Capture` | `CaptureService` actor, preview layer view (inner), `FrameSource` frame feed view (outer), rotation. |
 | `Peek/Resources/Localizable.xcstrings` | Manual keys. Use generated symbols: `Text(.poseIdeas)`. |
 | `PeekTests` | App tests with `FakeCapture`. |
@@ -46,6 +46,7 @@ Verify the test COUNT. The tests use Swift Testing, so the XCTest line `Executed
 - The outer display is an enhancement. Every flow must complete on the inner display alone.
 - The outer display draws frames from `FrameSource` (`AVCaptureVideoDataOutput`). Do not put a second `AVCaptureVideoPreviewLayer` there. On a physical Duo that layer showed no picture.
 - Keep purchase prompts, links, and account requests off the outer (subject) display.
+- The look follows the UX lookbook (`PEEK-UX-Lookbook.pdf`): colors and corners live in `PeekTheme`. Each state has one filled main action (`PeekPrimaryButtonStyle`).
 - The app target uses `SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor`. Mark types that must leave the main actor `nonisolated`.
 
 ## Dangers

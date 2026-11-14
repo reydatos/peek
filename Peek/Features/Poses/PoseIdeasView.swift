@@ -1,15 +1,15 @@
 import SwiftUI
 
-/// The pack browser. It stays on the photographer's side, outside the live session.
+/// The pack browser inside the booth. It stays on the photographer's side, outside the live session.
 struct PoseIdeasView: View {
     let onSelect: (PosePack) -> Void
 
     var body: some View {
         NavigationStack {
-            List(PoseLibrary.packs) { pack in
-                PosePackSection(pack: pack, onSelect: onSelect)
+            ScrollView {
+                PackList(packs: PoseLibrary.packs, onSelect: onSelect)
+                    .padding()
             }
-            .scrollContentBackground(.hidden)
             .background(PeekTheme.ink)
             .navigationTitle(Text(.poseIdeas))
             .navigationBarTitleDisplayMode(.inline)

@@ -21,7 +21,7 @@ struct PoseArt: View {
                         .foregroundStyle(PeekTheme.mist)
                 }
             }
-            .clipShape(.rect(cornerRadius: PeekTheme.corner))
+            .clipShape(.rect(cornerRadius: PeekTheme.smallCorner))
             .accessibilityLabel(Text(cue.name))
     }
 }

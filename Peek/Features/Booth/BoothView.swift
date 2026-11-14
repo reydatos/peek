@@ -11,11 +11,14 @@ struct BoothView: View {
     @State private var packToConfirm: PosePack?
     @Environment(\.scenePhase) private var scenePhase
 
-    init(packID: String) {
+    private let resumesDraft: Bool
+
+    init(request: BoothRequest) {
+        resumesDraft = request.resumesDraft
         _model = State(initialValue: BoothSessionModel(
             capture: CaptureService(),
-            packID: packID,
-            drafts: FileDraftStore(directory: .applicationSupportDirectory.appending(path: "Draft"))
+            packID: request.packID,
+            drafts: BoothDraftStore.shared
         ))
     }
 
@@ -69,10 +72,14 @@ struct BoothView: View {
                 }
             }
             .modifier(OuterDisplayAccessory(model: model))
-            .navigationTitle(Text(.boothTitle))
+            .navigationTitle(Text(model.pack?.name ?? .boothTitle))
             .navigationBarTitleDisplayMode(.inline)
             .task {
-                await model.restoreDraft()
+                if resumesDraft {
+                    await model.restoreDraft()
+                } else {
+                    await model.discardStoredDraft()
+                }
                 await model.startCamera()
             }
             .onDisappear { model.stopCamera() }

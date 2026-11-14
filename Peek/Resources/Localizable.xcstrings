@@ -1,17 +1,6 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
-    "accept" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Accept"
-          }
-        }
-      }
-    },
     "appName" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -144,6 +133,28 @@
         }
       }
     },
+    "continueOneScreen" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Continue on one screen"
+          }
+        }
+      }
+    },
+    "copycat" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copycat"
+          }
+        }
+      }
+    },
     "countdownFive" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -173,6 +184,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Manual"
+          }
+        }
+      }
+    },
+    "countdownPaused" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Countdown paused"
           }
         }
       }
@@ -232,24 +254,13 @@
         }
       }
     },
-    "cueCopyMe" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Copy Me"
-          }
-        }
-      }
-    },
     "cueDirector" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "You’re the Director"
+            "value" : "Your turn to direct"
           }
         }
       }
@@ -276,6 +287,17 @@
         }
       }
     },
+    "cueFlamingo" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Flamingo pose"
+          }
+        }
+      }
+    },
     "cueFlowerCup" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -287,13 +309,13 @@
         }
       }
     },
-    "cueFreeze" : {
+    "cueFreezeRobot" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Freeze"
+            "value" : "Freeze like a robot"
           }
         }
       }
@@ -375,6 +397,17 @@
         }
       }
     },
+    "cueMakeRoof" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Make a roof!"
+          }
+        }
+      }
+    },
     "cueNeckHold" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -382,6 +415,50 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Hand on the Neck"
+          }
+        }
+      }
+    },
+    "cueOwlEyes" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Owl eyes!"
+          }
+        }
+      }
+    },
+    "cueReachStars" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reach for the stars"
+          }
+        }
+      }
+    },
+    "cueSameFace" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Same face!"
+          }
+        }
+      }
+    },
+    "cueSeriousShowdown" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Serious face showdown!"
           }
         }
       }
@@ -419,6 +496,28 @@
         }
       }
     },
+    "cueSleepySloth" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sleepy sloth!"
+          }
+        }
+      }
+    },
+    "cueSlowMoSuperhero" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Slow-mo superhero!"
+          }
+        }
+      }
+    },
     "cueSmile" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -452,13 +551,24 @@
         }
       }
     },
-    "cueSwapFaces" : {
+    "cueTinyTrex" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Swap Faces"
+            "value" : "Tiny T. rex!"
+          }
+        }
+      }
+    },
+    "cueTooMuchPopcorn" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Too much popcorn!"
           }
         }
       }
@@ -470,6 +580,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Walk"
+          }
+        }
+      }
+    },
+    "cueYouSawWhat" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You saw WHAT?!"
           }
         }
       }
@@ -551,13 +672,13 @@
         }
       }
     },
-    "free" : {
+    "keepShot" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Free"
+            "value" : "Keep shot"
           }
         }
       }
@@ -591,6 +712,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Strip"
+          }
+        }
+      }
+    },
+    "live" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Live"
           }
         }
       }
@@ -672,6 +804,39 @@
         }
       }
     },
+    "packCartoonCrew" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cartoon Crew"
+          }
+        }
+      }
+    },
+    "packCartoonCrewSubtitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Big cartoon reactions"
+          }
+        }
+      }
+    },
+    "packCitySubtitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "City street poses"
+          }
+        }
+      }
+    },
     "packClassic" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -679,6 +844,61 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Classic"
+          }
+        }
+      }
+    },
+    "packClassicSubtitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Four shots, four prompts"
+          }
+        }
+      }
+    },
+    "packCreatureFeature" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Creature Feature"
+          }
+        }
+      }
+    },
+    "packCreatureFeatureSubtitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Animal moves"
+          }
+        }
+      }
+    },
+    "packGrownUps" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Grown-Ups, Copy Me"
+          }
+        }
+      }
+    },
+    "packGrownUpsSubtitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kids lead, adults copy"
           }
         }
       }
@@ -716,6 +936,17 @@
         }
       }
     },
+    "packKidsPosesSubtitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Illustrated prompts"
+          }
+        }
+      }
+    },
     "packStreetStyle" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -727,6 +958,28 @@
         }
       }
     },
+    "packStreetStyleSubtitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Editorial poses"
+          }
+        }
+      }
+    },
+    "packTrendsSubtitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trend poses"
+          }
+        }
+      }
+    },
     "paused" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -734,17 +987,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Paused"
-          }
-        }
-      }
-    },
-    "pausedOuterDisplayLost" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "The outer display is not available. Resume to start the countdown again."
           }
         }
       }
@@ -771,13 +1013,13 @@
         }
       }
     },
-    "preview" : {
+    "poseReference" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Preview"
+            "value" : "Pose reference"
           }
         }
       }
@@ -793,17 +1035,6 @@
         }
       }
     },
-    "redo" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Redo"
-          }
-        }
-      }
-    },
     "resume" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -815,13 +1046,24 @@
         }
       }
     },
-    "retakeShot" : {
+    "resumeDraft" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Retake shot"
+            "value" : "Resume Draft"
+          }
+        }
+      }
+    },
+    "retakeShotNumber" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Retake shot %lld"
           }
         }
       }
@@ -854,7 +1096,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Save shots"
+            "value" : "Save Originals"
           }
         }
       }
@@ -865,7 +1107,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Save strip to Photos"
+            "value" : "Save Strip"
           }
         }
       }
@@ -892,24 +1134,35 @@
         }
       }
     },
-    "shootAgain" : {
+    "shotNumber" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Shoot Again"
+            "value" : "Shot %lld"
           }
         }
       }
     },
-    "shot" : {
+    "shotOf" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Shot"
+            "value" : "Shot %1$lld of %2$lld"
+          }
+        }
+      }
+    },
+    "shotReview" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Shot %lld review"
           }
         }
       }
@@ -925,46 +1178,35 @@
         }
       }
     },
-    "shuffle" : {
+    "startBooth" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Shuffle"
+            "value" : "Start a Booth"
           }
         }
       }
     },
-    "start" : {
+    "startCountdown" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Start"
+            "value" : "Start countdown"
           }
         }
       }
     },
-    "startWithPack" : {
+    "takeShot" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Start with this pack"
-          }
-        }
-      }
-    },
-    "swapPose" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Swap pose"
+            "value" : "Take shot"
           }
         }
       }

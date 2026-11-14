@@ -104,14 +104,6 @@ final class BoothSessionModel {
         send(.swapCue(cueID))
     }
 
-    /// Changes the pose of the current shot to a different pose of the pack.
-    func shufflePose() {
-        let others = packCues.map(\.id).filter { $0 != state.currentSlot.cueID }
-        if let next = others.randomElement() {
-            swapPose(to: next)
-        }
-    }
-
     /// Changes the pose of the current shot to the next or the previous pose of the pack. It wraps at the ends.
     func stepPose(by offset: Int) {
         let ids = packCues.map(\.id)
@@ -225,6 +217,15 @@ final class BoothSessionModel {
         state = BoothState(restoring: restored)
         // The layout changes last: its observer stores the session, and the state is now the draft.
         layout = record.layout
+    }
+
+    /// Removes the draft in storage. Call this before the camera starts, when the photographer starts a new booth.
+    func discardStoredDraft() async {
+        guard let drafts, !didRestore, state.phase == .setup else { return }
+        didRestore = true
+        if let record = try? await drafts.loadDraft() {
+            try? await drafts.deleteDraft(record.id)
+        }
     }
 
     /// Stores the session: the bytes of each new take first, then the record, then the deletes.
