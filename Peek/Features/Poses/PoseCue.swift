@@ -10,4 +10,9 @@ struct PoseCue: Identifiable {
     var assetName: String {
         "pose-\(id)"
     }
+
+    /// The picture of the start of a move. With `assetName` as the end, the two pictures show the move.
+    var startAssetName: String {
+        "pose-\(id)-start"
+    }
 }

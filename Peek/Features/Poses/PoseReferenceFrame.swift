@@ -6,9 +6,10 @@ struct PoseReferenceFrame: View {
     let accent: Color
     var lineWidth: CGFloat = 3
     var cornerRadius = PeekTheme.thumbnailCorner
+    var showsMove = false
 
     var body: some View {
-        PoseArt(cue: cue, cornerRadius: cornerRadius)
+        PoseArt(cue: cue, cornerRadius: cornerRadius, showsMove: showsMove)
             .overlay {
                 RoundedRectangle(cornerRadius: cornerRadius)
                     .strokeBorder(accent, lineWidth: lineWidth)

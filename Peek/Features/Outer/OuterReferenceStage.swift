@@ -8,9 +8,12 @@ struct OuterReferenceStage: View {
 
     var body: some View {
         VStack {
-            PeekChip(text: .poseReference, background: PeekTheme.fill)
-                .frame(maxWidth: .infinity, alignment: .leading)
-            PoseReferenceFrame(cue: cue, accent: accent, lineWidth: 5, cornerRadius: PeekTheme.photoCorner)
+            HStack {
+                PeekChip(text: .poseReference, background: PeekTheme.fill)
+                PoseMotionChip(cue: cue)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            PoseReferenceFrame(cue: cue, accent: accent, lineWidth: 5, cornerRadius: PeekTheme.photoCorner, showsMove: true)
                 .frame(maxHeight: .infinity)
             Text(cue.name)
                 .font(.largeTitle)
