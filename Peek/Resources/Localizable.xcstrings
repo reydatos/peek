@@ -23,6 +23,17 @@
         }
       }
     },
+    "apply" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apply"
+          }
+        }
+      }
+    },
     "boothKind" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -727,6 +738,17 @@
         }
       }
     },
+    "discover" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Discover"
+          }
+        }
+      }
+    },
     "draftNotSaved" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -767,6 +789,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Flip camera"
+          }
+        }
+      }
+    },
+    "forYou" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "For you"
           }
         }
       }
@@ -903,6 +936,17 @@
         }
       }
     },
+    "moreIdeas" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "More ideas"
+          }
+        }
+      }
+    },
     "newSet" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -921,6 +965,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Next pose"
+          }
+        }
+      }
+    },
+    "noSavedPoses" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No saved poses. Tap the star on a pose to save it."
           }
         }
       }
@@ -1244,6 +1299,17 @@
         }
       }
     },
+    "removeSavedPose" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remove from Saved"
+          }
+        }
+      }
+    },
     "resume" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1310,6 +1376,17 @@
         }
       }
     },
+    "savePose" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Save pose"
+          }
+        }
+      }
+    },
     "saveShots" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1328,6 +1405,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Save Strip"
+          }
+        }
+      }
+    },
+    "saved" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Saved"
           }
         }
       }

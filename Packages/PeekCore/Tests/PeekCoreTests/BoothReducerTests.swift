@@ -125,6 +125,29 @@ struct BoothReducerTests {
         #expect(state.slots.map(\.cueID) == ["z", "b", "c", "d"])
     }
 
+    @Test func assignedPosesGoToTheOpenSlotsInOrder() throws {
+        var state = readyState()
+        try shoot(&state)
+        _ = reducer.reduce(&state, .accept)
+        _ = reducer.reduce(&state, .showSubject(.live))
+
+        _ = reducer.reduce(&state, .assignCues(["x", "y"]))
+
+        // The accepted shot keeps its pose. The slot with no new pose keeps its pose.
+        #expect(state.slots.map(\.cueID) == ["a", "x", "y", "d"])
+        #expect(state.subjectView == .reference)
+    }
+
+    @Test func assignedPosesAreIgnoredOutsideReadyAndBeyondTheOpenSlots() {
+        var state = readyState()
+        _ = reducer.reduce(&state, .assignCues(["1", "2", "3", "4", "5"]))
+        #expect(state.slots.map(\.cueID) == ["1", "2", "3", "4"])
+
+        _ = reducer.reduce(&state, .start)
+        _ = reducer.reduce(&state, .assignCues(["x"]))
+        #expect(state.slots.map(\.cueID) == ["1", "2", "3", "4"])
+    }
+
     @Test func fourAcceptedShotsCompleteTheSession() throws {
         let state = try completedState()
         #expect(state.phase == .complete)

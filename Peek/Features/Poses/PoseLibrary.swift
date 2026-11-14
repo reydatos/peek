@@ -90,6 +90,11 @@ enum PoseLibrary {
         (packs.first { $0.id == id } ?? packs[0]).cues.map(\.id)
     }
 
+    /// The first pack that has the cue.
+    static func pack(for cueID: String) -> PosePack? {
+        packs.first { $0.cues.contains { $0.id == cueID } }
+    }
+
     static func cue(for id: String) -> PoseCue? {
         packs.lazy.flatMap(\.cues).first { $0.id == id }
     }
