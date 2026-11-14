@@ -39,6 +39,8 @@ struct BoothLayout: View {
                     BoothCameraBar(model: model, actions: actions)
                 }
                 .background(PeekTheme.cameraChrome)
+                // The bar and the labels on the photo have a fixed space. Above this text size they do not fit.
+                .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
             } else {
                 BoothStatusView(model: model)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
