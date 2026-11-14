@@ -1,7 +1,10 @@
 import SwiftUI
 
-/// The booth entry: the wordmark, a sample picture, the red start button, and the draft.
+/// The booth entry: the wordmark, a sample picture, the booth type, the red start button, and the draft.
 struct HomeBoothCard: View {
+    @Binding var isCopycat: Bool
+    /// The pack that Start a Booth opens.
+    let pack: PosePack
     let hasDraft: Bool
     let onStart: () -> Void
     let onResume: () -> Void
@@ -15,19 +18,26 @@ struct HomeBoothCard: View {
                 .scaledToFit()
                 .frame(height: wordmarkHeight)
                 .accessibilityLabel(Text(.appName))
-            // A stored picture, not the camera. The camera starts in the booth.
+            // A stored picture, not the camera. The camera starts in the booth, after an explicit action.
             Color.clear
                 .aspectRatio(4 / 3, contentMode: .fit)
                 .overlay {
-                    Image("pose-smile")
+                    Image(pack.cues.first?.assetName ?? "pose-smile")
                         .resizable()
                         .scaledToFill()
                 }
                 .clipShape(.rect(cornerRadius: PeekTheme.photoCorner))
                 .accessibilityHidden(true)
+            PeekSegmentedChoice(selection: $isCopycat, options: [(false, .classic), (true, .copycat)])
+                .accessibilityElement(children: .contain)
+                .accessibilityLabel(Text(.boothKind))
             Button(action: onStart) {
                 HStack {
-                    Text(.startBooth)
+                    VStack(alignment: .leading) {
+                        Text(.startBooth)
+                        Text(pack.name)
+                            .font(.subheadline)
+                    }
                     Spacer()
                     Image(systemName: "arrow.right")
                         .accessibilityHidden(true)
@@ -36,7 +46,7 @@ struct HomeBoothCard: View {
             .buttonStyle(PeekPrimaryButtonStyle())
             if hasDraft {
                 Button(action: onResume) {
-                    Text(.resumeDraft)
+                    Label(.resumeDraft, systemImage: "arrow.counterclockwise")
                 }
                 .buttonStyle(PeekSecondaryButtonStyle())
             }
