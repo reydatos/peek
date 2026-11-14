@@ -4,10 +4,10 @@ import SwiftUI
 struct PeekSectionLabel: ViewModifier {
     func body(content: Content) -> some View {
         content
-            .font(PeekFont.sans(.caption))
+            .font(.caption)
             .bold()
             .textCase(.uppercase)
             .tracking(1)
-            .foregroundStyle(PeekTheme.mist)
+            .foregroundStyle(PeekTheme.inkSecondary)
     }
 }

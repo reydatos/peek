@@ -23,7 +23,7 @@ struct HomeView: View {
             }
             .padding()
         }
-        .background(PeekTheme.ink)
+        .background(PeekTheme.page)
         .onGeometryChange(for: Bool.self) { $0.size.width > $0.size.height } action: { isWide = $0 }
         .toolbar(.hidden, for: .navigationBar)
         .navigationDestination(item: $request) { request in
@@ -74,5 +74,4 @@ struct HomeView: View {
     NavigationStack {
         HomeView()
     }
-    .preferredColorScheme(.dark)
 }

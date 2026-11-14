@@ -13,7 +13,7 @@ struct OuterCueView: View {
         if model.isComplete, let strip = model.strip {
             // The finished strip stays inside the safe area, so the camera housing hides no shot.
             FinishedStripView(strip: strip)
-                .background(PeekTheme.ink)
+                .background(PeekTheme.page)
         } else if model.state.phase == .ready, let cue = model.currentCue, let picture = UIImage(named: cue.assetName) {
             OuterPoseStage(cue: cue, picture: picture, model: model, isMirrored: model.isOuterPreviewMirrored)
         } else {

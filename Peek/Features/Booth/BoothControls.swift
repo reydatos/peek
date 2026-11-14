@@ -46,7 +46,7 @@ struct BoothControls: View {
                 case .outerDisplayLost:
                     // Lookbook page 07: the countdown starts again only after an explicit action.
                     Text(.countdownPaused)
-                        .font(PeekFont.sans(.title3))
+                        .font(.title3)
                     if let cue = model.currentCue {
                         Text(cue.name)
                     }
@@ -73,7 +73,7 @@ struct BoothControls: View {
         }
         .controlSize(.large)
         .frame(maxWidth: .infinity)
-        .foregroundStyle(Color.white)
+        .foregroundStyle(PeekTheme.ink)
     }
 
     /// With no countdown, the action takes the shot at once.

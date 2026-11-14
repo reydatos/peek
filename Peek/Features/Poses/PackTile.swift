@@ -19,20 +19,24 @@ struct PackTile: View {
                 .accessibilityHidden(true)
             VStack(alignment: .leading) {
                 Text(pack.name)
-                    .font(PeekFont.sans(.title3))
+                    .font(.title3)
                 Text(pack.subtitle)
-                    .font(PeekFont.sans(.subheadline))
-                    .foregroundStyle(PeekTheme.mist)
+                    .font(.subheadline)
+                    .foregroundStyle(PeekTheme.inkSecondary)
             }
             Spacer()
             Image(systemName: "chevron.right")
-                .font(PeekFont.sans(.footnote))
+                .font(.footnote)
                 .accessibilityHidden(true)
         }
         .padding()
-        .foregroundStyle(Color.white)
-        .background(PeekTheme.panel, in: .rect(cornerRadius: PeekTheme.corner))
-        .contentShape(.rect(cornerRadius: PeekTheme.corner))
+        .foregroundStyle(PeekTheme.ink)
+        .background(PeekTheme.surface, in: .rect(cornerRadius: PeekTheme.cardCorner))
+        .overlay {
+            RoundedRectangle(cornerRadius: PeekTheme.cardCorner)
+                .strokeBorder(PeekTheme.separator)
+        }
+        .contentShape(.rect(cornerRadius: PeekTheme.cardCorner))
         .accessibilityElement(children: .combine)
     }
 }
@@ -40,5 +44,5 @@ struct PackTile: View {
 #Preview {
     PackTile(pack: PoseLibrary.packs[1])
         .padding()
-        .background(PeekTheme.ink)
+        .background(PeekTheme.page)
 }
