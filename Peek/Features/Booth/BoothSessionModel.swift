@@ -144,6 +144,11 @@ final class BoothSessionModel {
         PoseLibrary.cue(for: state.currentSlot.cueID)
     }
 
+    /// The accepted shots in slot order, for a picture of the finished set.
+    var finishedShots: [UIImage] {
+        state.slots.compactMap { image(for: $0) }
+    }
+
     /// The accepted shot of a slot, for the slot rail.
     func image(for slot: Slot) -> UIImage? {
         slot.acceptedTake.flatMap { images[$0.id] }
