@@ -30,11 +30,18 @@ Verify the test COUNT. The tests use Swift Testing, so the XCTest line `Executed
 |---|---|
 | `project.yml` | XcodeGen spec. `Peek.xcodeproj` is generated and gitignored. |
 | `Config/Shared.xcconfig` | Build settings. The Info.plist is generated from `INFOPLIST_KEY_*`. |
-| `Packages/PeekCore` | Pure Swift. Session reducer, data records, templates, `DraftStore` protocol and `FileDraftStore`. No AVFoundation or UIKit. |
-| `Peek/Features` | SwiftUI by feature: `Home` (first screen: booth entry, draft, pack tiles), `Booth` (inner display), `Poses` (pose packs and picker), `Finish` (strip and 2x2 renderer, save, share), `Outer` (outer display accessory). The app opens on Home. The camera starts in the booth, after an explicit action. |
-| `Peek/Capture` | `CaptureService` actor, preview layer view (inner), `FrameSource` frame feed view (outer), rotation. |
+| `Packages/PeekCore` | Pure Swift. Session reducer, data records (`SessionRecord` with layout and frame color), templates, `DraftStore` protocol and `FileDraftStore`. No AVFoundation or UIKit. |
+| `docs/design` | The UI handoff: `DESIGN.md` (screens, components, rules) and `tokens.json` (colors, sizes, corners). |
+| `Peek/Design` | `PeekTheme` (tokens) and the shared controls: primary, secondary, and rail buttons, chip, banner, segmented choice, icon label. |
+| `Peek/Features` | SwiftUI by feature. The app opens on Home. The camera starts in the booth, after an explicit action. |
+| `Peek/Features/Home` | First screen: Classic / Copycat choice, pack selection, Start a Booth, Resume Draft. |
+| `Peek/Features/Booth` | Inner display. `BoothLayout` selects the wide booth (leading panel, photo, side rail) or the tall booth (full-screen camera, black camera bar). `BoothSessionModel` drives the two displays. |
+| `Peek/Features/Poses` | Pose packs, the pose tray (an overlay of `BoothView`), the pose library (Discover and Saved), and `SavedPoses`. |
+| `Peek/Features/Finish` | Strip and 2x2 renderer, frame color, save, share. |
+| `Peek/Features/Outer` | Outer display accessory: pose reference, live frame, countdown, shot, strip. |
+| `Peek/Capture` | `CaptureService` actor (camera, flip, zoom), preview layer view (inner), `FrameSource` frame feed view (outer), rotation. `CaptureProviding` is the seam for tests. |
 | `Peek/Resources/Localizable.xcstrings` | Manual keys. Use generated symbols: `Text(.poseIdeas)`. |
-| `PeekTests` | App tests with `FakeCapture`. |
+| `PeekTests` | App tests with `FakeCapture`, `FakeSaver`, and `FlakyDraftStore`. |
 
 ## Rules
 
@@ -46,6 +53,9 @@ Verify the test COUNT. The tests use Swift Testing, so the XCTest line `Executed
 - The outer display is an enhancement. Every flow must complete on the inner display alone.
 - The outer display draws frames from `FrameSource` (`AVCaptureVideoDataOutput`). Do not put a second `AVCaptureVideoPreviewLayer` there. On a physical Duo that layer showed no picture.
 - Keep purchase prompts, links, and account requests off the outer (subject) display.
+- The pose tray is an overlay of `BoothView`, not a sheet. The pose library is a sheet on the photographer's side.
+- A new `SessionRecord` field must decode a draft that does not have it, with a default and a test.
+- `SavedPoses` and `BoothSessionModel` have no store by default, so tests stay isolated. The app passes the stores.
 - The look follows the UI handoff in `docs/design` (`DESIGN.md`, `tokens.json`): light and dark from the same semantic tokens, the system font, and one red. Colors and corners live in `PeekTheme`; do not put a hex value or `Color.white` in a view. Each state has one red main action (`PeekPrimaryButtonStyle`). The exported strip has fixed colors.
 - The app target uses `SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor`. Mark types that must leave the main actor `nonisolated`.
 
@@ -53,5 +63,7 @@ Verify the test COUNT. The tests use Swift Testing, so the XCTest line `Executed
 
 - Never commit a `.plist`, `.env`, or `Peek.xcodeproj`. `.gitignore` blocks them.
 - Signing: put `DEVELOPMENT_TEAM = <10-character Team ID>` in `Config/Local.xcconfig` (gitignored), then run `xcodegen generate`. Do not set the team in Xcode; `xcodegen generate` removes it.
-- The simulator has no camera. Camera, accessory, and rotation behavior are verified only on a physical iPhone Duo.
+- The simulator has no camera. Camera, zoom, accessory, and rotation behavior are verified only on a physical iPhone Duo.
+- Tests do not show the look. For a UI change, render the screens to pictures and examine them: light and dark, wide and tall, with and without the outer display, and one accessibility text size.
+- The side rail, the leading panel, and the tall camera screen stop at the xxxLarge text size. Their space is fixed.
 - `xcodebuild` and `simctl` do not work inside the Claude Code sandbox.
