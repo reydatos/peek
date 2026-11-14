@@ -19,15 +19,16 @@ struct OuterPoseStage: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .accessibilityLabel(Text(cue.name))
             FramePreviewView(capture: model.capture, deviceID: model.deviceID, isMirrored: isMirrored)
-                .aspectRatio(3 / 4, contentMode: .fit)
-                .containerRelativeFrame(.horizontal, count: 3, spacing: 0)
-                .clipShape(.rect(cornerRadius: PeekTheme.corner))
+                // The same 4:3 crop as the shot, so the people see how the shot frames them.
+                .aspectRatio(4 / 3, contentMode: .fit)
+                .containerRelativeFrame(.horizontal, count: 5, span: 2, spacing: 0)
+                .clipShape(.rect(cornerRadius: PeekTheme.smallCorner))
                 .padding()
                 .accessibilityLabel(Text(.livePreview))
         }
         .background {
             // A soft copy of the picture fills the screen edge to edge behind the full picture.
-            Color.black
+            PeekTheme.ink
                 .overlay {
                     Image(uiImage: picture)
                         .resizable()

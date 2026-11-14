@@ -44,6 +44,20 @@ struct DraftTests {
         #expect(second.strip?.size == CGSize(width: 2352, height: 1992))
     }
 
+    @Test func newBoothRemovesTheStoredDraft() async throws {
+        let first = model()
+        await first.startCamera()
+        await accept(2, in: first)
+
+        let second = model()
+        await second.discardStoredDraft()
+        await second.startCamera()
+
+        #expect(second.state.phase == .ready)
+        #expect(second.state.slots.allSatisfy { $0.acceptedTake == nil })
+        #expect(try await store.loadDraft() == nil)
+    }
+
     @Test func finishedSetComesBackWithItsStripAndItsShots() async {
         let first = model()
         await first.startCamera()

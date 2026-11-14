@@ -10,7 +10,7 @@ struct BoothStatusView: View {
         case .idle, .starting:
             ProgressView()
         case .running:
-            BoothStageView(model: model, isMirrored: false, isSubjectFacing: !model.isOuterDisplayPresenting)
+            BoothStageView(model: model, isSubjectFacing: !model.isOuterDisplayPresenting)
         case .denied:
             ContentUnavailableView {
                 Label(.cameraDeniedTitle, systemImage: "camera")

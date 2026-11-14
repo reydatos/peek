@@ -18,7 +18,7 @@ struct PoseStepper: View {
         }
         .font(PeekFont.sans(.headline))
         .padding()
-        .foregroundStyle(PeekTheme.cream)
+        .foregroundStyle(Color.white)
         .background(PeekTheme.ink, in: .capsule)
         .frame(maxHeight: .infinity, alignment: .top)
         .padding()

@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// The time remaining. The subject-facing form fills the display so it reads at portrait distance.
+/// The time remaining. The subject-facing form is large and at the bottom, so the numeral stays below faces.
 struct CountdownView: View {
     let remaining: Int
     let isSubjectFacing: Bool
@@ -8,18 +8,22 @@ struct CountdownView: View {
     var body: some View {
         if isSubjectFacing {
             Text(remaining, format: .number)
-                .font(PeekFont.serif(.largeTitle))
-                .scaleEffect(6)
-                .foregroundStyle(PeekTheme.cream)
+                .font(PeekFont.sans(.largeTitle))
+                .bold()
+                .monospacedDigit()
+                .scaleEffect(3, anchor: .bottom)
+                .foregroundStyle(Color.white)
                 .shadow(color: PeekTheme.ink, radius: 8)
+                .frame(maxHeight: .infinity, alignment: .bottom)
+                .padding()
         } else {
             Text(remaining, format: .number)
                 .font(PeekFont.sans(.largeTitle))
                 .bold()
                 .monospacedDigit()
                 .padding()
-                .foregroundStyle(PeekTheme.cream)
-                .background(PeekTheme.ink, in: .circle)
+                .foregroundStyle(Color.white)
+                .background(PeekTheme.panel, in: .circle)
         }
     }
 }
