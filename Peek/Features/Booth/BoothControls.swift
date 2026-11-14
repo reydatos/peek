@@ -9,6 +9,9 @@ struct BoothControls: View {
 
     var body: some View {
         VStack(alignment: .leading) {
+            if model.isDraftUnsaved {
+                Text(.draftNotSaved)
+            }
             switch model.state.phase {
             case .setup:
                 EmptyView()

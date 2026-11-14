@@ -650,6 +650,17 @@
         }
       }
     },
+    "draftNotSaved" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "These shots are not stored on this iPhone. If the app closes, they do not come back."
+          }
+        }
+      }
+    },
     "draftRestored" : {
       "extractionState" : "manual",
       "localizations" : {

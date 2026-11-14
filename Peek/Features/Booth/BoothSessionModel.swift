@@ -32,6 +32,8 @@ final class BoothSessionModel {
     /// The finished strip. It exists only while the session is complete.
     private(set) var strip: UIImage?
     private(set) var saveStatus: SaveStatus = .idle
+    /// True when storage does not hold the shots of this session. They do not come back after the app closes.
+    private(set) var isDraftUnsaved = false
 
     private(set) var countdownTask: Task<Void, Never>?
     private(set) var captureTask: Task<Void, Never>?
@@ -198,7 +200,8 @@ final class BoothSessionModel {
             run(effect)
         }
         updateStrip()
-        if state.slots != slots || !takesToDelete.isEmpty {
+        // While the draft is not stored, each event stores it again.
+        if state.slots != slots || !takesToDelete.isEmpty || isDraftUnsaved {
             persist()
         }
     }
@@ -250,41 +253,53 @@ final class BoothSessionModel {
 
     /// Stores the session: the bytes of each new take first, then the record, then the deletes.
     private func persist() {
-        guard drafts != nil else { return }
+        enqueue { [weak self] drafts in await self?.store(in: drafts) }
+    }
+
+    /// One storage operation. It reads the session when it runs, not when it was queued.
+    /// Thus an operation that follows a failed one writes the bytes that the failed one did not.
+    private func store(in drafts: any DraftStore) async {
         let takes = state.slots.flatMap { [$0.acceptedTake, $0.previousTake] }.compactMap(\.self)
         guard hasDraft || !takes.isEmpty else {
             takesToDelete.removeAll()
             return
         }
         hasDraft = true
+        let id = draftID
         let media = takes.filter { !stored.contains($0.id) }.compactMap { take in
             originals[take.id].map { (take, $0) }
         }
-        stored.formUnion(media.map(\.0.id))
         let deletes = takesToDelete.filter { stored.contains($0.id) }
         stored.subtract(deletes.map(\.id))
         takesToDelete.removeAll()
         let record = SessionRecord(
-            id: draftID,
+            id: id,
             templateID: packID,
             templateVersion: 1,
             countdown: state.countdown,
             layout: layout,
             slots: state.slots
         )
-        enqueue { [weak self] drafts in
-            do {
-                for (take, data) in media {
-                    try await drafts.writeMedia(data, for: take)
-                }
-                try await drafts.commit(record)
-                for take in deletes {
-                    try await drafts.deleteMedia(for: take)
-                }
-            } catch {
-                // The record in storage is still the last good one. The next change writes the bytes again.
-                self?.stored.subtract(media.map(\.0.id))
+        do {
+            for (take, data) in media {
+                try await drafts.writeMedia(data, for: take)
             }
+            try await drafts.commit(record)
+        } catch {
+            // The record in storage is still the last good one. The next event stores the session again.
+            if draftID == id {
+                isDraftUnsaved = true
+            }
+            return
+        }
+        // A new session can start during the writes. Its status is not the status of this record.
+        if draftID == id {
+            stored.formUnion(media.map(\.0.id))
+            isDraftUnsaved = false
+        }
+        for take in deletes {
+            // A media file that stays is not a fault: `loadDraft` removes the files that the record does not use.
+            try? await drafts.deleteMedia(for: take)
         }
     }
 
@@ -292,6 +307,7 @@ final class BoothSessionModel {
         let id = draftID
         draftID = UUID()
         hasDraft = false
+        isDraftUnsaved = false
         stored.removeAll()
         takesToDelete.removeAll()
         enqueue { drafts in try? await drafts.deleteDraft(id) }
