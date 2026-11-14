@@ -22,6 +22,8 @@ final class BoothSessionModel {
     var layout: PeekCore.Layout = .verticalStrip {
         didSet {
             guard layout != oldValue else { return }
+            stripTask?.cancel()
+            stripTask = nil
             strip = nil
             saveStatus = .idle
             updateStrip()
@@ -31,6 +33,8 @@ final class BoothSessionModel {
 
     /// The finished strip. It exists only while the session is complete.
     private(set) var strip: UIImage?
+    /// The draw of the strip. It runs off the main actor.
+    private(set) var stripTask: Task<Void, Never>?
     private(set) var saveStatus: SaveStatus = .idle
 
     private(set) var countdownTask: Task<Void, Never>?
@@ -313,17 +317,28 @@ final class BoothSessionModel {
     /// Makes the strip when the last shot is accepted. Drops it when a retake reopens the session.
     private func updateStrip() {
         if isComplete {
-            if strip == nil {
-                strip = StripRenderer.render(state.slots.compactMap { image(for: $0) }, layout: layout)
+            guard strip == nil, stripTask == nil else { return }
+            let shots = state.slots.compactMap { image(for: $0) }
+            stripTask = Task { [layout] in
+                let picture = await StripRenderer.renderInBackground(shots, layout: layout, style: .current)
+                // A retake, a new layout, or a new set cancels this draw.
+                guard !Task.isCancelled else { return }
+                strip = picture
+                stripTask = nil
             }
-        } else if strip != nil {
-            strip = nil
-            saveStatus = .idle
+        } else {
+            stripTask?.cancel()
+            stripTask = nil
+            if strip != nil {
+                strip = nil
+                saveStatus = .idle
+            }
         }
     }
 
     /// Saves the strip to Photos. The system asks for add-only access the first time.
     func saveStrip() async {
+        await stripTask?.value
         await save([strip?.jpegData(compressionQuality: 1)].compactMap(\.self))
     }
 

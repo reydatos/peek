@@ -14,6 +14,7 @@ struct FinishedStripTests {
             await model.captureTask?.value
             model.send(.accept)
         }
+        await model.stripTask?.value
         return model
     }
 
@@ -37,6 +38,8 @@ struct FinishedStripTests {
         await model.saveStrip()
 
         model.layout = .grid2x2
+        #expect(model.strip == nil)
+        await model.stripTask?.value
 
         #expect(model.strip?.size == CGSize(width: 2352, height: 1992))
         #expect(model.saveStatus == .idle)
@@ -82,10 +85,40 @@ struct FinishedStripTests {
 
         model.send(.retake(model.state.slots[1].id))
         #expect(model.strip == nil)
+        #expect(model.stripTask == nil)
 
         model.startNewSet()
         #expect(model.strip == nil)
         #expect(!model.hasShots)
         #expect(model.state.phase == .ready)
+    }
+
+    /// A layout change during the draw must not leave the picture of the old layout.
+    @Test func layoutChangeDuringTheDrawKeepsOnlyTheNewLayout() async {
+        let model = BoothSessionModel(capture: FakeCapture(), saver: FakeSaver(), sleep: { _ in })
+        await model.startCamera()
+        for _ in model.state.slots {
+            model.send(.start)
+            await model.countdownTask?.value
+            await model.captureTask?.value
+            model.send(.accept)
+        }
+        let first = model.stripTask
+        model.layout = .grid2x2
+        await first?.value
+        await model.stripTask?.value
+
+        #expect(model.strip?.size == CGSize(width: 2352, height: 1992))
+    }
+
+    @Test func saveStripWaitsForTheDraw() async {
+        let saver = FakeSaver()
+        let model = await completedModel(saver: saver)
+        model.layout = .grid2x2
+
+        await model.saveStrip()
+
+        #expect(model.saveStatus == .saved)
+        #expect(await saver.saved.first?.first.flatMap(UIImage.init(data:))?.size == CGSize(width: 2352, height: 1992))
     }
 }

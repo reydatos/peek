@@ -7,7 +7,7 @@ import UIKit
 /// The sizes are design values. PRD M3 asks for 600 x 1800 pixels or more for the strip; four shots give
 /// 1200 x 3744. The PRD gives no size for 2x2; the same cells give 2352 x 1992.
 /// Pose reference pictures are never drawn here.
-enum StripRenderer {
+nonisolated enum StripRenderer {
     static let margin: CGFloat = 48
     static let footer: CGFloat = 192
     /// Each shot is cropped to 4:3.
@@ -26,14 +26,40 @@ enum StripRenderer {
         )
     }
 
-    static func render(_ shots: [UIImage], layout: PeekCore.Layout = .verticalStrip, date: Date = .now) -> UIImage {
+    /// The values that come from the main actor: the theme colors, the font name, and the wordmark.
+    struct Style: Sendable {
+        let paper: UIColor
+        let ink: UIColor
+        let fontName: String
+        let wordmark: UIImage?
+
+        @MainActor static var current: Style {
+            Style(
+                paper: UIColor(PeekTheme.cream),
+                ink: UIColor(PeekTheme.ink),
+                fontName: PeekFont.sansName,
+                wordmark: UIImage(named: "peek-wordmark")
+            )
+        }
+    }
+
+    @MainActor static func render(_ shots: [UIImage], layout: PeekCore.Layout = .verticalStrip, date: Date = .now) -> UIImage {
+        draw(shots, layout: layout, date: date, style: .current)
+    }
+
+    /// Draws the picture off the main actor, so the decode of the full-size shots does not stop the interface.
+    @concurrent static func renderInBackground(_ shots: [UIImage], layout: PeekCore.Layout, date: Date = .now, style: Style) async -> UIImage {
+        draw(shots, layout: layout, date: date, style: style)
+    }
+
+    private static func draw(_ shots: [UIImage], layout: PeekCore.Layout, date: Date, style: Style) -> UIImage {
         let format = UIGraphicsImageRendererFormat()
         format.scale = 1
         format.opaque = true
         let size = size(shotCount: shots.count, layout: layout)
         let columns = columns(shotCount: shots.count, layout: layout)
         return UIGraphicsImageRenderer(size: size, format: format).image { context in
-            UIColor(PeekTheme.cream).setFill()
+            style.paper.setFill()
             context.fill(CGRect(origin: .zero, size: size))
             for (index, shot) in shots.enumerated() {
                 let frame = CGRect(
@@ -47,6 +73,7 @@ enum StripRenderer {
             }
             drawFooter(
                 date: date,
+                style: style,
                 in: CGRect(x: margin, y: size.height - footer, width: size.width - 2 * margin, height: footer)
             )
         }
@@ -68,15 +95,15 @@ enum StripRenderer {
         context.restoreGState()
     }
 
-    private static func drawFooter(date: Date, in frame: CGRect) {
-        let ink = UIColor(PeekTheme.ink)
-        let dateFont = UIFont(name: PeekFont.sansName, size: footer / 6) ?? .systemFont(ofSize: footer / 6)
+    private static func drawFooter(date: Date, style: Style, in frame: CGRect) {
+        let ink = style.ink
+        let dateFont = UIFont(name: style.fontName, size: footer / 6) ?? .systemFont(ofSize: footer / 6)
         let day = NSAttributedString(
             string: date.formatted(date: .abbreviated, time: .omitted),
             attributes: [.font: dateFont, .foregroundColor: ink]
         )
         // The PEEK wordmark, one third of the footer height.
-        if let wordmark = UIImage(named: "peek-wordmark"), wordmark.size.height > 0 {
+        if let wordmark = style.wordmark, wordmark.size.height > 0 {
             let height = footer / 3
             let width = height * wordmark.size.width / wordmark.size.height
             wordmark.draw(in: CGRect(x: frame.minX, y: frame.midY - height / 2, width: width, height: height))
