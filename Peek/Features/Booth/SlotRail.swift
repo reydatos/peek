@@ -11,17 +11,15 @@ struct SlotRail: View {
             ForEach(model.state.slots) { slot in
                 let number = slot.id.index + 1
                 Button { model.send(.retake(slot.id)) } label: {
-                    let cell = SlotCell(
+                    SlotCell(
                         number: number,
-                        image: model.image(for: slot),
-                        isCurrent: slot.id == model.state.currentSlotID
+                        isAccepted: slot.acceptedTake != nil,
+                        isCurrent: !model.isComplete && slot.id == model.state.currentSlotID,
+                        accent: model.pack?.accent ?? PeekTheme.strong
                     )
-                    if axis == .vertical {
-                        // Four cells use four tenths of the height. The pose reference uses the remainder.
-                        cell.containerRelativeFrame(.vertical, count: 10, spacing: 0)
-                    } else {
-                        cell
-                    }
+                    // The slot is small. The touch target is 44 points or more.
+                    .frame(minWidth: 44, minHeight: 44)
+                    .contentShape(.rect)
                 }
                 // The style keeps the full color of a slot with no shot. The plain style dims a disabled button.
                 .buttonStyle(SlotButtonStyle())

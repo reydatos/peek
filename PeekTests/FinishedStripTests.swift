@@ -121,4 +121,15 @@ struct FinishedStripTests {
         #expect(model.saveStatus == .saved)
         #expect(await saver.saved.first?.first.flatMap(UIImage.init(data:))?.size == CGSize(width: 2352, height: 1992))
     }
+
+    /// The strip is a picture. Its paper and its text must not follow dark mode.
+    @Test func stripColorsAreTheSameInLightAndDarkMode() {
+        let style = StripRenderer.Style.current
+        let light = UITraitCollection(userInterfaceStyle: .light)
+        let dark = UITraitCollection(userInterfaceStyle: .dark)
+
+        #expect(style.paper.resolvedColor(with: light) == style.paper.resolvedColor(with: dark))
+        #expect(style.ink.resolvedColor(with: light) == style.ink.resolvedColor(with: dark))
+        #expect(style.wordmark != nil)
+    }
 }

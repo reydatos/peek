@@ -3,8 +3,9 @@ import SwiftUI
 /// The packs that ship in the app. Cue names come from PRD FR-05 and from the UX lookbook (pages 04 and 04C).
 /// No source names the cues of the Animations pack. The owner chose them on 2026-11-14.
 ///
-/// The lookbook gives a tile color for Street Style and Kids Poses. The other tile colors are design values:
-/// cyan for editorial packs, lime for kids packs, pink for trend packs.
+/// The UI handoff gives three accents: cyan for Street Style, lime for Kids Poses, and pink for Animations.
+/// The other accents are design values: cyan for city packs, lime for kids packs, pink for trend packs.
+/// The classic booth has no accent color; its bar is the strong color, because only a primary action is red.
 enum PoseLibrary {
     static let classicID = "classic"
 
@@ -12,13 +13,13 @@ enum PoseLibrary {
     private static let director = PoseCue(id: "director", name: .cueDirector, symbol: "megaphone")
 
     static let packs: [PosePack] = [
-        PosePack(id: classicID, name: .packClassic, subtitle: .packClassicSubtitle, accent: PeekTheme.accent, isFree: true, cues: [
+        PosePack(id: classicID, name: .packClassic, subtitle: .packClassicSubtitle, accent: PeekTheme.strong, isFree: true, cues: [
             PoseCue(id: "smile", name: .cueSmile, symbol: "face.smiling"),
             PoseCue(id: "lookAtEachOther", name: .cueLookAtEachOther, symbol: "person.2"),
             PoseCue(id: "silly", name: .cueSilly, symbol: "theatermasks"),
             PoseCue(id: "yourPick", name: .cueYourPick, symbol: "sparkles"),
         ]),
-        PosePack(id: "streetStyle", name: .packStreetStyle, subtitle: .packStreetStyleSubtitle, accent: PeekTheme.live, isFree: false, cues: [
+        PosePack(id: "streetStyle", name: .packStreetStyle, subtitle: .packStreetStyleSubtitle, accent: PeekTheme.cyan, isFree: false, cues: [
             PoseCue(id: "walk", name: .cueWalk, symbol: "figure.walk"),
             PoseCue(id: "lookBack", name: .cueLookBack, symbol: "figure.stand"),
             PoseCue(id: "lean", name: .cueLean, symbol: "figure.cooldown"),
@@ -42,7 +43,7 @@ enum PoseLibrary {
             PoseCue(id: "slowMoSuperhero", name: .cueSlowMoSuperhero, symbol: "bolt"),
             director,
         ]),
-        PosePack(id: "animations", name: .packAnimations, subtitle: .packAnimationsSubtitle, accent: PeekTheme.lime, isFree: false, cues: [
+        PosePack(id: "animations", name: .packAnimations, subtitle: .packAnimationsSubtitle, accent: PeekTheme.pink, isFree: false, cues: [
             PoseCue(id: "squashAndStretch", name: .cueSquashAndStretch, symbol: "arrow.up.and.down"),
             PoseCue(id: "doubleTake", name: .cueDoubleTake, symbol: "eyes"),
             PoseCue(id: "jawDrop", name: .cueJawDrop, symbol: "mouth"),
@@ -66,13 +67,13 @@ enum PoseLibrary {
             PoseCue(id: "jacketShoulder", name: .cueJacketShoulder, symbol: "jacket"),
             PoseCue(id: "neckHold", name: .cueNeckHold, symbol: "figure.stand"),
         ]),
-        PosePack(id: "hongKongHer", name: .packHongKongHer, subtitle: .packCitySubtitle, accent: PeekTheme.live, isFree: false, cues: [
+        PosePack(id: "hongKongHer", name: .packHongKongHer, subtitle: .packCitySubtitle, accent: PeekTheme.cyan, isFree: false, cues: [
             PoseCue(id: "hkStepPause", name: .cueStepPause, symbol: "figure.stairs"),
             PoseCue(id: "hkBagSwing", name: .cueBagSwing, symbol: "bag"),
             PoseCue(id: "hkShutterLean", name: .cueShutterLean, symbol: "figure.stand"),
             PoseCue(id: "hkShadesPeek", name: .cueShadesPeek, symbol: "sunglasses"),
         ]),
-        PosePack(id: "hongKongHim", name: .packHongKongHim, subtitle: .packCitySubtitle, accent: PeekTheme.live, isFree: false, cues: [
+        PosePack(id: "hongKongHim", name: .packHongKongHim, subtitle: .packCitySubtitle, accent: PeekTheme.cyan, isFree: false, cues: [
             PoseCue(id: "hkStairSit", name: .cueStairSit, symbol: "figure.stairs"),
             PoseCue(id: "hkLookAway", name: .cueLookAway, symbol: "figure.stand"),
             PoseCue(id: "hkCapTug", name: .cueCapTug, symbol: "hat.cap"),

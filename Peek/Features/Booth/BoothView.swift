@@ -25,7 +25,7 @@ struct BoothView: View {
     var body: some View {
         @Bindable var model = model
         BoothLayout(model: model)
-            .background(PeekTheme.ink)
+            .background(PeekTheme.page)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button { posePicker = PosePickerRequest() } label: {

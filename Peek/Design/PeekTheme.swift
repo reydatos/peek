@@ -1,24 +1,69 @@
 import SwiftUI
+import UIKit
 
-/// The PEEK look, from the UX lookbook: midnight navy, warm ivory, the red wordmark, cyan for live, lime for kids.
+/// The PEEK look, from the UI handoff (`docs/design/DESIGN.md` and `docs/design/tokens.json`).
 ///
-/// The colors are the vector fills of the lookbook. The corner sizes are design values.
+/// Light, quiet, native: white surfaces, near-black text, grey hairlines, and one red.
+/// Each semantic color has a light value and a dark value. The dark values are neutral: no navy and no blue tint.
 enum PeekTheme {
-    static let ink = Color(red: 16 / 255, green: 27 / 255, blue: 56 / 255)
-    /// The fill of the primary camera action, and the light text color.
-    static let cream = Color(red: 249 / 255, green: 239 / 255, blue: 220 / 255)
-    /// The fill of a secondary control, and the soft text color.
-    static let mist = Color(red: 221 / 255, green: 229 / 255, blue: 240 / 255)
-    static let line = Color(red: 82 / 255, green: 96 / 255, blue: 121 / 255)
-    static let panel = Color(red: 34 / 255, green: 48 / 255, blue: 76 / 255)
-    /// The red of the wordmark and of the booth entry.
-    static let accent = Color(red: 197 / 255, green: 18 / 255, blue: 43 / 255)
-    /// The live frame and the selected slot.
-    static let live = Color(red: 35 / 255, green: 213 / 255, blue: 234 / 255)
-    static let lime = Color(red: 201 / 255, green: 243 / 255, blue: 56 / 255)
-    static let pink = Color(red: 255 / 255, green: 112 / 255, blue: 176 / 255)
-    /// The corner of a card or a button.
-    static let corner: CGFloat = 16
-    /// The corner of a chip, a slot, or a picture.
-    static let smallCorner: CGFloat = 6
+    /// The app background behind screens and grouped content.
+    static let page = dynamic(light: 0xF7F7F7, dark: 0x000000)
+    /// The background of a screen or a card.
+    static let surface = dynamic(light: 0xFFFFFF, dark: 0x1C1C1E)
+    /// Secondary buttons, chips, and empty slots.
+    static let fill = dynamic(light: 0xF2F2F7, dark: 0x2C2C2E)
+    /// Text and icons.
+    static let ink = dynamic(light: 0x1D1D1F, dark: 0xF5F5F7)
+    static let inkSecondary = dynamic(light: 0x6E6E73, dark: 0xAEAEB2)
+    /// Hairlines and card borders.
+    static let separator = dynamic(light: 0xE5E5EA, dark: 0x38383A)
+    /// The selected segment, an accepted slot, and the shutter ring.
+    static let strong = dynamic(light: 0x1D1D1F, dark: 0xF5F5F7)
+    static let onStrong = dynamic(light: 0xFFFFFF, dark: 0x1D1D1F)
+    /// The primary action and the shutter core. Nothing else is red.
+    static let red = fixed(0xD9291C)
+    static let onRed = fixed(0xFFFFFF)
+    /// Red as text on the page or on a surface.
+    static let redText = dynamic(light: 0xC4231A, dark: 0xFF6B5E)
+    static let wordmark = dynamic(light: 0xBA011C, dark: 0xFFFFFF)
+    /// The border of an instant photo. It is the same in the two modes.
+    static let photoPaper = fixed(0xFBF3E1)
+    /// The text on the paper of a strip and on a pack accent. It is the same in the two modes.
+    static let paperInk = fixed(0x1D1D1F)
+    /// The wordmark on the paper of a strip.
+    static let paperWordmark = fixed(0xBA011C)
+    /// The shade behind a white label on a photo.
+    static let scrim = Color.black.opacity(0.6)
+
+    // Pack accents. The handoff gives three; the editorial, kids, and trend groups use them.
+    static let cyan = fixed(0x22D3EE)
+    static let lime = fixed(0xC8F53A)
+    static let pink = fixed(0xFF69B4)
+
+    static let cardCorner: CGFloat = 20
+    static let photoCorner: CGFloat = 20
+    static let smallPhotoCorner: CGFloat = 12
+    static let buttonCorner: CGFloat = 14
+    static let primaryButtonCorner: CGFloat = 16
+    static let chipCorner: CGFloat = 16
+    static let slotCorner: CGFloat = 8
+    /// The smallest spacing step.
+    static let tightSpace: CGFloat = 6
+
+    private static func fixed(_ hex: UInt32) -> Color {
+        Color(uiColor(hex))
+    }
+
+    private static func dynamic(light: UInt32, dark: UInt32) -> Color {
+        Color(UIColor { $0.userInterfaceStyle == .dark ? uiColor(dark) : uiColor(light) })
+    }
+
+    private nonisolated static func uiColor(_ hex: UInt32) -> UIColor {
+        UIColor(
+            red: CGFloat((hex >> 16) & 0xFF) / 255,
+            green: CGFloat((hex >> 8) & 0xFF) / 255,
+            blue: CGFloat(hex & 0xFF) / 255,
+            alpha: 1
+        )
+    }
 }

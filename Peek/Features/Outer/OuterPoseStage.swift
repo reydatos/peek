@@ -15,14 +15,14 @@ struct OuterPoseStage: View {
             // The same 4:3 crop as the shot, so the people see how the shot frames them.
             .aspectRatio(4 / 3, contentMode: .fit)
             .containerRelativeFrame(.horizontal, count: 5, span: 2, spacing: 0)
-            .clipShape(.rect(cornerRadius: PeekTheme.smallCorner))
+            .clipShape(.rect(cornerRadius: PeekTheme.smallPhotoCorner))
             .padding()
             .accessibilityLabel(Text(.livePreview))
             // The small frame stays inside the safe area, clear of the camera housing.
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
             .background {
                 // The picture fills the display edge to edge. The display crops the sides of the picture.
-                PeekTheme.ink
+                PeekTheme.page
                     .overlay {
                         Image(uiImage: picture)
                             .resizable()
