@@ -11,13 +11,19 @@ struct BoothStageView: View {
     let isSubjectFacing: Bool
     /// False in the wide booth: the leading panel shows the pose reference there.
     var showsPoseArt = true
+    /// True on a tall display: the photo runs edge to edge, and the camera bar has the cue line.
+    var isFullBleed = false
 
     var body: some View {
-        VStack(alignment: .leading) {
+        if isFullBleed {
             photo
-            CueLine(model: model, isSubjectFacing: isSubjectFacing)
+        } else {
+            VStack(alignment: .leading) {
+                photo
+                CueLine(model: model, isSubjectFacing: isSubjectFacing)
+            }
+            .padding()
         }
-        .padding()
     }
 
     private var photo: some View {
@@ -45,13 +51,15 @@ struct BoothStageView: View {
                     .accessibilityLabel(Text(.livePreview))
             }
         }
-        .clipShape(.rect(cornerRadius: PeekTheme.photoCorner))
+        .clipShape(.rect(cornerRadius: isFullBleed ? 0 : PeekTheme.photoCorner))
         .overlay(alignment: .topLeading) {
             VStack(alignment: .leading) {
                 StageChips(model: model)
                 BoothBanners(model: model)
             }
             .padding()
+            // On a tall display, the close button and the More menu are above the labels.
+            .padding(.top, isFullBleed ? PeekTheme.touchTarget : 0)
         }
         .overlay(alignment: .bottomLeading) {
             // With one screen, the pose reference moves into the camera view.

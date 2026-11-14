@@ -35,6 +35,8 @@ enum PeekTheme {
     /// The white paper and the black paper of a strip. On black paper the text and the wordmark are white.
     static let paperWhite = fixed(0xFFFFFF)
     static let paperBlack = fixed(0x000000)
+    /// The bar of the full-screen camera on a tall display. It is black in the two modes.
+    static let cameraChrome = fixed(0x000000)
     /// The shade behind a white label on a photo.
     static let scrim = Color.black.opacity(0.6)
 

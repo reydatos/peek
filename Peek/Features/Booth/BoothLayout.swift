@@ -4,7 +4,8 @@ import SwiftUI
 ///
 /// A wide display has the pose reference on the leading side, the photo in the center, and the side rail on the
 /// trailing side. So the controls stay clear of the fold; only the photo can cross it.
-/// A tall display has the photo above the slots and the controls.
+/// A tall display has the full-screen camera above the black camera bar. A finished set on a tall display has
+/// the strip above the slots and the controls.
 struct BoothLayout: View {
     let model: BoothSessionModel
     let actions: BoothActions
@@ -20,6 +21,24 @@ struct BoothLayout: View {
                     BoothSideRail(model: model, actions: actions)
                         .frame(width: PeekTheme.railWidth)
                 }
+            } else if model.cameraStatus == .running, !model.isComplete {
+                // A tall display: the photo fills the top, and the black camera bar is below it.
+                VStack(spacing: 0) {
+                    BoothStatusView(model: model, isFullBleed: true)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .overlay(alignment: .top) {
+                            HStack {
+                                Button(action: actions.close) {
+                                    PeekIconLabel(text: .close, systemImage: "xmark")
+                                }
+                                Spacer()
+                                BoothMoreMenu(model: model)
+                            }
+                            .padding(.horizontal)
+                        }
+                    BoothCameraBar(model: model, actions: actions)
+                }
+                .background(PeekTheme.cameraChrome)
             } else {
                 BoothStatusView(model: model)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
