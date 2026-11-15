@@ -12,7 +12,7 @@ struct OuterCueView: View {
     var body: some View {
         if model.isComplete, let strip = model.strip {
             // The finished strip stays inside the safe area, so the camera housing hides no shot.
-            FinishedStripView(strip: strip)
+            FinishedStripView(strip: strip, isRightAligned: true)
                 .background(PeekTheme.page)
         } else if model.state.phase == .ready, model.state.subjectView == .reference,
                   let cue = model.currentCue, UIImage(named: cue.assetName) != nil

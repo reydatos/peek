@@ -9,7 +9,10 @@ struct OuterCaption: View {
     var countdownLength = 3
 
     var body: some View {
-        Group {
+        ZStack {
+            // The caption keeps the height of the countdown, so the crop above it does not change size.
+            CountdownView(remaining: 0, total: countdownLength, isLarge: true)
+                .hidden()
             switch phase {
             case .ready:
                 Text(cueName)

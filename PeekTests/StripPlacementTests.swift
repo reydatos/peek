@@ -29,4 +29,32 @@ struct StripPlacementTests {
         let frame = StripPlacement.frame(in: container, avoiding: [outside], aspect: aspect)
         #expect(abs(frame.height - 704) < 0.01)
     }
+
+    @Test func aRightAlignedPictureIsAtTheRightEdge() {
+        // A 3:4 picture on a display that is wider than 3:4: the spare width is at the left.
+        let display = CGSize(width: 600, height: 600)
+        let frame = StripPlacement.frame(in: display, avoiding: [], aspect: 3 / 4, isRightAligned: true)
+
+        #expect(abs(frame.height - 600) < 0.01)
+        #expect(abs(frame.width - 450) < 0.01)
+        #expect(abs(frame.maxX - 600) < 0.01)
+    }
+
+    @Test func aCoverAtTheLeftMovesTheRightAlignedPictureClearOfIt() {
+        let display = CGSize(width: 600, height: 600)
+        let cover = CGRect(x: 0, y: 0, width: 200, height: 600)
+        let frame = StripPlacement.frame(in: display, avoiding: [cover], aspect: 3 / 4, isRightAligned: true)
+
+        #expect(!frame.intersects(cover))
+        #expect(abs(frame.maxX - 600) < 0.01)
+        #expect(abs(frame.width - 400) < 0.01)
+    }
+
+    @Test func theFreeAreaIsTheLargestAreaThatNothingCovers() {
+        let display = CGSize(width: 600, height: 600)
+        #expect(StripPlacement.freeArea(in: display, avoiding: []) == CGRect(x: 0, y: 0, width: 600, height: 600))
+
+        let cover = CGRect(x: 0, y: 0, width: 200, height: 600)
+        #expect(StripPlacement.freeArea(in: display, avoiding: [cover]) == CGRect(x: 200, y: 0, width: 400, height: 600))
+    }
 }
