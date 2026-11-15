@@ -4,6 +4,7 @@ import SwiftUI
 /// The controls that have no place on the rail: the countdown length, the glam light, and the outer display.
 struct BoothMoreMenu: View {
     @Bindable var model: BoothSessionModel
+    @State private var isConfirmingNewSet = false
 
     var body: some View {
         Menu {
@@ -34,8 +35,21 @@ struct BoothMoreMenu: View {
                     Label(.mirrorOuterPreview, systemImage: "arrow.left.and.right")
                 }
             }
+            // The booth has no close button, so a set that has shots starts again from here.
+            if model.hasShots, !model.isComplete {
+                Button(role: .destructive) { isConfirmingNewSet = true } label: {
+                    Label(.newSet, systemImage: "plus")
+                }
+            }
         } label: {
             PeekIconLabel(text: .more, systemImage: "ellipsis")
+        }
+        // A new set discards the shots, so the photographer confirms first.
+        .confirmationDialog(Text(.discardShotsTitle), isPresented: $isConfirmingNewSet, titleVisibility: .visible) {
+            Button(role: .destructive) { model.startNewSet() } label: { Text(.discardShots) }
+            Button(role: .cancel) {} label: { Text(.cancel) }
+        } message: {
+            Text(.discardShotsMessage)
         }
     }
 }

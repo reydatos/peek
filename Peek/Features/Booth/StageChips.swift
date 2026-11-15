@@ -1,7 +1,8 @@
 import PeekCore
 import SwiftUI
 
-/// The state labels on the photographer's picture: live with the shot number, or the shot in review.
+/// The state labels on the photographer's picture: the shot number, or the shot in review.
+/// The picture has no "Live" label (owner decision, 2026-11-15).
 struct StageChips: View {
     let model: BoothSessionModel
 
@@ -10,7 +11,6 @@ struct StageChips: View {
         HStack {
             switch model.state.phase {
             case .ready, .countdown, .capturePending, .paused:
-                PeekChip(text: .live)
                 PeekChip(text: .shotOf(number, model.state.slots.count))
             case .review:
                 PeekChip(text: .shotReview(number))

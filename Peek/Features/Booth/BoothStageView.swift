@@ -109,15 +109,23 @@ struct BoothStageView: View {
         }
         .overlay(alignment: .bottomLeading) {
             if isFullBleed {
-                // The viewfinder has no cue line, so the pose and its name are one card in the corner.
                 // The viewfinder has no cue line and no pose name (owner decision, 2026-11-15): the pose picture
-                // alone is in the corner, in one row with the zoom choices.
-                HStack(alignment: .bottom) {
-                    if showsPoseCard, let cue = model.currentCue {
-                        PoseGuide(cue: cue, accent: model.accent, isLarge: isSubjectFacing)
+                // alone is in the corner.
+                // The zoom choices are in the center, as the other controls of the viewfinder. An invisible copy
+                // of the pose picture at the right keeps them there. With too little width, they go to the right.
+                ViewThatFits(in: .horizontal) {
+                    HStack(alignment: .bottom) {
+                        poseCorner
+                        Spacer(minLength: PeekTheme.tightSpace)
+                        ZoomChips(model: model)
+                        Spacer(minLength: PeekTheme.tightSpace)
+                        poseCorner.hidden()
                     }
-                    Spacer(minLength: 0)
-                    ZoomChips(model: model)
+                    HStack(alignment: .bottom) {
+                        poseCorner
+                        Spacer(minLength: 0)
+                        ZoomChips(model: model)
+                    }
                 }
                 .padding()
             } else if isSubjectFacing, canStepPose, let cue = model.currentCue {
@@ -159,6 +167,13 @@ struct BoothStageView: View {
     /// True while the booth waits for a shot.
     private var canStepPose: Bool {
         model.state.phase == .ready
+    }
+
+    /// The pose picture in the corner of the viewfinder.
+    @ViewBuilder private var poseCorner: some View {
+        if showsPoseCard, let cue = model.currentCue {
+            PoseGuide(cue: cue, accent: model.accent, isLarge: isSubjectFacing)
+        }
     }
 
     /// True while the pose picture shows: not in the countdown or the capture, so it covers no face then.

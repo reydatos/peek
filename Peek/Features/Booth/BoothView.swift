@@ -12,7 +12,6 @@ struct BoothView: View {
     /// The pose tray is an overlay of this view, not a sheet. So the booth and its outer display stay onscreen.
     @State private var isTrayOpen = false
     @Environment(\.scenePhase) private var scenePhase
-    @Environment(\.dismiss) private var dismiss
 
     private let resumesDraft: Bool
 
@@ -27,7 +26,6 @@ struct BoothView: View {
 
     var body: some View {
         BoothLayout(model: model, actions: BoothActions(
-            close: { dismiss() },
             showPoses: {
                 // The tray changes the poses of the open shots, so it opens only while the booth waits.
                 // In other states the button opens the pose library.
@@ -100,10 +98,18 @@ struct BoothView: View {
                 await model.discardStoredDraft()
             }
             await model.startCamera()
+            // The app opens on the viewfinder, so a set that came back from storage continues with no extra step.
+            model.continueIfWaiting()
         }
         .onDisappear { model.stopCamera() }
         .onChange(of: scenePhase) { _, phase in
-            if phase != .active {
+            if phase == .active {
+                // The booth is the first screen, so it has no other way to start the camera again.
+                Task {
+                    await model.retryCamera()
+                    model.continueIfWaiting()
+                }
+            } else {
                 model.send(.pause(.interruption))
             }
         }

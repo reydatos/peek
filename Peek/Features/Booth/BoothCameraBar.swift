@@ -6,7 +6,6 @@ import SwiftUI
 struct BoothCameraBar: View {
     let model: BoothSessionModel
     let actions: BoothActions
-    @ScaledMetric(relativeTo: .body) private var thumbnail = 52
 
     var body: some View {
         VStack {
@@ -30,20 +29,13 @@ struct BoothCameraBar: View {
         case .setup, .complete:
             EmptyView()
         case .ready:
+            // The flip button, the shutter, and the poses button are one row in the center (owner decision, 2026-11-15).
             HStack {
-                // The flip button is directly left of the shutter (owner decision, 2026-11-15).
-                HStack {
-                    lastShot
-                    Spacer(minLength: 0)
-                    FlipCameraButton(model: model)
-                }
-                .frame(maxWidth: .infinity)
+                FlipCameraButton(model: model)
                 shutter
-                // The poses button is an icon, as on the side rail, so the shutter stays in the center.
                 Button(action: actions.showPoses) {
                     PeekIconLabel(text: .poses, systemImage: "square.grid.2x2")
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
             }
         case .countdown:
             // The numeral is on the picture, large.
@@ -83,22 +75,8 @@ struct BoothCameraBar: View {
             Text(model.countdown == .manual ? .takeShot : .startAfterSeconds(model.countdown.seconds))
                 .font(.footnote)
                 .fontWeight(.semibold)
+                // The label can be wider than the shutter, so it keeps its full width.
+                .fixedSize()
         }
-    }
-
-    /// The last accepted shot, or an empty frame before the first one.
-    private var lastShot: some View {
-        let image = model.state.slots.last { $0.acceptedTake != nil }.flatMap { model.image(for: $0) }
-        return PeekTheme.fill
-            .frame(width: thumbnail, height: thumbnail)
-            .overlay {
-                if let image {
-                    Image(uiImage: image)
-                        .resizable()
-                        .scaledToFill()
-                }
-            }
-            .clipShape(.rect(cornerRadius: PeekTheme.smallPhotoCorner))
-            .accessibilityHidden(true)
     }
 }

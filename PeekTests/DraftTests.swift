@@ -78,6 +78,58 @@ struct DraftTests {
         #expect(await saver.saved == [Array(repeating: FakeCapture.photoData, count: 4)])
     }
 
+    @Test func aSavedFinishedSetDoesNotComeBack() async throws {
+        let first = model()
+        await first.startCamera()
+        await accept(4, in: first)
+        await first.saveStrip()
+        await first.persistTask?.value
+        #expect(first.saveStatus == .saved)
+        // The finished set stays on the screen after the save.
+        #expect(first.isComplete)
+
+        #expect(try await store.loadDraft() == nil)
+        let second = model()
+        await second.restoreDraft()
+        await second.startCamera()
+        #expect(second.state.phase == .ready)
+    }
+
+    @Test func aDraftThatCameBackContinuesAtReadyWithNoExtraStep() async {
+        let first = model()
+        await first.startCamera()
+        await accept(2, in: first)
+
+        let second = model()
+        await second.restoreDraft()
+        await second.startCamera()
+        second.continueIfWaiting()
+        #expect(second.state.phase == .ready)
+        #expect(second.state.currentSlotID == SlotID(2))
+    }
+
+    @Test func theBoothContinuesAfterTheAppComesBackButACountdownWaits() async {
+        let waiting = BoothSessionModel(capture: FakeCapture(), saver: FakeSaver(), sleep: { _ in try await Task.sleep(for: .seconds(3600)) })
+        await waiting.startCamera()
+        waiting.send(.pause(.interruption))
+        waiting.continueIfWaiting()
+        #expect(waiting.state.phase == .ready)
+
+        waiting.send(.start)
+        waiting.send(.pause(.interruption))
+        waiting.continueIfWaiting()
+        #expect(waiting.state.phase == .paused(resumeTo: .countdown, reason: .interruption))
+    }
+
+    @Test func theCameraStartsAgainAfterAFault() async {
+        let model = BoothSessionModel(capture: FakeCapture(startError: .permissionDenied), saver: FakeSaver())
+        await model.startCamera()
+        #expect(model.cameraStatus == .denied)
+        // The fake camera fails each time, so the retry gives the same status, not `idle`.
+        await model.retryCamera()
+        #expect(model.cameraStatus == .denied)
+    }
+
     @Test func newSetDeletesTheDraft() async throws {
         let first = model()
         await first.startCamera()

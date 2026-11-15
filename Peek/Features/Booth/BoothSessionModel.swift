@@ -310,6 +310,27 @@ final class BoothSessionModel {
         }
     }
 
+    /// Continues a set that waits at "ready" after the app came back or after a draft came back.
+    /// The shutter is then available with no extra step. A countdown does not start again by itself:
+    /// a pause in a countdown waits for the photographer.
+    func continueIfWaiting() {
+        guard case let .paused(resumeTo: .ready, reason: reason) = state.phase,
+              reason == .interruption || reason == .recovered
+        else { return }
+        send(.resume)
+    }
+
+    /// Starts the camera again after it did not start: no permission, no camera, or a fault.
+    func retryCamera() async {
+        switch cameraStatus {
+        case .denied, .unavailable, .failed:
+            cameraStatus = .idle
+            await startCamera()
+        case .idle, .starting, .running:
+            break
+        }
+    }
+
     func stopCamera() {
         send(.pause(.interruption))
         cameraStatus = .idle
@@ -498,6 +519,10 @@ final class BoothSessionModel {
         do {
             try await saver.save(photos)
             saveStatus = .saved
+            // The app opens on the viewfinder. A finished set that is in Photos does not come back at the next launch.
+            if isComplete {
+                deleteDraft()
+            }
         } catch PhotoSaveError.denied {
             saveStatus = .denied
         } catch {
