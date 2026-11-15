@@ -54,4 +54,32 @@ struct GlamLightTests {
         await model.flipCamera()
         #expect(model.showsInnerGlamLight)
     }
+
+    @Test func theLightIsFullDuringTheCountdownOnly() async {
+        let model = BoothSessionModel(capture: FakeCapture(), saver: FakeSaver(), sleep: { _ in try await Task.sleep(for: .seconds(3600)) })
+        await model.startCamera()
+        model.setGlamLight(true)
+        #expect(!model.isGlamLightFull)
+        model.send(.start)
+        #expect(model.isGlamLightFull)
+        model.send(.cancel)
+        #expect(!model.isGlamLightFull)
+        // With the light off, the countdown shows no light.
+        model.setGlamLight(false)
+        model.send(.start)
+        #expect(!model.isGlamLightFull)
+    }
+
+    @Test func theStripBandOfAnUprightPictureIsTheCenterCell() {
+        let band = StripPlacement.stripBand(in: CGSize(width: 300, height: 400))
+        #expect(abs(band.height - 300 / StripRenderer.cellAspect) < 0.01)
+        #expect(abs(band.midY - 200) < 0.01)
+        #expect(band.width == 300)
+    }
+
+    @Test func theStripBandOfAWidePictureIsTheFullHeight() {
+        let band = StripPlacement.stripBand(in: CGSize(width: 800, height: 300))
+        #expect(band.height == 300)
+        #expect(band.minY == 0)
+    }
 }

@@ -2,7 +2,7 @@ import PeekCore
 import SwiftUI
 
 /// The black bar below the viewfinder on a tall display, as in a camera app.
-/// It has the four progress bars and the actions of the state. The countdown is here, below the photo.
+/// It has the four progress bars and the actions of the state.
 struct BoothCameraBar: View {
     let model: BoothSessionModel
     let actions: BoothActions
@@ -45,15 +45,12 @@ struct BoothCameraBar: View {
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
-        case let .countdown(remaining):
-            HStack {
-                CountdownView(remaining: remaining, total: model.countdown.seconds)
-                    .frame(maxWidth: .infinity)
-                Button(role: .cancel) { model.send(.cancel) } label: {
-                    Label(.cancel, systemImage: "xmark")
-                }
-                .buttonStyle(PeekSecondaryButtonStyle())
+        case .countdown:
+            // The numeral is on the picture, large.
+            Button(role: .cancel) { model.send(.cancel) } label: {
+                Label(.cancel, systemImage: "xmark")
             }
+            .buttonStyle(PeekSecondaryButtonStyle())
         case .capturePending:
             ProgressView()
                 .frame(minHeight: PeekTheme.touchTarget)

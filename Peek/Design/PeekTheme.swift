@@ -63,7 +63,8 @@ enum PeekTheme {
     /// and it is less than one half of a wide display.
     static let trayWidth: CGFloat = 420
     /// The width of the side rail in a wide booth.
-    static let railWidth: CGFloat = 150
+    /// The handoff gives 150. The flip button beside the shutter needs 20 more (owner decision, 2026-11-15).
+    static let railWidth: CGFloat = 170
 
     private nonisolated static func fixed(_ hex: UInt32) -> Color {
         Color(uiColor(hex))
