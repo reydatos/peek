@@ -6,6 +6,8 @@ struct CameraPreviewView: UIViewRepresentable {
     let session: AVCaptureSession
     let deviceID: String?
     let isMirrored: Bool
+    /// Receives the aspect (width / height) of the live picture, so the caller can give the picture its shape.
+    var onAspect: (CGFloat) -> Void = { _ in }
 
     func makeUIView(context _: Context) -> PreviewUIView {
         let view = PreviewUIView()
@@ -15,6 +17,7 @@ struct CameraPreviewView: UIViewRepresentable {
     }
 
     func updateUIView(_ view: PreviewUIView, context _: Context) {
+        view.onAspect = onAspect
         view.observeRotation(deviceID: deviceID)
         view.setMirrored(isMirrored)
     }

@@ -13,6 +13,8 @@ struct BoothStageView: View {
     var showsPoseArt = true
     /// True on a tall display: the photo runs edge to edge, and the camera bar has the cue line.
     var isFullBleed = false
+    /// The aspect (width / height) of the live picture. The camera reports it.
+    @State private var liveAspect = PreviewAspect.fallback
 
     var body: some View {
         if isFullBleed {
@@ -20,10 +22,22 @@ struct BoothStageView: View {
         } else {
             VStack(alignment: .leading) {
                 photo
+                    .modifier(PhotoCardShape(aspect: cardAspect))
                 CueLine(model: model, isSubjectFacing: isSubjectFacing)
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             .padding()
         }
+    }
+
+    /// The card takes the shape of its picture, so no empty band shows beside the picture.
+    /// A finished set has no single picture, so its card fills the space.
+    private var cardAspect: CGFloat? {
+        guard !model.isComplete else { return nil }
+        if let still = model.stillImage, still.size.height > 0 {
+            return still.size.width / still.size.height
+        }
+        return liveAspect
     }
 
     private var photo: some View {
@@ -47,8 +61,10 @@ struct BoothStageView: View {
                     .accessibilityLabel(Text(.capturedPhoto))
             } else {
                 // The front camera shows a mirror picture, as a selfie does. The saved shot is not a mirror picture.
-                CameraPreviewView(session: model.capture.session, deviceID: model.deviceID, isMirrored: model.isSelfie)
-                    .accessibilityLabel(Text(.livePreview))
+                CameraPreviewView(session: model.capture.session, deviceID: model.deviceID, isMirrored: model.isSelfie) {
+                    liveAspect = $0
+                }
+                .accessibilityLabel(Text(.livePreview))
             }
         }
         .clipShape(.rect(cornerRadius: isFullBleed ? 0 : PeekTheme.photoCorner))
@@ -102,5 +118,18 @@ struct BoothStageView: View {
     /// True while the booth waits for a shot.
     private var canStepPose: Bool {
         model.state.phase == .ready
+    }
+}
+
+/// Gives the photo card the aspect of its picture, or lets it fill the space when there is no aspect.
+private struct PhotoCardShape: ViewModifier {
+    let aspect: CGFloat?
+
+    func body(content: Content) -> some View {
+        if let aspect {
+            content.aspectRatio(aspect, contentMode: .fit)
+        } else {
+            content
+        }
     }
 }
