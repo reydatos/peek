@@ -3,8 +3,9 @@ import SwiftUI
 
 /// The inner display's picture, inset with rounded corners, and the cue line below it.
 ///
-/// The picture is the live frame, the shot in review, or the finished strip. The inner display shows the full
-/// frame (aspect-fit). The outer display has its own views in `Features/Outer`.
+/// The picture is the live frame, the shot in review, or the finished strip. A tall display shows the full
+/// frame. A wide display shows the part that the finished picture keeps: the photo card has the shape of one
+/// shot in the strip, and the picture covers it. The outer display has its own views in `Features/Outer`.
 struct BoothStageView: View {
     let model: BoothSessionModel
     /// True when no outer display shows the cue. The people in the photo then read this display.
@@ -13,9 +14,6 @@ struct BoothStageView: View {
     var showsPoseArt = true
     /// True on a tall display: the photo runs edge to edge, and the camera bar has the cue line.
     var isFullBleed = false
-    /// The aspect (width / height) of the live picture. The camera reports it.
-    @State private var liveAspect = PreviewAspect.fallback
-
     var body: some View {
         if isFullBleed {
             photo
@@ -30,14 +28,10 @@ struct BoothStageView: View {
         }
     }
 
-    /// The card takes the shape of its picture, so no empty band shows beside the picture.
+    /// The card has the shape of one shot in the finished picture, so it shows the part that the strip keeps.
     /// A finished set has no single picture, so its card fills the space.
     private var cardAspect: CGFloat? {
-        guard !model.isComplete else { return nil }
-        if let still = model.stillImage, still.size.height > 0 {
-            return still.size.width / still.size.height
-        }
-        return liveAspect
+        model.isComplete ? nil : StripRenderer.cellAspect
     }
 
     private var photo: some View {
@@ -54,16 +48,29 @@ struct BoothStageView: View {
             } else if model.isComplete {
                 // The strip is not drawn yet.
                 ProgressView()
-            } else if let still = model.stillImage {
+            } else if let still = model.stillImage, isFullBleed {
                 Image(uiImage: still)
                     .resizable()
                     .scaledToFit()
                     .accessibilityLabel(Text(.capturedPhoto))
+            } else if let still = model.stillImage {
+                // The shot covers the card, as it covers its cell in the strip. An overlay keeps the card's size.
+                Color.clear
+                    .overlay {
+                        Image(uiImage: still)
+                            .resizable()
+                            .scaledToFill()
+                    }
+                    .accessibilityElement()
+                    .accessibilityLabel(Text(.capturedPhoto))
             } else {
                 // The front camera shows a mirror picture, as a selfie does. The saved shot is not a mirror picture.
-                CameraPreviewView(session: model.capture.session, deviceID: model.deviceID, isMirrored: model.isSelfie) {
-                    liveAspect = $0
-                }
+                CameraPreviewView(
+                    session: model.capture.session,
+                    deviceID: model.deviceID,
+                    isMirrored: model.isSelfie,
+                    fillsView: !isFullBleed
+                )
                 .accessibilityLabel(Text(.livePreview))
             }
         }
