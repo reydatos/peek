@@ -72,13 +72,7 @@ struct BoothStageView: View {
             }
         }
         .overlay {
-            if isFullBleed, !model.isComplete {
-                StripCropGuides()
-            }
-        }
-        .overlay {
             // For a selfie, the photo is the warm light during the countdown and the capture.
-            // The light covers the guide lines.
             if model.showsInnerGlamLight, model.isGlamLightFull {
                 PeekTheme.glamLight
             }
