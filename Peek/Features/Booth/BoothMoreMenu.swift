@@ -1,7 +1,7 @@
 import PeekCore
 import SwiftUI
 
-/// The controls that have no place on the rail: the countdown length, the camera flip, and the outer display.
+/// The controls that have no place on the rail: the countdown length, the glam light, and the outer display.
 struct BoothMoreMenu: View {
     @Bindable var model: BoothSessionModel
 
@@ -14,10 +14,6 @@ struct BoothMoreMenu: View {
             } label: {
                 Text(.countdownLabel)
             }
-            Button { Task { await model.flipCamera() } } label: {
-                Label(.flipCamera, systemImage: "arrow.triangle.2.circlepath.camera")
-            }
-            .disabled(model.state.phase != .ready)
             // The light needs a display that faces the people: the outer display, or the inner display for a selfie.
             Toggle(isOn: Binding(get: { model.isGlamLightOn }, set: { model.setGlamLight($0) })) {
                 Label(.glamLight, systemImage: "moon.stars")

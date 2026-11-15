@@ -75,7 +75,7 @@ No serif and no italic lettering anywhere in the app.
 - Current: pack accent fill, the shot number, and a 2 ring in `strong`.
 - Empty: `fill` background, the shot number in `inkSecondary`.
 
-**Side rail (regular width, landscape).** 150 wide column on the trailing edge. Top to bottom: close, pose reference thumbnail with name, four slots, shutter, poses button. In review it shows Keep shot and Retake. On the finished screen it shows Save Strip, Share, Save Originals.
+**Side rail (regular width, landscape).** 150 wide column on the trailing edge. Top to bottom: close, pose reference thumbnail with name, four slots, shutter, poses button, with the flip button at its left (the rail has no space beside the shutter). In review it shows Keep shot and Retake. On the finished screen it shows Save Strip, Share, Save Originals.
 
 **Side bar (compact width).** 60 wide column on the trailing edge, below the outer camera: close, four slots stacked, shutter.
 
@@ -122,7 +122,7 @@ Each entry gives the state, the primary action and the layout rule.
 - State: pose selected, one shot accepted, next shot pending.
 - Primary action: shutter (starts the countdown).
 - Photographer: live photo on the leading side with a "Live" chip and the cue line under it; side rail with the one pose reference thumbnail. A sideways swipe on the photo, or the poses button, changes the pose. No leading panel: a second pose picture beside the photo conflicted with the rail thumbnail. With one screen (no subject display), the pose reference is large in the bottom-leading corner of the photo, and the rail has no thumbnail.
-- Tall display (a closed iPhone Duo, a standard iPhone): a viewfinder as in a camera app. The upright 3:4 picture has the full width. The pose picture, with no name, is in the bottom-leading corner of the picture, beside the zoom choices. The black bar below has the four progress bars and the shutter row. The countdown numeral is in that bar, beside Cancel. There is no cue line.
+- Tall display (a closed iPhone Duo, a standard iPhone): a viewfinder as in a camera app. The upright 3:4 picture has the full width. The pose picture, with no name, is in the bottom-leading corner of the picture, beside the zoom choices. The black bar below has the four progress bars and the shutter row. The shutter row has the last shot, the flip button directly left of the shutter, and the poses button at its right. The countdown numeral is in that bar, beside Cancel. There is no cue line.
 - Subject: "Pose reference" chip, large reference in an accent frame, cue.
 - The reference must look different from the live camera: different image treatment, an accent frame and a label.
 
