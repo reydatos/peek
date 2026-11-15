@@ -15,7 +15,8 @@ struct SlotRail: View {
                         number: number,
                         isAccepted: slot.acceptedTake != nil,
                         isCurrent: !model.isComplete && slot.id == model.state.currentSlotID,
-                        accent: model.accent
+                        accent: model.accent,
+                        onAccent: model.onAccent
                     )
                     // The slot is small. The touch target is 44 points or more.
                     .frame(minWidth: 44, minHeight: 44)

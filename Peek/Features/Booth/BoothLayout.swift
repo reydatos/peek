@@ -28,6 +28,8 @@ struct BoothLayout: View {
                 }
                 // With the glam light, the page is the warm light, so the content has the light-mode colors.
                 .environment(\.colorScheme, model.showsInnerGlamLight ? .light : colorScheme)
+                // The clock and the battery of an open iPhone Duo are in the corner of the rail, over its buttons.
+                .statusBarHidden()
             } else if model.cameraStatus == .running, !model.isComplete {
                 // A tall display: a viewfinder at the full width, and the black camera bar below it.
                 VStack(spacing: 0) {
