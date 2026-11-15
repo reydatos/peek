@@ -6,11 +6,11 @@ struct PeekApp: App {
 
     var body: some Scene {
         WindowGroup {
-            NavigationStack {
-                HomeView()
-            }
-            .tint(PeekTheme.ink)
-            .environment(savedPoses)
+            // The app opens on the viewfinder (owner decision, 2026-11-15). There is no Home screen.
+            // A set that is not complete comes back from storage; with no such set, the classic booth starts.
+            BoothView(request: BoothRequest(packID: PoseLibrary.classicID, resumesDraft: true))
+                .tint(PeekTheme.ink)
+                .environment(savedPoses)
         }
     }
 }

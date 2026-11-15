@@ -33,8 +33,7 @@ Verify the test COUNT. The tests use Swift Testing, so the XCTest line `Executed
 | `Packages/PeekCore` | Pure Swift. Session reducer, data records (`SessionRecord` with layout and frame color), templates, `DraftStore` protocol and `FileDraftStore`. No AVFoundation or UIKit. |
 | `docs/design` | The UI handoff: `DESIGN.md` (screens, components, rules) and `tokens.json` (colors, sizes, corners). |
 | `Peek/Design` | `PeekTheme` (tokens) and the shared controls: primary, secondary, and rail buttons, chip, banner, segmented choice, icon label. |
-| `Peek/Features` | SwiftUI by feature. The app opens on Home. The camera starts in the booth, after an explicit action. |
-| `Peek/Features/Home` | First screen: Classic / Copycat choice, pack selection, Start a Booth, Resume Draft. |
+| `Peek/Features` | SwiftUI by feature. The app opens on the booth (the viewfinder); there is no Home screen (owner decision, 2026-11-15). The camera starts at launch. The poses button changes the pack. |
 | `Peek/Features/Booth` | Inner display. `BoothLayout` selects the wide booth (photo, side rail with the one pose reference; a leading panel only for a finished set) or the tall booth (full-screen camera, black camera bar). `BoothSessionModel` drives the two displays. |
 | `Peek/Features/Poses` | Pose packs, the pose tray (an overlay of `BoothView`), the pose library (Discover and Saved), and `SavedPoses`. |
 | `Peek/Features/Finish` | Strip and 2x2 renderer, frame color, save, share. |

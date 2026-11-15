@@ -75,7 +75,7 @@ No serif and no italic lettering anywhere in the app.
 - Current: pack accent fill, the shot number, and a 2 ring in `strong`.
 - Empty: `fill` background, the shot number in `inkSecondary`.
 
-**Side rail (regular width, landscape).** 170 wide column (the handoff gave 150; the flip button beside the shutter needs 20 more) on the trailing edge. Top to bottom: close, pose reference thumbnail with name, four slots, shutter, poses button. The flip button is directly left of the shutter. In review it shows Keep shot and Retake. On the finished screen it shows Save Strip, Share, Save Originals.
+**Side rail (regular width, landscape).** 170 wide column (the handoff gave 150; the flip button beside the shutter needs 20 more) on the trailing edge. Top to bottom: the More menu, pose reference thumbnail with name, four slots, shutter, poses button. The flip button is directly left of the shutter. In review it shows Keep shot and Retake. On the finished screen it shows Save Strip, Share, Save Originals.
 
 **Side bar (compact width).** 60 wide column on the trailing edge, below the outer camera: close, four slots stacked, shutter.
 
@@ -112,17 +112,18 @@ No serif and no italic lettering anywhere in the app.
 
 Each entry gives the state, the primary action and the layout rule.
 
-### 1. Home
-- State: nothing started. Classic preselected.
-- Primary action: **Start a Booth** (red).
-- Regular width: split at the hinge. Leading half: wordmark, live preview, Classic / Copycat choice, Start a Booth, Resume Draft. Trailing half: "Copycat" title and three pack tiles (Street Style, Kids Poses, Animations).
-- Compact width: wordmark, Classic row, Copycat row, Start a Booth, Resume Draft.
+### 1. Home (removed)
+- The app has no Home screen (owner decision, 2026-11-15). It opens on the viewfinder with the classic booth. The system asks for camera access at the first launch.
+- There is no Classic / Copycat choice and no Start a Booth. The poses button of the booth changes the pack.
+- A set that is not complete comes back at launch and continues at "ready" with no Resume step. A finished set that was saved to Photos does not come back.
+- The booth has no close button. "New set" in the More menu starts again during a set, after a confirmation.
+- The picture has no "Live" label.
 
 ### 2. Choose a pose (Copycat)
 - State: pose selected, one shot accepted, next shot pending.
 - Primary action: shutter (starts the countdown).
 - Photographer: live photo on the leading side with a "Live" chip and the cue line under it; side rail with the one pose reference thumbnail. A sideways swipe on the photo, or the poses button, changes the pose. No leading panel: a second pose picture beside the photo conflicted with the rail thumbnail. With one screen (no subject display), the pose reference is large in the bottom-leading corner of the photo, and the rail has no thumbnail.
-- Tall display (a closed iPhone Duo, a standard iPhone): a viewfinder as in a camera app. The upright 3:4 picture has the full width. The pose picture, with no name, is in the bottom-leading corner of the picture, beside the zoom choices. The black bar below has the four progress bars and the shutter row. The shutter row has the last shot, the flip button directly left of the shutter, and the poses button at its right. The countdown numeral is large, on a card in the center of the picture; the bar then has Cancel only. Two thin lines on the picture show the band that the strip keeps from an upright shot. There is no cue line.
+- Tall display (a closed iPhone Duo, a standard iPhone): a viewfinder as in a camera app. The upright 3:4 picture has the full width. The pose picture, with no name, is in the bottom-leading corner of the picture. The black bar below has the four progress bars and the shutter row. The shutter row is in the center: the flip button, the shutter, and the poses button. The zoom choices are in the center of the bottom of the picture. The countdown numeral is large, on a card in the center of the picture; the bar then has Cancel only. Two thin lines on the picture show the band that the strip keeps from an upright shot. There is no cue line.
 - Subject: "Pose reference" chip, large reference in an accent frame, cue.
 - The reference must look different from the live camera: different image treatment, an accent frame and a label.
 
@@ -197,7 +198,7 @@ From Apple's "Designing for iPhone Duo" guidance.
 
 ## Open decisions. Ask before building.
 
-1. **Home screen.** The lookbook includes Home. An earlier note on the design canvas says the current build has no Home or Setup and opens straight into the camera with the Classic pack. Confirm which is wanted.
+1. **Home screen.** Decided 2026-11-15: no Home. The app opens straight into the camera with the Classic pack.
 2. **Red for all primary actions.** This spec uses red for Keep shot, Save Strip and Resume. The earlier rule was red only for Start a Booth. Confirm.
 3. **Create together.** Friends adding one shot each by link appears in the Light style screens. It needs share links and conflicts with "No account". Not in scope until confirmed.
 4. **Controls with no home.** Timer length, the outer display toggle, captions, pause, and Copycat's Silhouette and Replay are not in these designs. Defaults assumed: 3 seconds, outer display on.

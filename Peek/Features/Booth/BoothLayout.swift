@@ -37,9 +37,6 @@ struct BoothLayout: View {
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                         .overlay(alignment: .top) {
                             HStack {
-                                Button(action: actions.close) {
-                                    PeekIconLabel(text: .close, systemImage: "xmark")
-                                }
                                 Spacer()
                                 BoothMoreMenu(model: model)
                             }
@@ -55,9 +52,6 @@ struct BoothLayout: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .safeAreaInset(edge: .top) {
                         HStack {
-                            Button(action: actions.close) {
-                                PeekIconLabel(text: .close, systemImage: "xmark")
-                            }
                             Spacer()
                             if model.cameraStatus == .running {
                                 Button(action: actions.showPoses) {

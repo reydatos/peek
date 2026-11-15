@@ -1,7 +1,7 @@
 import Foundation
 
-/// The actions of the booth that leave the session: close the booth, and open the pose browser.
+/// The action of the booth that leaves the session: open the pose browser.
+/// The booth is the first screen of the app, so it has no close action.
 struct BoothActions {
-    let close: () -> Void
     let showPoses: () -> Void
 }
