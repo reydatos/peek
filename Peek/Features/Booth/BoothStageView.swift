@@ -3,20 +3,23 @@ import SwiftUI
 
 /// The inner display's picture, inset with rounded corners, and the cue line below it.
 ///
-/// The picture is the live frame, the shot in review, or the finished strip. A tall display shows the full
-/// frame. A wide display shows the part that the finished picture keeps: the photo card has the shape of one
-/// shot in the strip, and the picture covers it. The outer display has its own views in `Features/Outer`.
+/// The picture is the live frame, the shot in review, or the finished strip. A tall display is a viewfinder:
+/// the upright frame at the full width, with the camera bar below it. A wide display shows the part that the
+/// finished picture keeps: the photo card has the shape of one shot in the strip, and the picture covers it.
+/// The outer display has its own views in `Features/Outer`.
 struct BoothStageView: View {
     let model: BoothSessionModel
     /// True when no outer display shows the cue. The people in the photo then read this display.
     let isSubjectFacing: Bool
     /// False in the wide booth: the side rail shows the pose reference there.
     var showsPoseArt = true
-    /// True on a tall display: the photo runs edge to edge, and the camera bar has the cue line.
+    /// True on a tall display: the photo is a viewfinder at the full width, with the pose picture in its corner.
     var isFullBleed = false
     var body: some View {
         if isFullBleed {
             photo
+                .aspectRatio(Self.uprightAspect, contentMode: .fit)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         } else {
             VStack(alignment: .leading) {
                 photo
@@ -48,11 +51,6 @@ struct BoothStageView: View {
             } else if model.isComplete {
                 // The strip is not drawn yet.
                 ProgressView()
-            } else if let still = model.stillImage, isFullBleed {
-                Image(uiImage: still)
-                    .resizable()
-                    .scaledToFit()
-                    .accessibilityLabel(Text(.capturedPhoto))
             } else if let still = model.stillImage {
                 // The shot covers the card, as it covers its cell in the strip. An overlay keeps the card's size.
                 Color.clear
@@ -68,8 +66,7 @@ struct BoothStageView: View {
                 CameraPreviewView(
                     session: model.capture.session,
                     deviceID: model.deviceID,
-                    isMirrored: model.isSelfie,
-                    fillsView: !isFullBleed
+                    isMirrored: model.isSelfie
                 )
                 .accessibilityLabel(Text(.livePreview))
             }
@@ -85,12 +82,26 @@ struct BoothStageView: View {
             .padding(.top, isFullBleed ? PeekTheme.touchTarget : 0)
         }
         .overlay(alignment: .bottomTrailing) {
-            ZoomChips(model: model)
-                .padding()
+            if !isFullBleed {
+                ZoomChips(model: model)
+                    .padding()
+            }
         }
         .overlay(alignment: .bottomLeading) {
-            // With one screen, the pose reference moves into the camera view.
-            if isSubjectFacing, canStepPose, let cue = model.currentCue {
+            if isFullBleed {
+                // The viewfinder has no cue line, so the pose and its name are one card in the corner.
+                // The viewfinder has no cue line and no pose name (owner decision, 2026-11-15): the pose picture
+                // alone is in the corner, in one row with the zoom choices.
+                HStack(alignment: .bottom) {
+                    if showsPoseCard, let cue = model.currentCue {
+                        PoseGuide(cue: cue, accent: model.accent, isLarge: isSubjectFacing)
+                    }
+                    Spacer(minLength: 0)
+                    ZoomChips(model: model)
+                }
+                .padding()
+            } else if isSubjectFacing, canStepPose, let cue = model.currentCue {
+                // With one screen, the pose reference moves into the camera view.
                 if showsPoseArt {
                     PoseGuide(cue: cue, accent: model.accent, isLarge: true)
                         .padding()
@@ -122,9 +133,20 @@ struct BoothStageView: View {
     /// This is a design value.
     private static let wideGuideFraction = 0.6
 
+    /// The shape of the upright picture of a 4:3 camera: the width divided by the height. This is a design value.
+    private static let uprightAspect: CGFloat = 3.0 / 4.0
+
     /// True while the booth waits for a shot.
     private var canStepPose: Bool {
         model.state.phase == .ready
+    }
+
+    /// True while the pose picture shows: not in the countdown or the capture, so it covers no face then.
+    private var showsPoseCard: Bool {
+        switch model.state.phase {
+        case .ready, .paused, .review: true
+        case .setup, .countdown, .capturePending, .complete: false
+        }
     }
 }
 
