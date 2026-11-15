@@ -13,7 +13,7 @@ struct BoothStageView: View {
     let isSubjectFacing: Bool
     /// False in the wide booth: the side rail shows the pose reference there.
     var showsPoseArt = true
-    /// True on a tall display: the photo is a viewfinder at the full width, and it has the pose card.
+    /// True on a tall display: the photo is a viewfinder at the full width, with the pose picture in its corner.
     var isFullBleed = false
     var body: some View {
         if isFullBleed {
@@ -90,11 +90,11 @@ struct BoothStageView: View {
         .overlay(alignment: .bottomLeading) {
             if isFullBleed {
                 // The viewfinder has no cue line, so the pose and its name are one card in the corner.
-                // The card and the zoom choices share one row, so a long pose name goes to a second line
-                // and covers no zoom choice.
+                // The viewfinder has no cue line and no pose name (owner decision, 2026-11-15): the pose picture
+                // alone is in the corner, in one row with the zoom choices.
                 HStack(alignment: .bottom) {
                     if showsPoseCard, let cue = model.currentCue {
-                        ViewfinderPoseCard(cue: cue, accent: model.accent, isLarge: isSubjectFacing)
+                        PoseGuide(cue: cue, accent: model.accent, isLarge: isSubjectFacing)
                     }
                     Spacer(minLength: 0)
                     ZoomChips(model: model)
@@ -141,7 +141,7 @@ struct BoothStageView: View {
         model.state.phase == .ready
     }
 
-    /// True while the pose card shows: not in the countdown or the capture, so it covers no face then.
+    /// True while the pose picture shows: not in the countdown or the capture, so it covers no face then.
     private var showsPoseCard: Bool {
         switch model.state.phase {
         case .ready, .paused, .review: true
