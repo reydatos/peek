@@ -9,7 +9,7 @@ struct BoothStageView: View {
     let model: BoothSessionModel
     /// True when no outer display shows the cue. The people in the photo then read this display.
     let isSubjectFacing: Bool
-    /// False in the wide booth: the leading panel shows the pose reference there.
+    /// False in the wide booth: the side rail shows the pose reference there.
     var showsPoseArt = true
     /// True on a tall display: the photo runs edge to edge, and the camera bar has the cue line.
     var isFullBleed = false

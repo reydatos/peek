@@ -119,7 +119,7 @@ Each entry gives the state, the primary action and the layout rule.
 ### 2. Choose a pose (Copycat)
 - State: pose selected, one shot accepted, next shot pending.
 - Primary action: shutter (starts the countdown).
-- Photographer: leading panel with the pose reference card, pose name, pack name and previous/next; live photo in the middle with a "Live" chip; side rail.
+- Photographer: live photo on the leading side with a "Live" chip and the cue line under it; side rail with the one pose reference thumbnail. A sideways swipe on the photo, or the poses button, changes the pose. No leading panel: a second pose picture beside the photo conflicted with the rail thumbnail.
 - Subject: "Pose reference" chip, large reference in an accent frame, cue.
 - The reference must look different from the live camera: different image treatment, an accent frame and a label.
 

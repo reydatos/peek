@@ -35,7 +35,7 @@ Verify the test COUNT. The tests use Swift Testing, so the XCTest line `Executed
 | `Peek/Design` | `PeekTheme` (tokens) and the shared controls: primary, secondary, and rail buttons, chip, banner, segmented choice, icon label. |
 | `Peek/Features` | SwiftUI by feature. The app opens on Home. The camera starts in the booth, after an explicit action. |
 | `Peek/Features/Home` | First screen: Classic / Copycat choice, pack selection, Start a Booth, Resume Draft. |
-| `Peek/Features/Booth` | Inner display. `BoothLayout` selects the wide booth (leading panel, photo, side rail) or the tall booth (full-screen camera, black camera bar). `BoothSessionModel` drives the two displays. |
+| `Peek/Features/Booth` | Inner display. `BoothLayout` selects the wide booth (photo, side rail with the one pose reference; a leading panel only for a finished set) or the tall booth (full-screen camera, black camera bar). `BoothSessionModel` drives the two displays. |
 | `Peek/Features/Poses` | Pose packs, the pose tray (an overlay of `BoothView`), the pose library (Discover and Saved), and `SavedPoses`. |
 | `Peek/Features/Finish` | Strip and 2x2 renderer, frame color, save, share. |
 | `Peek/Features/Outer` | Outer display accessory: pose reference, live frame, countdown, shot, strip. |

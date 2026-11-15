@@ -2,8 +2,9 @@ import SwiftUI
 
 /// Arranges the booth. `docs/design/DESIGN.md`, "Components" and "Layout rules for iPhone Duo".
 ///
-/// A wide display has the pose reference on the leading side, the photo in the center, and the side rail on the
-/// trailing side. So the controls stay clear of the fold; only the photo can cross it.
+/// A wide display has the photo on the leading side and the side rail on the trailing side. The rail has the one
+/// pose reference. So the controls stay clear of the fold; only the photo can cross it.
+/// A finished set on a wide display adds the leading panel, with the layout and the frame color.
 /// A tall display has the full-screen camera above the black camera bar. A finished set on a tall display has
 /// the strip above the slots and the controls.
 struct BoothLayout: View {
@@ -14,8 +15,10 @@ struct BoothLayout: View {
         GeometryReader { proxy in
             if model.cameraStatus == .running, isWide(proxy) {
                 HStack(spacing: 0) {
-                    BoothLeadingPanel(model: model)
-                        .frame(width: proxy.size.width / 4)
+                    if model.isComplete {
+                        BoothLeadingPanel(model: model)
+                            .frame(width: proxy.size.width / 4)
+                    }
                     BoothStatusView(model: model, showsPoseArt: false)
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                     BoothSideRail(model: model, actions: actions)
