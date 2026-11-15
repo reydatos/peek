@@ -71,7 +71,27 @@ struct BoothStageView: View {
                 .accessibilityLabel(Text(.livePreview))
             }
         }
+        .overlay {
+            if isFullBleed, !model.isComplete {
+                StripCropGuides()
+            }
+        }
+        .overlay {
+            // For a selfie, the photo is the warm light during the countdown and the capture.
+            // The light covers the guide lines.
+            if model.showsInnerGlamLight, model.isGlamLightFull {
+                PeekTheme.glamLight
+            }
+        }
         .clipShape(.rect(cornerRadius: isFullBleed ? 0 : PeekTheme.photoCorner))
+        .overlay {
+            // The viewfinder has no cue line, so the countdown is on the picture, large, on a card.
+            if isFullBleed, case let .countdown(remaining) = model.state.phase {
+                CountdownView(remaining: remaining, total: model.countdown.seconds, isLarge: true)
+                    .padding()
+                    .background(PeekTheme.surface, in: .rect(cornerRadius: PeekTheme.cardCorner))
+            }
+        }
         .overlay(alignment: .topLeading) {
             VStack(alignment: .leading) {
                 StageChips(model: model)

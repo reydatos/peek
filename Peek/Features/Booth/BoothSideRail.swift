@@ -2,7 +2,7 @@ import PeekCore
 import SwiftUI
 
 /// The side rail of a wide booth, on the trailing edge and clear of the fold.
-/// Top to bottom: close, the pose reference, the four slots, the actions of the state, and the flip and poses buttons.
+/// Top to bottom: close, the pose reference, the four slots, the actions of the state (the flip button is left of the shutter), and the poses button.
 /// This is the one pose reference of the wide booth, so it also shows the move of an animated pose.
 /// With one screen, the pose reference is in the photo, for the people in the photo.
 struct BoothSideRail: View {
@@ -50,11 +50,8 @@ struct BoothSideRail: View {
             stateActions
             if model.state.phase == .ready {
                 Spacer(minLength: 0)
-                HStack {
-                    FlipCameraButton(model: model)
-                    Button(action: actions.showPoses) {
-                        PeekIconLabel(text: .poses, systemImage: "square.grid.2x2")
-                    }
+                Button(action: actions.showPoses) {
+                    PeekIconLabel(text: .poses, systemImage: "square.grid.2x2")
                 }
             }
         }
@@ -68,10 +65,16 @@ struct BoothSideRail: View {
         case .setup:
             EmptyView()
         case .ready:
-            ShutterButton(label: model.countdown == .manual ? .takeShot : .startCountdown) { model.send(.start) }
-            Text(model.countdown == .manual ? .takeShot : .startAfterSeconds(model.countdown.seconds))
-                .font(.footnote)
-                .fontWeight(.semibold)
+            // The flip button is directly left of the shutter, as on the camera bar.
+            HStack(spacing: PeekTheme.tightSpace) {
+                FlipCameraButton(model: model)
+                VStack {
+                    ShutterButton(label: model.countdown == .manual ? .takeShot : .startCountdown) { model.send(.start) }
+                    Text(model.countdown == .manual ? .takeShot : .startAfterSeconds(model.countdown.seconds))
+                        .font(.footnote)
+                        .fontWeight(.semibold)
+                }
+            }
             if model.isOuterDisplayPresenting {
                 let isLive = model.state.subjectView == .live
                 Button { model.send(.showSubject(isLive ? .reference : .live)) } label: {

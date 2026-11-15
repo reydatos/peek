@@ -42,6 +42,13 @@ enum StripPlacement {
         frame(in: container, avoiding: occlusions, aspect: 3 / 4, isRightAligned: true)
     }
 
+    /// The band of a picture that one cell of the strip keeps: the shape of the cell, at the full width, in the center.
+    /// A picture that is wider than the cell keeps its full height.
+    static func stripBand(in picture: CGSize) -> CGRect {
+        let height = min(picture.height, picture.width / StripRenderer.cellAspect)
+        return CGRect(x: 0, y: (picture.height - height) / 2, width: picture.width, height: height)
+    }
+
     private static func freeAreas(in container: CGSize, avoiding occlusions: [CGRect]) -> [CGRect] {
         let bounds = CGRect(origin: .zero, size: container)
         let blocked = occlusions.map { $0.intersection(bounds) }.filter { !$0.isNull && !$0.isEmpty }

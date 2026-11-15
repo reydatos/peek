@@ -300,6 +300,16 @@ final class BoothSessionModel {
         isGlamLightOn && glamLightSurface == .inner
     }
 
+    /// True while the glam light covers the display that faces the people: the countdown and the capture.
+    /// The light is strongest at the moment of the shot (owner decision, 2026-11-15).
+    var isGlamLightFull: Bool {
+        guard isGlamLightOn else { return false }
+        switch state.phase {
+        case .countdown, .capturePending: return true
+        default: return false
+        }
+    }
+
     func stopCamera() {
         send(.pause(.interruption))
         cameraStatus = .idle

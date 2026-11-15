@@ -10,6 +10,16 @@ struct OuterCueView: View {
     let model: BoothSessionModel
 
     var body: some View {
+        // The picture stays in place below the light, so the live view does not start again after the shot.
+        stage
+            .overlay {
+                if model.isGlamLightFull, model.glamLightSurface == .outer {
+                    OuterGlamLight(model: model)
+                }
+            }
+    }
+
+    @ViewBuilder private var stage: some View {
         if model.isComplete, let strip = model.strip {
             // The finished strip stays inside the safe area, so the camera housing hides no shot.
             FinishedStripView(strip: strip, isRightAligned: true)

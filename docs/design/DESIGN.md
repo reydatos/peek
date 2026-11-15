@@ -75,7 +75,7 @@ No serif and no italic lettering anywhere in the app.
 - Current: pack accent fill, the shot number, and a 2 ring in `strong`.
 - Empty: `fill` background, the shot number in `inkSecondary`.
 
-**Side rail (regular width, landscape).** 150 wide column on the trailing edge. Top to bottom: close, pose reference thumbnail with name, four slots, shutter, poses button, with the flip button at its left (the rail has no space beside the shutter). In review it shows Keep shot and Retake. On the finished screen it shows Save Strip, Share, Save Originals.
+**Side rail (regular width, landscape).** 170 wide column (the handoff gave 150; the flip button beside the shutter needs 20 more) on the trailing edge. Top to bottom: close, pose reference thumbnail with name, four slots, shutter, poses button. The flip button is directly left of the shutter. In review it shows Keep shot and Retake. On the finished screen it shows Save Strip, Share, Save Originals.
 
 **Side bar (compact width).** 60 wide column on the trailing edge, below the outer camera: close, four slots stacked, shutter.
 
@@ -89,7 +89,7 @@ No serif and no italic lettering anywhere in the app.
 
 **Pose guide.** Small copy of the reference (46 × 55, accent border) in the top-leading corner of the live photo on the subject display. Shown during live framing only.
 
-**Glam light.** A fill light for dark places, as in the Glam app. A switch in the More menu; a dark place starts it one time, and after that only the photographer changes it. The light is the display that faces the people. For a selfie, that is the inner display: full brightness, with the page and the camera bar in the warm light color (`glamLight`, #FFE8D1) and light-mode content. The live picture and the shots get no tint. With one screen and the rear camera, no display faces the people, so the switch is not available. The outer display has no light areas yet.
+**Glam light.** A fill light for dark places, as in the Glam app. A switch in the More menu; a dark place starts it one time, and after that only the photographer changes it. The light is the display that faces the people. For a selfie, that is the inner display: full brightness, with the page and the camera bar in the warm light color (`glamLight`, #FFE8D1) and light-mode content. The live picture and the shots get no tint. With one screen and the rear camera, no display faces the people, so the switch is not available. During the countdown and the capture, the display that faces the people is fully the warm light: the outer display shows only the countdown numeral, and for a selfie the photo of the inner display is the warm light. The people do not see the live picture for those seconds.
 
 **Chip.** Fill background, 12 bold uppercase. Accent variant uses the pack accent fill. Over a photo, use `surface` as the chip background.
 
@@ -122,7 +122,7 @@ Each entry gives the state, the primary action and the layout rule.
 - State: pose selected, one shot accepted, next shot pending.
 - Primary action: shutter (starts the countdown).
 - Photographer: live photo on the leading side with a "Live" chip and the cue line under it; side rail with the one pose reference thumbnail. A sideways swipe on the photo, or the poses button, changes the pose. No leading panel: a second pose picture beside the photo conflicted with the rail thumbnail. With one screen (no subject display), the pose reference is large in the bottom-leading corner of the photo, and the rail has no thumbnail.
-- Tall display (a closed iPhone Duo, a standard iPhone): a viewfinder as in a camera app. The upright 3:4 picture has the full width. The pose picture, with no name, is in the bottom-leading corner of the picture, beside the zoom choices. The black bar below has the four progress bars and the shutter row. The shutter row has the last shot, the flip button directly left of the shutter, and the poses button at its right. The countdown numeral is in that bar, beside Cancel. There is no cue line.
+- Tall display (a closed iPhone Duo, a standard iPhone): a viewfinder as in a camera app. The upright 3:4 picture has the full width. The pose picture, with no name, is in the bottom-leading corner of the picture, beside the zoom choices. The black bar below has the four progress bars and the shutter row. The shutter row has the last shot, the flip button directly left of the shutter, and the poses button at its right. The countdown numeral is large, on a card in the center of the picture; the bar then has Cancel only. Two thin lines on the picture show the band that the strip keeps from an upright shot. There is no cue line.
 - Subject: "Pose reference" chip, large reference in an accent frame, cue.
 - The reference must look different from the live camera: different image treatment, an accent frame and a label.
 
