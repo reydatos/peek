@@ -50,11 +50,11 @@ struct StripPlacementTests {
         #expect(abs(frame.width - 400) < 0.01)
     }
 
-    @Test func theFreeAreaIsTheLargestAreaThatNothingCovers() {
+    /// The live frame and the pose reference use one column, so one is in view when the other is.
+    @Test func theOuterColumnIsThreeByFourAtTheRightEdge() {
         let display = CGSize(width: 600, height: 600)
-        #expect(StripPlacement.freeArea(in: display, avoiding: []) == CGRect(x: 0, y: 0, width: 600, height: 600))
+        let column = StripPlacement.outerColumn(in: display, avoiding: [])
 
-        let cover = CGRect(x: 0, y: 0, width: 200, height: 600)
-        #expect(StripPlacement.freeArea(in: display, avoiding: [cover]) == CGRect(x: 200, y: 0, width: 400, height: 600))
+        #expect(column == CGRect(x: 150, y: 0, width: 450, height: 600))
     }
 }

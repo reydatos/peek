@@ -11,8 +11,7 @@ struct OuterReferenceStage: View {
 
     var body: some View {
         GeometryReader { proxy in
-            // The pose pictures are 3:4.
-            let frame = StripPlacement.frame(in: proxy.size, avoiding: proxy.occlusions, aspect: 3 / 4, isRightAligned: true)
+            let frame = StripPlacement.outerColumn(in: proxy.size, avoiding: proxy.occlusions)
             PoseReferenceFrame(cue: cue, accent: accent, lineWidth: 5, cornerRadius: PeekTheme.photoCorner, showsMove: true)
                 .overlay(alignment: .topLeading) {
                     HStack {

@@ -20,11 +20,14 @@ enum StripPlacement {
         return largest ?? fit(aspect: aspect, in: bounds, isRightAligned: isRightAligned)
     }
 
-    /// The largest area of the container that touches no occlusion. With no free area, the full container.
-    static func freeArea(in container: CGSize, avoiding occlusions: [CGRect]) -> CGRect {
-        let areas = freeAreas(in: container, avoiding: occlusions)
-        return areas.max { ($0.width * $0.height, $0.maxX) < ($1.width * $1.height, $1.maxX) }
-            ?? CGRect(origin: .zero, size: container)
+    /// The column of the outer display that the people in the photo can see: 3:4, at the full height, at the far right.
+    /// The pose pictures are 3:4, so the pose reference fills this column. The live frame uses the same column.
+    ///
+    /// The system does not report the hinge cover of an open iPhone Duo (it reports cameras and the fold only),
+    /// so the app cannot measure it. On a physical Duo, a picture in this column was in full view, and a picture
+    /// with the full width of the display was covered at the left (2026-11-14).
+    static func outerColumn(in container: CGSize, avoiding occlusions: [CGRect]) -> CGRect {
+        frame(in: container, avoiding: occlusions, aspect: 3 / 4, isRightAligned: true)
     }
 
     private static func freeAreas(in container: CGSize, avoiding occlusions: [CGRect]) -> [CGRect] {

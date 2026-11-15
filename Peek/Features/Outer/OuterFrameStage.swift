@@ -9,8 +9,8 @@ struct OuterFrameStage: View {
 
     var body: some View {
         GeometryReader { proxy in
-            // The stage uses the largest area that nothing covers, such as the area beside the hinge cover.
-            let area = StripPlacement.freeArea(in: proxy.size, avoiding: proxy.occlusions)
+            // The stage uses the column of the pose reference, at the far right. The hinge cover is at the left.
+            let area = StripPlacement.outerColumn(in: proxy.size, avoiding: proxy.occlusions)
             stage
                 .frame(width: area.width, height: area.height)
                 .position(x: area.midX, y: area.midY)
@@ -20,8 +20,7 @@ struct OuterFrameStage: View {
 
     private var stage: some View {
         VStack(alignment: .trailing, spacing: 0) {
-            // The crop has the full width of the area, with no margin. When the area is too low for that,
-            // the crop is at the right.
+            // The crop has the full width of the column, with no margin.
             Color.black
                 .aspectRatio(4 / 3, contentMode: .fit)
                 .overlay {
