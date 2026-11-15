@@ -1,7 +1,7 @@
 import PeekCore
 import SwiftUI
 
-/// The one line below the crop on the outer display: the cue, the countdown numeral, or the shot number.
+/// The one line on the card of the outer display picture: the cue, the countdown numeral, or the shot number.
 struct OuterCaption: View {
     let phase: BoothPhase
     let cueName: LocalizedStringResource
@@ -9,10 +9,7 @@ struct OuterCaption: View {
     var countdownLength = 3
 
     var body: some View {
-        ZStack {
-            // The caption keeps the height of the countdown, so the crop above it does not change size.
-            CountdownView(remaining: 0, total: countdownLength, isLarge: true)
-                .hidden()
+        Group {
             switch phase {
             case .ready:
                 Text(cueName)

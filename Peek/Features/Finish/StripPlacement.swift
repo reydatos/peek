@@ -20,11 +20,26 @@ enum StripPlacement {
         return largest ?? fit(aspect: aspect, in: bounds, isRightAligned: isRightAligned)
     }
 
-    /// The largest area of the container that touches no occlusion. With no free area, the full container.
-    static func freeArea(in container: CGSize, avoiding occlusions: [CGRect]) -> CGRect {
-        let areas = freeAreas(in: container, avoiding: occlusions)
-        return areas.max { ($0.width * $0.height, $0.maxX) < ($1.width * $1.height, $1.maxX) }
-            ?? CGRect(origin: .zero, size: container)
+    /// The frame of a picture that covers the full container, with its right edge at the right edge of the container.
+    /// The picture keeps its aspect (width / height). The part that does not fit is outside the container:
+    /// at the left, or in equal parts at the top and the bottom.
+    ///
+    /// The outer display uses this (owner decision, 2026-11-14): the picture covers the whole screen, and the part
+    /// under the hinge cover at the left is the part that the people in the photo can lose.
+    static func rightPinnedFill(in container: CGSize, aspect: CGFloat) -> CGRect {
+        let width = max(container.width, container.height * aspect)
+        let height = width / aspect
+        return CGRect(x: container.width - width, y: (container.height - height) / 2, width: width, height: height)
+    }
+
+    /// The column of the outer display that the people in the photo can see: 3:4, at the full height, at the far right.
+    /// The labels and the caption of the outer display go in this column.
+    ///
+    /// The system does not report the hinge cover of an open iPhone Duo (it reports cameras and the fold only),
+    /// so the app cannot measure it. On a physical Duo, a picture in this column was in full view, and a picture
+    /// with the full width of the display was covered at the left (2026-11-14).
+    static func outerColumn(in container: CGSize, avoiding occlusions: [CGRect]) -> CGRect {
+        frame(in: container, avoiding: occlusions, aspect: 3 / 4, isRightAligned: true)
     }
 
     private static func freeAreas(in container: CGSize, avoiding occlusions: [CGRect]) -> [CGRect] {

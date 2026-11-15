@@ -1,29 +1,22 @@
+import PeekCore
 import SwiftUI
 
-/// The live frame or the captured shot in one fixed 4:3 crop, with the caption below it.
+/// The live frame or the captured shot for the people in the photo. The picture covers the whole outer display,
+/// and its right edge is at the right edge of the display. The hinge cover of an open iPhone Duo is at the left,
+/// so the part of the picture that it hides is the left part.
 ///
-/// The crop does not move between live framing, countdown, and the captured shot. The caption is below the crop,
-/// so the numeral stays below faces.
+/// The picture does not move or change size between live framing, countdown, and the captured shot.
+/// The label and the caption are in the column at the right, which stays in view. The caption is on a card at
+/// the bottom, so the numeral stays below faces.
 struct OuterFrameStage: View {
     let model: BoothSessionModel
 
     var body: some View {
         GeometryReader { proxy in
-            // The stage uses the largest area that nothing covers, such as the area beside the hinge cover.
-            let area = StripPlacement.freeArea(in: proxy.size, avoiding: proxy.occlusions)
-            stage
-                .frame(width: area.width, height: area.height)
-                .position(x: area.midX, y: area.midY)
-        }
-        .background(PeekTheme.page)
-    }
-
-    private var stage: some View {
-        VStack(alignment: .trailing, spacing: 0) {
-            // The crop has the full width of the area, with no margin. When the area is too low for that,
-            // the crop is at the right.
+            // The shots are 4:3.
+            let picture = StripPlacement.rightPinnedFill(in: proxy.size, aspect: 4 / 3)
+            let column = StripPlacement.outerColumn(in: proxy.size, avoiding: proxy.occlusions)
             Color.black
-                .aspectRatio(4 / 3, contentMode: .fit)
                 .overlay {
                     // The live view stays in place below the shot, so it does not start again after review.
                     FramePreviewView(capture: model.capture, deviceID: model.deviceID, isMirrored: model.isOuterPreviewMirrored)
@@ -36,27 +29,40 @@ struct OuterFrameStage: View {
                     }
                 }
                 .clipped()
-                // The crop gets its space first. The caption gets the remainder.
-                .layoutPriority(1)
-                .overlay(alignment: .topLeading) {
-                    // The label and the pose guide show during live framing only. They are clear of the outer camera.
-                    if model.state.phase == .ready {
-                        VStack(alignment: .leading) {
-                            PeekChip(text: .live)
-                            if let cue = model.currentCue {
-                                PoseGuide(cue: cue, accent: model.accent)
-                            }
-                        }
-                        .padding()
+                .frame(width: picture.width, height: picture.height)
+                .position(x: picture.midX, y: picture.midY)
+            VStack(alignment: .leading) {
+                // The label and the pose guide show during live framing only.
+                if model.state.phase == .ready {
+                    PeekChip(text: .live)
+                    if let cue = model.currentCue {
+                        PoseGuide(cue: cue, accent: model.accent)
                     }
                 }
-            OuterCaption(
-                phase: model.state.phase,
-                cueName: model.currentCue?.name ?? .samplePrompt,
-                shotNumber: model.state.currentSlotID.index + 1,
-                countdownLength: model.countdown.seconds
-            )
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                Spacer()
+                if hasCaption {
+                    OuterCaption(
+                        phase: model.state.phase,
+                        cueName: model.currentCue?.name ?? .samplePrompt,
+                        shotNumber: model.state.currentSlotID.index + 1,
+                        countdownLength: model.countdown.seconds
+                    )
+                    .frame(maxWidth: .infinity)
+                    .background(PeekTheme.surface, in: .rect(cornerRadius: PeekTheme.cardCorner))
+                }
+            }
+            .padding()
+            .frame(width: column.width, height: column.height)
+            .position(x: column.midX, y: column.midY)
+        }
+        .clipped()
+        .background(PeekTheme.page)
+    }
+
+    private var hasCaption: Bool {
+        switch model.state.phase {
+        case .setup, .complete: false
+        default: true
         }
     }
 }

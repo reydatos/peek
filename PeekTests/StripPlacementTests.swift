@@ -50,11 +50,26 @@ struct StripPlacementTests {
         #expect(abs(frame.width - 400) < 0.01)
     }
 
-    @Test func theFreeAreaIsTheLargestAreaThatNothingCovers() {
+    /// The live frame and the pose reference use one column, so one is in view when the other is.
+    @Test func theOuterColumnIsThreeByFourAtTheRightEdge() {
         let display = CGSize(width: 600, height: 600)
-        #expect(StripPlacement.freeArea(in: display, avoiding: []) == CGRect(x: 0, y: 0, width: 600, height: 600))
+        let column = StripPlacement.outerColumn(in: display, avoiding: [])
 
-        let cover = CGRect(x: 0, y: 0, width: 200, height: 600)
-        #expect(StripPlacement.freeArea(in: display, avoiding: [cover]) == CGRect(x: 200, y: 0, width: 400, height: 600))
+        #expect(column == CGRect(x: 150, y: 0, width: 450, height: 600))
+    }
+
+    @Test func aRightPinnedFillCoversTheDisplayWithItsRightEdgeAtTheRightEdge() {
+        let display = CGSize(width: 600, height: 600)
+        let bounds = CGRect(origin: .zero, size: display)
+
+        // A 4:3 picture is wider than the display: the part that does not fit is at the left.
+        let wide = StripPlacement.rightPinnedFill(in: display, aspect: 4 / 3)
+        #expect(wide == CGRect(x: -200, y: 0, width: 800, height: 600))
+        #expect(wide.contains(bounds))
+
+        // A 3:4 picture is taller than the display: the top and the bottom lose equal parts.
+        let tall = StripPlacement.rightPinnedFill(in: display, aspect: 3 / 4)
+        #expect(tall == CGRect(x: 0, y: -100, width: 600, height: 800))
+        #expect(tall.contains(bounds))
     }
 }
