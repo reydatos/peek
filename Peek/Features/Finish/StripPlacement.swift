@@ -20,8 +20,20 @@ enum StripPlacement {
         return largest ?? fit(aspect: aspect, in: bounds, isRightAligned: isRightAligned)
     }
 
+    /// The frame of a picture that covers the full container, with its right edge at the right edge of the container.
+    /// The picture keeps its aspect (width / height). The part that does not fit is outside the container:
+    /// at the left, or in equal parts at the top and the bottom.
+    ///
+    /// The outer display uses this (owner decision, 2026-11-14): the picture covers the whole screen, and the part
+    /// under the hinge cover at the left is the part that the people in the photo can lose.
+    static func rightPinnedFill(in container: CGSize, aspect: CGFloat) -> CGRect {
+        let width = max(container.width, container.height * aspect)
+        let height = width / aspect
+        return CGRect(x: container.width - width, y: (container.height - height) / 2, width: width, height: height)
+    }
+
     /// The column of the outer display that the people in the photo can see: 3:4, at the full height, at the far right.
-    /// The pose pictures are 3:4, so the pose reference fills this column. The live frame uses the same column.
+    /// The labels and the caption of the outer display go in this column.
     ///
     /// The system does not report the hinge cover of an open iPhone Duo (it reports cameras and the fold only),
     /// so the app cannot measure it. On a physical Duo, a picture in this column was in full view, and a picture
