@@ -65,6 +65,7 @@ struct BoothStageView: View {
                 // The front camera shows a mirror picture, as a selfie does. The saved shot is not a mirror picture.
                 CameraPreviewView(
                     session: model.capture.session,
+                    holder: model.preview,
                     deviceID: model.deviceID,
                     isMirrored: model.isSelfie
                 )

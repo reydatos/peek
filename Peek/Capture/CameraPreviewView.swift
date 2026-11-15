@@ -1,22 +1,36 @@
 import AVFoundation
 import SwiftUI
 
-/// A live preview of the shared capture session. Each display has its own instance.
+/// The live preview of the shared capture session on the inner display.
+///
+/// Each layout of the booth makes its own container, but all containers show the one preview view of the holder.
+/// So a change of layout, or the return from review, attaches no new preview layer to the session.
 struct CameraPreviewView: UIViewRepresentable {
     let session: AVCaptureSession
+    let holder: PreviewHolder
     let deviceID: String?
     let isMirrored: Bool
 
-    func makeUIView(context _: Context) -> PreviewUIView {
-        let view = PreviewUIView()
-        view.previewLayer.session = session
-        // The picture covers the view. The caller gives the view the shape of the picture that it wants.
-        view.previewLayer.videoGravity = .resizeAspectFill
-        return view
+    func makeUIView(context _: Context) -> UIView {
+        let container = UIView()
+        mount(in: container)
+        return container
     }
 
-    func updateUIView(_ view: PreviewUIView, context _: Context) {
-        view.observeRotation(deviceID: deviceID)
-        view.setMirrored(isMirrored)
+    func updateUIView(_ container: UIView, context _: Context) {
+        // A container that went away later can not take the preview from this one: the preview comes back here.
+        let preview = mount(in: container)
+        preview.observeRotation(deviceID: deviceID)
+        preview.setMirrored(isMirrored)
+    }
+
+    /// Puts the preview view in the container. A view has one parent, so it leaves its old container.
+    @discardableResult private func mount(in container: UIView) -> PreviewUIView {
+        let preview = holder.view(for: session)
+        if preview.superview !== container {
+            preview.frame = container.bounds
+            container.addSubview(preview)
+        }
+        return preview
     }
 }
