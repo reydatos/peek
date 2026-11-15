@@ -117,20 +117,20 @@ Each entry gives the state, the primary action and the layout rule.
 - There is no Classic / Copycat choice and no Start a Booth. The poses button of the booth changes the pack.
 - A set that is not complete comes back at launch and continues at "ready" with no Resume step. A finished set that was saved to Photos does not come back.
 - The booth has no close button. "New set" in the More menu starts again during a set, after a confirmation.
-- The picture has no "Live" label.
+- The picture has no "Live" label, on the inner display and on the outer display.
 
 ### 2. Choose a pose (Copycat)
 - State: pose selected, one shot accepted, next shot pending.
 - Primary action: shutter (starts the countdown).
-- Photographer: live photo on the leading side with a "Live" chip and the cue line under it; side rail with the one pose reference thumbnail. A sideways swipe on the photo, or the poses button, changes the pose. No leading panel: a second pose picture beside the photo conflicted with the rail thumbnail. With one screen (no subject display), the pose reference is large in the bottom-leading corner of the photo, and the rail has no thumbnail.
-- Tall display (a closed iPhone Duo, a standard iPhone): a viewfinder as in a camera app. The upright 3:4 picture has the full width. The pose picture, with no name, is in the bottom-leading corner of the picture. The black bar below has the four progress bars and the shutter row. The shutter row is in the center: the flip button, the shutter, and the poses button. The zoom choices are in the center of the bottom of the picture. The countdown numeral is large, on a card in the center of the picture; the bar then has Cancel only. Two thin lines on the picture show the band that the strip keeps from an upright shot. There is no cue line.
+- Photographer: live photo on the leading side with the cue line under it; side rail with the one pose reference thumbnail. A sideways swipe on the photo, or the poses button, changes the pose. No leading panel: a second pose picture beside the photo conflicted with the rail thumbnail. With one screen (no subject display), the pose reference is large in the bottom-leading corner of the photo, and the rail has no thumbnail.
+- Tall display (a closed iPhone Duo, a standard iPhone): a viewfinder as in a camera app. The upright 3:4 picture has the full width. The pose picture, with no name, is in the bottom-leading corner of the picture. The black bar below has the four progress bars and the shutter row. The shutter row is in the center: the flip button, the shutter, and the poses button. The zoom choices are in the center of the bottom of the picture. The countdown numeral is large, on a card in the center of the picture; the bar then has Cancel only. There is no cue line.
 - Subject: "Pose reference" chip, large reference in an accent frame, cue.
 - The reference must look different from the live camera: different image treatment, an accent frame and a label.
 
 ### 3. Follow the cue (subject display)
 Three states in order. The live crop does not change between the second and third.
 1. Pose reference: reference image and cue.
-2. Live framing: "Live" chip, live photo with the pose guide in its corner, cue.
+2. Live framing: live photo with the pose guide in its corner, cue.
 3. Countdown: live photo, numeral and pips below it. The pose guide and cue are removed.
 
 ### 4. Kids Poses and Animations

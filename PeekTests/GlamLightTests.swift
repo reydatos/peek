@@ -69,17 +69,4 @@ struct GlamLightTests {
         model.send(.start)
         #expect(!model.isGlamLightFull)
     }
-
-    @Test func theStripBandOfAnUprightPictureIsTheCenterCell() {
-        let band = StripPlacement.stripBand(in: CGSize(width: 300, height: 400))
-        #expect(abs(band.height - 300 / StripRenderer.cellAspect) < 0.01)
-        #expect(abs(band.midY - 200) < 0.01)
-        #expect(band.width == 300)
-    }
-
-    @Test func theStripBandOfAWidePictureIsTheFullHeight() {
-        let band = StripPlacement.stripBand(in: CGSize(width: 800, height: 300))
-        #expect(band.height == 300)
-        #expect(band.minY == 0)
-    }
 }

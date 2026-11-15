@@ -6,7 +6,7 @@ import SwiftUI
 /// so the part of the picture that it hides is the left part.
 ///
 /// The picture does not move or change size between live framing, countdown, and the captured shot.
-/// The label and the caption are in the column at the right, which stays in view. The caption is on a card at
+/// The pose guide and the caption are in the column at the right, which stays in view. The caption is on a card at
 /// the bottom, so the numeral stays below faces.
 struct OuterFrameStage: View {
     let model: BoothSessionModel
@@ -32,12 +32,10 @@ struct OuterFrameStage: View {
                 .frame(width: picture.width, height: picture.height)
                 .position(x: picture.midX, y: picture.midY)
             VStack(alignment: .leading) {
-                // The label and the pose guide show during live framing only.
-                if model.state.phase == .ready {
-                    PeekChip(text: .live)
-                    if let cue = model.currentCue {
-                        PoseGuide(cue: cue, accent: model.accent)
-                    }
+                // The pose guide shows during live framing only. The picture has no "Live" label
+                // (owner decision, 2026-11-15).
+                if model.state.phase == .ready, let cue = model.currentCue {
+                    PoseGuide(cue: cue, accent: model.accent)
                 }
                 Spacer()
                 if hasCaption {
