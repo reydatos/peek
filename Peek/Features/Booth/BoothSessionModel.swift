@@ -23,6 +23,10 @@ final class BoothSessionModel {
     var isOuterDisplayEnabled = true
     /// PRD open decision: default mirroring. Off until hardware tests decide.
     var isOuterPreviewMirrored = false
+    /// The fill light for dark places. A dark place starts it one time; after that, only the photographer changes it.
+    private(set) var isGlamLightOn = false
+    /// True after the photographer set the light. A dark place then does not change it in this booth.
+    private var didChooseGlamLight = false
 
     /// The layout of the finished picture. A change draws the picture again.
     var layout: PeekCore.Layout = .verticalStrip {
@@ -252,6 +256,9 @@ final class BoothSessionModel {
         guard cameraStatus == .idle else { return }
         cameraStatus = .starting
         do {
+            capture.frameSource.setLowLightHandler { [weak self] in
+                Task { @MainActor in self?.reportLowLight() }
+            }
             deviceID = try await capture.start()
             await loadZoom()
             cameraStatus = .running
@@ -261,6 +268,29 @@ final class BoothSessionModel {
         } catch {
             cameraStatus = .failed
         }
+    }
+
+    /// The photographer sets the glam light.
+    func setGlamLight(_ isOn: Bool) {
+        isGlamLightOn = isOn
+        didChooseGlamLight = true
+    }
+
+    /// The camera reports a dark place. The light starts one time. It does not stop when the place gets brighter,
+    /// because the light itself makes the place brighter.
+    func reportLowLight() {
+        guard !didChooseGlamLight else { return }
+        isGlamLightOn = true
+    }
+
+    /// The display that can light the people in the photo.
+    var glamLightSurface: GlamLight.Surface {
+        GlamLight.surface(isOuterDisplayPresenting: isOuterDisplayPresenting, isSelfie: isSelfie)
+    }
+
+    /// True while the inner display is the light: it is bright and has warm light areas.
+    var showsInnerGlamLight: Bool {
+        isGlamLightOn && glamLightSurface == .inner
     }
 
     func stopCamera() {

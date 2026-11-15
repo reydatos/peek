@@ -11,6 +11,8 @@ struct BoothLayout: View {
     let model: BoothSessionModel
     let actions: BoothActions
 
+    @Environment(\.colorScheme) private var colorScheme
+
     var body: some View {
         GeometryReader { proxy in
             if model.cameraStatus == .running, isWide(proxy) {
@@ -24,6 +26,8 @@ struct BoothLayout: View {
                     BoothSideRail(model: model, actions: actions)
                         .frame(width: PeekTheme.railWidth)
                 }
+                // With the glam light, the page is the warm light, so the content has the light-mode colors.
+                .environment(\.colorScheme, model.showsInnerGlamLight ? .light : colorScheme)
             } else if model.cameraStatus == .running, !model.isComplete {
                 // A tall display: a viewfinder at the full width, and the black camera bar below it.
                 VStack(spacing: 0) {
@@ -41,7 +45,7 @@ struct BoothLayout: View {
                         }
                     BoothCameraBar(model: model, actions: actions)
                 }
-                .background(PeekTheme.cameraChrome)
+                .background(model.showsInnerGlamLight ? PeekTheme.glamLight : PeekTheme.cameraChrome)
                 // The bar and the labels on the photo have a fixed space. Above this text size they do not fit.
                 .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
             } else {
