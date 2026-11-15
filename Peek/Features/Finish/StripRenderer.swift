@@ -12,6 +12,10 @@ nonisolated enum StripRenderer {
     static let footer: CGFloat = 192
     /// Each shot is cropped to 4:3.
     static let cell = CGSize(width: 1104, height: 828)
+    /// The shape of one shot in the finished picture: the width divided by the height.
+    static var cellAspect: CGFloat {
+        cell.width / cell.height
+    }
 
     static func columns(shotCount: Int, layout: PeekCore.Layout) -> Int {
         layout == .grid2x2 ? max(1, min(2, shotCount)) : 1
