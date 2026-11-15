@@ -59,7 +59,8 @@ struct BoothView: View {
                 isTrayOpen = false
             }
         }
-        .background(PeekTheme.page)
+        // With the glam light, the page is the warm light.
+        .background(model.showsInnerGlamLight ? PeekTheme.glamLight : PeekTheme.page)
         .toolbar(.hidden, for: .navigationBar)
         .sheet(item: $posePicker) { _ in
             // The warning shows on the sheet, so the photographer decides before the sheet closes.
@@ -90,6 +91,8 @@ struct BoothView: View {
             }
         }
         .modifier(OuterDisplayAccessory(model: model))
+        // The inner display is the light for a selfie: full brightness, only while the app is in front.
+        .background(ScreenBrightness(isBright: model.showsInnerGlamLight && scenePhase == .active))
         .task {
             if resumesDraft {
                 await model.restoreDraft()

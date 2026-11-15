@@ -848,6 +848,17 @@
         }
       }
     },
+    "glamLight" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Glam Light"
+          }
+        }
+      }
+    },
     "keepShot" : {
       "extractionState" : "manual",
       "localizations" : {

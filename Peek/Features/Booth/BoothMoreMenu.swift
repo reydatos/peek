@@ -18,6 +18,11 @@ struct BoothMoreMenu: View {
                 Label(.flipCamera, systemImage: "arrow.triangle.2.circlepath.camera")
             }
             .disabled(model.state.phase != .ready)
+            // The light needs a display that faces the people: the outer display, or the inner display for a selfie.
+            Toggle(isOn: Binding(get: { model.isGlamLightOn }, set: { model.setGlamLight($0) })) {
+                Label(.glamLight, systemImage: "moon.stars")
+            }
+            .disabled(model.glamLightSurface == .none)
             if model.isOnOneScreen {
                 // This item has no availability condition: the system can report the outer display
                 // as not available while the booth does not ask for it.
