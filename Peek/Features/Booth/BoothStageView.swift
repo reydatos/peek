@@ -67,9 +67,22 @@ struct BoothStageView: View {
         }
         .overlay(alignment: .bottomLeading) {
             // With one screen, the pose reference moves into the camera view.
-            if showsPoseArt, isSubjectFacing, canStepPose, let cue = model.currentCue {
-                PoseGuide(cue: cue, accent: model.accent, isLarge: true)
+            if isSubjectFacing, canStepPose, let cue = model.currentCue {
+                if showsPoseArt {
+                    PoseGuide(cue: cue, accent: model.accent, isLarge: true)
+                        .padding()
+                } else {
+                    // The wide booth: the people in the photo read this display from a distance, so the
+                    // reference is large and shows the move. The side rail then has no pose reference.
+                    // Its height is a part of the photo, so it stays below the labels at each text size.
+                    GeometryReader { proxy in
+                        PoseReferenceFrame(cue: cue, accent: model.accent, showsMove: true)
+                            .frame(height: proxy.size.height * Self.wideGuideFraction)
+                            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomLeading)
+                    }
                     .padding()
+                    .allowsHitTesting(false)
+                }
             }
         }
         // A sideways swipe changes the pose.
@@ -81,6 +94,10 @@ struct BoothStageView: View {
             isEnabled: canStepPose
         )
     }
+
+    /// The height of the one-screen pose reference in the wide booth, as a part of the photo height.
+    /// This is a design value.
+    private static let wideGuideFraction = 0.6
 
     /// True while the booth waits for a shot.
     private var canStepPose: Bool {
