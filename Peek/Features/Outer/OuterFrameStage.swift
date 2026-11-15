@@ -1,28 +1,19 @@
+import PeekCore
 import SwiftUI
 
-/// The live frame or the captured shot in one fixed 4:3 crop, with the caption below it.
+/// The live frame or the captured shot for the people in the photo. It fills the column at the far right of the
+/// outer display, the same column as the pose reference. The hinge cover of an open iPhone Duo is at the left.
 ///
-/// The crop does not move between live framing, countdown, and the captured shot. The caption is below the crop,
-/// so the numeral stays below faces.
+/// The picture does not move or change size between live framing, countdown, and the captured shot.
+/// The caption is on a card at the bottom of the picture, so the numeral stays below faces.
+/// The picture fills a 3:4 column, so it shows less at the sides than the 4:3 shot has.
 struct OuterFrameStage: View {
     let model: BoothSessionModel
 
     var body: some View {
         GeometryReader { proxy in
-            // The stage uses the column of the pose reference, at the far right. The hinge cover is at the left.
-            let area = StripPlacement.outerColumn(in: proxy.size, avoiding: proxy.occlusions)
-            stage
-                .frame(width: area.width, height: area.height)
-                .position(x: area.midX, y: area.midY)
-        }
-        .background(PeekTheme.page)
-    }
-
-    private var stage: some View {
-        VStack(alignment: .trailing, spacing: 0) {
-            // The crop has the full width of the column, with no margin.
+            let column = StripPlacement.outerColumn(in: proxy.size, avoiding: proxy.occlusions)
             Color.black
-                .aspectRatio(4 / 3, contentMode: .fit)
                 .overlay {
                     // The live view stays in place below the shot, so it does not start again after review.
                     FramePreviewView(capture: model.capture, deviceID: model.deviceID, isMirrored: model.isOuterPreviewMirrored)
@@ -34,11 +25,9 @@ struct OuterFrameStage: View {
                             .accessibilityLabel(Text(.capturedPhoto))
                     }
                 }
-                .clipped()
-                // The crop gets its space first. The caption gets the remainder.
-                .layoutPriority(1)
+                .clipShape(.rect(cornerRadius: PeekTheme.photoCorner))
                 .overlay(alignment: .topLeading) {
-                    // The label and the pose guide show during live framing only. They are clear of the outer camera.
+                    // The label and the pose guide show during live framing only.
                     if model.state.phase == .ready {
                         VStack(alignment: .leading) {
                             PeekChip(text: .live)
@@ -49,13 +38,29 @@ struct OuterFrameStage: View {
                         .padding()
                     }
                 }
-            OuterCaption(
-                phase: model.state.phase,
-                cueName: model.currentCue?.name ?? .samplePrompt,
-                shotNumber: model.state.currentSlotID.index + 1,
-                countdownLength: model.countdown.seconds
-            )
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .overlay(alignment: .bottom) {
+                    if hasCaption {
+                        OuterCaption(
+                            phase: model.state.phase,
+                            cueName: model.currentCue?.name ?? .samplePrompt,
+                            shotNumber: model.state.currentSlotID.index + 1,
+                            countdownLength: model.countdown.seconds
+                        )
+                        .frame(maxWidth: .infinity)
+                        .background(PeekTheme.surface, in: .rect(cornerRadius: PeekTheme.cardCorner))
+                        .padding()
+                    }
+                }
+                .frame(width: column.width, height: column.height)
+                .position(x: column.midX, y: column.midY)
+        }
+        .background(PeekTheme.page)
+    }
+
+    private var hasCaption: Bool {
+        switch model.state.phase {
+        case .setup, .complete: false
+        default: true
         }
     }
 }
