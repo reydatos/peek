@@ -2,7 +2,7 @@ import PeekCore
 import SwiftUI
 
 /// The side rail of a wide booth, on the trailing edge and clear of the fold.
-/// Top to bottom: close, the pose reference, the four slots, the actions of the state, and the poses button.
+/// Top to bottom: close, the pose reference, the four slots, the actions of the state, and the flip and poses buttons.
 /// This is the one pose reference of the wide booth, so it also shows the move of an animated pose.
 /// With one screen, the pose reference is in the photo, for the people in the photo.
 struct BoothSideRail: View {
@@ -46,8 +46,11 @@ struct BoothSideRail: View {
             stateActions
             if model.state.phase == .ready {
                 Spacer(minLength: 0)
-                Button(action: actions.showPoses) {
-                    PeekIconLabel(text: .poses, systemImage: "square.grid.2x2")
+                HStack {
+                    FlipCameraButton(model: model)
+                    Button(action: actions.showPoses) {
+                        PeekIconLabel(text: .poses, systemImage: "square.grid.2x2")
+                    }
                 }
             }
         }

@@ -31,18 +31,19 @@ struct BoothCameraBar: View {
             EmptyView()
         case .ready:
             HStack {
-                lastShot
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                shutter
-                Button(action: actions.showPoses) {
-                    Label(.poses, systemImage: "square.grid.2x2")
-                        .labelStyle(PeekRailLabelStyle())
-                        .font(.footnote)
-                        .fontWeight(.semibold)
-                        .frame(minWidth: PeekTheme.touchTarget, minHeight: PeekTheme.touchTarget)
+                // The flip button is directly left of the shutter (owner decision, 2026-11-15).
+                HStack {
+                    lastShot
+                    Spacer(minLength: 0)
+                    FlipCameraButton(model: model)
                 }
-                .buttonStyle(.plain)
-                .frame(maxWidth: .infinity, alignment: .trailing)
+                .frame(maxWidth: .infinity)
+                shutter
+                // The poses button is an icon, as on the side rail, so the shutter stays in the center.
+                Button(action: actions.showPoses) {
+                    PeekIconLabel(text: .poses, systemImage: "square.grid.2x2")
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
         case let .countdown(remaining):
             HStack {
