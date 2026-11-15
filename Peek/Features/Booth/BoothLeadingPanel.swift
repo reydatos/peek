@@ -1,45 +1,18 @@
-import PeekCore
 import SwiftUI
 
-/// The leading panel of a wide booth: the pose reference with its name, its pack, and previous and next.
-/// For a finished set it holds the layout choice.
+/// The leading panel of a wide booth with a finished set: the layout choice and the frame color.
+/// Before the set is finished, the wide booth has no leading panel. The side rail has the pose reference.
 struct BoothLeadingPanel: View {
     @Bindable var model: BoothSessionModel
 
     var body: some View {
         VStack(alignment: .leading) {
-            if model.isComplete {
-                Text(.yourStrip)
-                    .font(.title2)
-                    .bold()
-                LayoutPicker(model: model)
-                FramePicker(model: model)
-                Spacer()
-            } else if let cue = model.currentCue {
-                PeekChip(text: .poseReference, background: PeekTheme.fill)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.5)
-                PoseMotionChip(cue: cue)
-                PoseReferenceFrame(cue: cue, accent: model.accent, cornerRadius: PeekTheme.photoCorner, showsMove: true)
-                Text(cue.name)
-                    .font(.title3)
-                    .bold()
-                if let pack = model.pack {
-                    Text(pack.name)
-                        .font(.subheadline)
-                        .foregroundStyle(PeekTheme.inkSecondary)
-                }
-                HStack {
-                    Button { model.stepPose(by: -1) } label: {
-                        PeekIconLabel(text: .previousPose, systemImage: "chevron.left")
-                    }
-                    Button { model.stepPose(by: 1) } label: {
-                        PeekIconLabel(text: .nextPose, systemImage: "chevron.right")
-                    }
-                }
-                .disabled(model.state.phase != .ready)
-                Spacer()
-            }
+            Text(.yourStrip)
+                .font(.title2)
+                .bold()
+            LayoutPicker(model: model)
+            FramePicker(model: model)
+            Spacer()
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .foregroundStyle(PeekTheme.ink)

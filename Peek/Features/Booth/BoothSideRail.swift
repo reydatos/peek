@@ -2,7 +2,8 @@ import PeekCore
 import SwiftUI
 
 /// The side rail of a wide booth, on the trailing edge and clear of the fold.
-/// Top to bottom: close, the pose reference, the four slots, and the actions of the state.
+/// Top to bottom: close, the pose reference, the four slots, the actions of the state, and the poses button.
+/// This is the one pose reference of the wide booth, so it also shows the move of an animated pose.
 struct BoothSideRail: View {
     let model: BoothSessionModel
     let actions: BoothActions
@@ -31,7 +32,7 @@ struct BoothSideRail: View {
                 BoothMoreMenu(model: model)
             }
             if !model.isComplete, let cue = model.currentCue {
-                PoseReferenceFrame(cue: cue, accent: model.accent)
+                PoseReferenceFrame(cue: cue, accent: model.accent, showsMove: true)
                     .frame(height: thumbnailHeight)
                 Text(cue.name)
                     .font(.footnote)
@@ -41,6 +42,12 @@ struct BoothSideRail: View {
             SlotRail(model: model, axis: .horizontal)
             Spacer(minLength: 0)
             stateActions
+            if model.state.phase == .ready {
+                Spacer(minLength: 0)
+                Button(action: actions.showPoses) {
+                    PeekIconLabel(text: .poses, systemImage: "square.grid.2x2")
+                }
+            }
         }
         .foregroundStyle(PeekTheme.ink)
         .padding(PeekTheme.tightSpace * 2)
@@ -63,10 +70,6 @@ struct BoothSideRail: View {
                 }
                 .buttonStyle(PeekRailButtonStyle())
             }
-            Button(action: actions.showPoses) {
-                Label(.poses, systemImage: "square.grid.2x2")
-            }
-            .buttonStyle(PeekRailButtonStyle())
         case .countdown:
             Button(role: .cancel) { model.send(.cancel) } label: {
                 Label(.cancel, systemImage: "xmark")

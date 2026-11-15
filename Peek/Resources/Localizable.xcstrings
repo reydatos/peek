@@ -958,17 +958,6 @@
         }
       }
     },
-    "nextPose" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Next pose"
-          }
-        }
-      }
-    },
     "noSavedPoses" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1284,17 +1273,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Poses"
-          }
-        }
-      }
-    },
-    "previousPose" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Previous pose"
           }
         }
       }
