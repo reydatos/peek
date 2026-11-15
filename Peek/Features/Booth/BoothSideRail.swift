@@ -13,8 +13,12 @@ struct BoothSideRail: View {
 
     var body: some View {
         GeometryReader { proxy in
+            // The camera housing of an open iPhone Duo is in a top corner of the rail. The rail starts below it,
+            // so the housing covers no button.
+            let clearance = RailClearance.top(railSize: proxy.size, occlusions: proxy.occlusions)
             ScrollView {
                 content
+                    .padding(.top, clearance)
                     .frame(minHeight: proxy.size.height)
             }
             .scrollBounceBehavior(.basedOnSize)

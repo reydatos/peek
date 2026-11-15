@@ -8,6 +8,8 @@ struct SlotCell: View {
     let isCurrent: Bool
     /// The accent of the pack. It fills the current slot.
     let accent: Color
+    /// The color of the number on the accent.
+    var onAccent: Color = PeekTheme.paperInk
     @ScaledMetric(relativeTo: .caption) private var width = 26
     @ScaledMetric(relativeTo: .caption) private var height = 34
 
@@ -21,7 +23,7 @@ struct SlotCell: View {
                         .foregroundStyle(PeekTheme.onStrong)
                 } else {
                     Text(number, format: .number)
-                        .foregroundStyle(isCurrent ? PeekTheme.paperInk : PeekTheme.inkSecondary)
+                        .foregroundStyle(isCurrent ? onAccent : PeekTheme.inkSecondary)
                 }
             }
             .font(.caption)

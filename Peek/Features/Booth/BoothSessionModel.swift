@@ -207,6 +207,13 @@ final class BoothSessionModel {
         pack?.accent ?? PeekTheme.strong
     }
 
+    /// The color of a label on the accent. A pack color is the same in light and in dark, so its label is dark.
+    /// The classic booth and a set with no pack have the strong color as accent, so their label is its opposite.
+    var onAccent: Color {
+        guard let pack, pack.id != PoseLibrary.classicID else { return PeekTheme.onStrong }
+        return PeekTheme.paperInk
+    }
+
     var isSelfie: Bool {
         cameraFacing == .front
     }
