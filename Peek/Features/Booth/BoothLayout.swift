@@ -25,7 +25,7 @@ struct BoothLayout: View {
                         .frame(width: PeekTheme.railWidth)
                 }
             } else if model.cameraStatus == .running, !model.isComplete {
-                // A tall display: the photo fills the top, and the black camera bar is below it.
+                // A tall display: a viewfinder at the full width, and the black camera bar below it.
                 VStack(spacing: 0) {
                     BoothStatusView(model: model, isFullBleed: true)
                         .frame(maxWidth: .infinity, maxHeight: .infinity)

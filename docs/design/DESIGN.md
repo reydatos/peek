@@ -120,6 +120,7 @@ Each entry gives the state, the primary action and the layout rule.
 - State: pose selected, one shot accepted, next shot pending.
 - Primary action: shutter (starts the countdown).
 - Photographer: live photo on the leading side with a "Live" chip and the cue line under it; side rail with the one pose reference thumbnail. A sideways swipe on the photo, or the poses button, changes the pose. No leading panel: a second pose picture beside the photo conflicted with the rail thumbnail. With one screen (no subject display), the pose reference is large in the bottom-leading corner of the photo, and the rail has no thumbnail.
+- Tall display (a closed iPhone Duo, a standard iPhone): a viewfinder as in a camera app. The upright 3:4 picture has the full width. The pose picture and its name are one card in the bottom-leading corner of the picture, beside the zoom choices. The black bar below has the four progress bars and the shutter row. The countdown numeral is in that bar, beside Cancel. There is no cue line.
 - Subject: "Pose reference" chip, large reference in an accent frame, cue.
 - The reference must look different from the live camera: different image treatment, an accent frame and a label.
 

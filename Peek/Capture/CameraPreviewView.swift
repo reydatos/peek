@@ -6,17 +6,16 @@ struct CameraPreviewView: UIViewRepresentable {
     let session: AVCaptureSession
     let deviceID: String?
     let isMirrored: Bool
-    /// True when the picture covers the view and the overflow is cut. False shows the full frame.
-    var fillsView = false
 
     func makeUIView(context _: Context) -> PreviewUIView {
         let view = PreviewUIView()
         view.previewLayer.session = session
+        // The picture covers the view. The caller gives the view the shape of the picture that it wants.
+        view.previewLayer.videoGravity = .resizeAspectFill
         return view
     }
 
     func updateUIView(_ view: PreviewUIView, context _: Context) {
-        view.previewLayer.videoGravity = fillsView ? .resizeAspectFill : .resizeAspect
         view.observeRotation(deviceID: deviceID)
         view.setMirrored(isMirrored)
     }
