@@ -4,9 +4,9 @@ import SwiftUI
 /// is at the right edge of the display. The hinge cover of an open iPhone Duo is at the left, so the part of the
 /// picture that it hides is the left part.
 ///
-/// The label and the frame of the pack accent show that this is not the live camera. The label is in the column
-/// at the right, which stays in view. The picture has no pose name on it (owner decision, 2026-11-15), so the
-/// people see the full picture.
+/// The frame of the pack accent shows that this is not the live camera. The picture has no "Pose reference" label
+/// and no pose name on it (owner decisions, 2026-11-15), so the people see the full picture. The motion label of
+/// an animated pose is in the column at the right, which stays in view.
 struct OuterReferenceStage: View {
     let cue: PoseCue
     let accent: Color
@@ -23,11 +23,10 @@ struct OuterReferenceStage: View {
                 .strokeBorder(accent, lineWidth: 5)
                 .accessibilityHidden(true)
             VStack {
-                HStack {
-                    PeekChip(text: .poseReference)
-                    PoseMotionChip(cue: cue, background: PeekTheme.surface)
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
+                // The picture has no "Pose reference" label (owner decision, 2026-11-15). The motion label of an
+                // animated pose stays.
+                PoseMotionChip(cue: cue, background: PeekTheme.surface)
+                    .frame(maxWidth: .infinity, alignment: .leading)
                 Spacer()
             }
             .padding()
