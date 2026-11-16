@@ -69,6 +69,8 @@ final class BoothSessionModel {
     private(set) var persistTask: Task<Void, Never>?
 
     let capture: any CaptureProviding
+    /// The one preview view of the inner display. The layouts of the booth share it.
+    let preview = PreviewHolder()
     private let saver: any PhotoSaving
     private var images: [Take.ID: UIImage] = [:]
     /// The camera's bytes for each take, so a save keeps the full quality.

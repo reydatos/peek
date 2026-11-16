@@ -75,7 +75,7 @@ No serif and no italic lettering anywhere in the app.
 - Current: pack accent fill, the shot number, and a 2 ring in `strong`.
 - Empty: `fill` background, the shot number in `inkSecondary`.
 
-**Side rail (regular width, landscape).** 170 wide column (the handoff gave 150; the flip button beside the shutter needs 20 more) on the trailing edge. Top to bottom: the More menu, pose reference thumbnail with name, four slots, shutter, poses button. The flip button is directly left of the shutter. In review it shows Keep shot and Retake. On the finished screen it shows Save Strip, Share, Save Originals.
+**Side rail (regular width, landscape).** 218 wide column (the handoff gave 150; the four slots with 44-point touch targets need 218, and at 150 or 170 the right side of the rail was outside the display) on the trailing edge. Top to bottom: the More menu, pose reference thumbnail with name, four slots, shutter, poses button. The flip button is directly left of the shutter. In review it shows Keep shot and Retake. On the finished screen it shows Save Strip, Share, Save Originals.
 
 **Side bar (compact width).** 60 wide column on the trailing edge, below the outer camera: close, four slots stacked, shutter.
 

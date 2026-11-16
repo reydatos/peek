@@ -63,8 +63,11 @@ enum PeekTheme {
     /// and it is less than one half of a wide display.
     static let trayWidth: CGFloat = 420
     /// The width of the side rail in a wide booth.
-    /// The handoff gives 150. The flip button beside the shutter needs 20 more (owner decision, 2026-11-15).
-    static let railWidth: CGFloat = 170
+    /// The rail is as wide as its widest row: the four slots, each with a 44-point touch target, the three spaces
+    /// between them, and the padding of the rail on the two sides. That is 218.
+    /// The handoff gives 150, but its 26-point slots have touch targets that do not fit in 150: on a physical
+    /// iPhone Duo, the right side of the rail was outside the display (2026-11-15).
+    static let railWidth: CGFloat = 4 * touchTarget + 3 * tightSpace + 4 * tightSpace
 
     private nonisolated static func fixed(_ hex: UInt32) -> Color {
         Color(uiColor(hex))

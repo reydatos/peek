@@ -6,7 +6,7 @@ struct SlotRail: View {
     let axis: Axis
 
     var body: some View {
-        let layout = axis == .vertical ? AnyLayout(VStackLayout(alignment: .leading)) : AnyLayout(HStackLayout())
+        let layout = axis == .vertical ? AnyLayout(VStackLayout(alignment: .leading)) : AnyLayout(HStackLayout(spacing: PeekTheme.tightSpace))
         layout {
             ForEach(model.state.slots) { slot in
                 let number = slot.id.index + 1
