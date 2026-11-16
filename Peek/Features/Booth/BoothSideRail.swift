@@ -34,12 +34,9 @@ struct BoothSideRail: View {
                 BoothMoreMenu(model: model)
             }
             if !model.isComplete, let cue = model.currentCue {
+                // The pose name shows one time, on the cue line below the photo (owner decision, 2026-11-15).
                 PoseReferenceFrame(cue: cue, accent: model.accent, showsMove: true)
                     .frame(height: thumbnailHeight)
-                Text(cue.name)
-                    .font(.footnote)
-                    .fontWeight(.semibold)
-                    .multilineTextAlignment(.center)
             }
             SlotRail(model: model, axis: .horizontal)
             Spacer(minLength: 0)
