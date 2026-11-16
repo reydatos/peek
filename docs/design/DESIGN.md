@@ -75,11 +75,11 @@ No serif and no italic lettering anywhere in the app.
 - Current: pack accent fill, the shot number, and a 2 ring in `strong`.
 - Empty: `fill` background, the shot number in `inkSecondary`.
 
-**Side rail (regular width, landscape).** 218 wide column (the handoff gave 150; the four slots with 44-point touch targets need 218, and at 150 or 170 the right side of the rail was outside the display) on the trailing edge. Top to bottom: the More menu, pose reference thumbnail with name, four slots, shutter, poses button. The flip button is directly left of the shutter. In review it shows Keep shot and Retake. On the finished screen it shows Save Strip, Share, Save Originals.
+**Side rail (regular width, landscape).** 218 wide column (the handoff gave 150; the four slots with 44-point touch targets need 218, and at 150 or 170 the right side of the rail was outside the display) on the trailing edge. Top to bottom: the More menu, pose reference thumbnail (the pose name is on the cue line only), four slots, shutter, poses button. The flip button is directly left of the shutter. In review it shows Keep shot and Retake. On the finished screen it shows Save Strip, Share, Save Originals.
 
 **Side bar (compact width).** 60 wide column on the trailing edge, below the outer camera: close, four slots stacked, shutter.
 
-**Pose reference thumbnail.** 104 × 124, radius 14, 3 border in the pack accent, pose name underneath.
+**Pose reference thumbnail.** 104 × 124, radius 14, 3 border in the pack accent. No pose name underneath: the name shows one time, on the cue line.
 
 **Reference frame, subject display.** Large reference image, 5 border in the pack accent, a "Pose reference" chip above and the cue below.
 
