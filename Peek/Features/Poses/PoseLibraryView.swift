@@ -1,6 +1,8 @@
 import SwiftUI
 
-/// The pose library: Discover has the poses in groups, one for each pack. Saved has the poses with a star.
+/// The pose library: Discover has a grid of the packs, and a tap selects a pack. Saved has the poses with a star.
+/// The grid replaces a long list with a row of poses for each pack (owner decision, 2026-11-15). The star that
+/// saves a pose is on the pose tray of the booth.
 /// It stays on the photographer's side, outside the live session.
 struct PoseLibraryView: View {
     /// Opens a booth with the pack.
@@ -8,6 +10,8 @@ struct PoseLibraryView: View {
     @Environment(SavedPoses.self) private var saved
     @State private var showsSaved = false
     @ScaledMetric(relativeTo: .body) private var cardWidth = 120
+    /// The least width of a pack card: two small pose pictures side by side. This is a design value.
+    @ScaledMetric(relativeTo: .body) private var packWidth = 150
 
     var body: some View {
         NavigationStack {
@@ -17,8 +21,13 @@ struct PoseLibraryView: View {
                     if showsSaved {
                         savedPoses
                     } else {
-                        ForEach(PoseLibrary.packs) { pack in
-                            section(pack)
+                        LazyVGrid(columns: [GridItem(.adaptive(minimum: packWidth), alignment: .top)]) {
+                            ForEach(PoseLibrary.packs) { pack in
+                                Button { onSelect(pack) } label: {
+                                    PackCard(pack: pack)
+                                }
+                                .buttonStyle(.plain)
+                            }
                         }
                     }
                 }
@@ -28,25 +37,6 @@ struct PoseLibraryView: View {
             .navigationTitle(Text(.poseIdeas))
             .navigationBarTitleDisplayMode(.inline)
         }
-    }
-
-    private func section(_ pack: PosePack) -> some View {
-        VStack(alignment: .leading) {
-            Button { onSelect(pack) } label: {
-                PackTile(pack: pack)
-            }
-            .buttonStyle(.plain)
-            ScrollView(.horizontal) {
-                HStack(alignment: .top) {
-                    ForEach(pack.cues) { cue in
-                        PoseCard(cue: cue, caption: pack.subtitle)
-                            .frame(width: cardWidth)
-                    }
-                }
-            }
-            .scrollIndicators(.hidden)
-        }
-        .padding(.bottom)
     }
 
     @ViewBuilder private var savedPoses: some View {

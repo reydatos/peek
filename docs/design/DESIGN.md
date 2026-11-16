@@ -102,7 +102,7 @@ No serif and no italic lettering anywhere in the app.
 
 **Segmented choice.** Pill container in `fill`; selected segment in `strong` with `onStrong` text and a check icon. Used for Classic / Copycat and Strip / 2×2.
 
-**Pack tile.** Row with a small tilted instant-photo thumbnail, a 6 × 44 accent bar, name, one-line description, chevron.
+**Pack card.** A card in the pose library grid: the poses of the pack as a block of small pictures (two in each row), the name, a one-line description, and a 2 border in the pack accent. A tap selects the pack. The grid replaces the long list of pack rows (owner decision, 2026-11-15); the packs show together with little scroll.
 
 **Instant strip.** `photoPaper` border, radius 4. Vertical (four stacked) and 2×2. Optional caption line with the wordmark and date.
 
