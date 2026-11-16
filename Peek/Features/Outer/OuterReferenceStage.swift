@@ -4,8 +4,13 @@ import SwiftUI
 /// outer display permits. It is at the far right, because the hinge cover of an open iPhone Duo is at the left.
 ///
 /// The picture is 3:4 and the display has a different shape, so the complete picture can not cover the display.
-/// A soft copy of the same picture, large enough to cover the display, is behind it. So the display has no
-/// empty band, and the people see one picture that covers the screen (owner decision, 2026-11-15).
+/// The background of the picture continues to the edges of the display: the line of pixels at each edge of the
+/// picture is drawn across the space beside that edge. So the people see one picture that covers the screen,
+/// with nothing cut (owner decision, 2026-11-15).
+///
+/// That is correct only for a picture with plain edges, as the cartoon and 3D pose pictures have. A photo pose
+/// picture has no plain edge: it shows complete, with black beside it. To cover the display, the display must
+/// cut the head or the feet of a photo.
 ///
 /// The display is used to its edges: the view does not stop at the safe area, and the placement keeps the
 /// complete picture clear of the occluded areas that the system reports.
@@ -16,28 +21,34 @@ struct OuterReferenceStage: View {
     let cue: PoseCue
     let accent: Color
 
-    /// The blur of the copy behind the picture. This is a design value.
-    private static let backdropBlur: CGFloat = 40
-
     var body: some View {
         GeometryReader { proxy in
             // The pose pictures are 3:4. This is the largest 3:4 frame that is clear of the occluded areas.
             let picture = StripPlacement.outerColumn(in: proxy.size, avoiding: proxy.occlusions)
-            if let image = UIImage(named: cue.assetName) {
-                Image(uiImage: image)
-                    .resizable()
-                    .scaledToFill()
-                    .frame(width: proxy.size.width, height: proxy.size.height)
-                    .blur(radius: Self.backdropBlur, opaque: true)
-                    .clipped()
-                    .accessibilityHidden(true)
+            let image = UIImage(named: cue.assetName)
+            let bands = Self.bands(around: picture, in: proxy.size)
+            // The background of a picture with plain edges continues to the edges of the display.
+            // A photo has no plain edge. It shows complete on black: to cover the display, the display must cut
+            // the head or the feet, and a pose reference needs the two.
+            let isExtended = image.map { image in bands.allSatisfy { $0.0.isPlain(in: image) } } ?? false
+            if isExtended, let image {
+                ForEach(bands, id: \.0) { edge, band in
+                    if let strip = edge.strip(of: image) {
+                        Image(uiImage: strip)
+                            .resizable()
+                            .frame(width: band.width, height: band.height)
+                            .position(x: band.midX, y: band.midY)
+                            .accessibilityHidden(true)
+                    }
+                }
             }
             PoseArt(cue: cue, cornerRadius: 0, showsMove: true)
-                .overlay(alignment: .topLeading) {
-                    PoseMotionChip(cue: cue, background: PeekTheme.surface)
-                        .padding()
-                }
                 .frame(width: picture.width, height: picture.height)
+                .position(x: picture.midX, y: picture.midY)
+            // The motion label is in the frame that stays in view.
+            PoseMotionChip(cue: cue, background: PeekTheme.surface)
+                .padding()
+                .frame(width: picture.width, height: picture.height, alignment: .topLeading)
                 .position(x: picture.midX, y: picture.midY)
             Rectangle()
                 .strokeBorder(accent, lineWidth: 5)
@@ -45,5 +56,16 @@ struct OuterReferenceStage: View {
         }
         .background(PeekTheme.cameraChrome)
         .ignoresSafeArea()
+    }
+
+    /// The spaces between the picture and the edges of the display, each with the edge of the picture beside it.
+    private static func bands(around picture: CGRect, in display: CGSize) -> [(PictureEdge, CGRect)] {
+        [
+            (PictureEdge.left, CGRect(x: 0, y: picture.minY, width: picture.minX, height: picture.height)),
+            (.right, CGRect(x: picture.maxX, y: picture.minY, width: display.width - picture.maxX, height: picture.height)),
+            (.top, CGRect(x: 0, y: 0, width: display.width, height: picture.minY)),
+            (.bottom, CGRect(x: 0, y: picture.maxY, width: display.width, height: display.height - picture.maxY)),
+        ]
+        .filter { $0.1.width > 0 && $0.1.height > 0 }
     }
 }
