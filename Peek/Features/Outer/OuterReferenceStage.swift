@@ -23,7 +23,7 @@ struct OuterReferenceStage: View {
 
     var body: some View {
         GeometryReader { proxy in
-            if let wide = UIImage(named: cue.wideAssetName), wide.size.height > 0 {
+            if let wide = cue.widePicture, wide.size.height > 0 {
                 // A photo pose picture has a wide copy with the person at the right. It covers the display, with
                 // its right edge at the right edge of the display, so the person stays in view.
                 let frame = StripPlacement.rightPinnedFill(in: proxy.size, aspect: wide.size.width / wide.size.height)
@@ -31,7 +31,7 @@ struct OuterReferenceStage: View {
                     .resizable()
                     .frame(width: frame.width, height: frame.height)
                     .position(x: frame.midX, y: frame.midY)
-                    .accessibilityLabel(Text(cue.name))
+                    .accessibilityLabel(cue.name.text)
             } else {
                 fitted(in: proxy)
             }
@@ -47,7 +47,7 @@ struct OuterReferenceStage: View {
     /// The complete 3:4 picture, with its background continued to the edges of the display when its edges are plain.
     @ViewBuilder private func fitted(in proxy: GeometryProxy) -> some View {
         let picture = StripPlacement.outerColumn(in: proxy.size, avoiding: proxy.occlusions)
-        let image = UIImage(named: cue.assetName)
+        let image = cue.picture
         let bands = Self.bands(around: picture, in: proxy.size)
         // The background of a picture with plain edges continues to the edges of the display.
         // A photo has no plain edge. It shows complete on black: to cover the display, the display must cut

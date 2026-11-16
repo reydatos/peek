@@ -1,11 +1,37 @@
 import SwiftUI
+import UIKit
 
-/// One pose prompt. The reference picture is the asset named `assetName`, when the app has one.
+/// Where the pictures of a pose come from.
+enum PoseMedia {
+    /// The asset catalog of the app, by the names that come from the pose ID.
+    case catalog
+    /// Files of a customer pose: the still picture, and a short clip that shows the move.
+    case files(still: URL, clip: URL?)
+}
+
+/// One pose prompt. A built-in pose has its pictures in the asset catalog. A customer pose has files.
 struct PoseCue: Identifiable {
     let id: String
-    let name: LocalizedStringResource
+    let name: PoseName
     /// The SF Symbol that stands in until a reference picture exists.
     let symbol: String
+    let media: PoseMedia
+
+    /// A built-in pose.
+    init(id: String, name: LocalizedStringResource, symbol: String) {
+        self.id = id
+        self.name = .builtIn(name)
+        self.symbol = symbol
+        media = .catalog
+    }
+
+    /// A customer pose. The ID must be unique in all packs, because a session stores a pose by its ID.
+    init(id: String, name: String, symbol: String = "figure.stand", still: URL, clip: URL? = nil) {
+        self.id = id
+        self.name = .custom(name)
+        self.symbol = symbol
+        media = .files(still: still, clip: clip)
+    }
 
     var assetName: String {
         "pose-\(id)"
@@ -20,5 +46,37 @@ struct PoseCue: Identifiable {
     /// The picture of the start of a move. With `assetName` as the end, the two pictures show the move.
     var startAssetName: String {
         "pose-\(id)-start"
+    }
+
+    /// The reference picture. Nil when the pose has none, and the symbol then stands in.
+    var picture: UIImage? {
+        switch media {
+        case .catalog: UIImage(named: assetName)
+        case let .files(still, _): UIImage(contentsOfFile: still.path)
+        }
+    }
+
+    /// The picture of the start of a move. Only a built-in pose has one; a customer pose shows its move as a clip.
+    var startPicture: UIImage? {
+        switch media {
+        case .catalog: UIImage(named: startAssetName)
+        case .files: nil
+        }
+    }
+
+    /// The wide copy of the reference picture. Only a built-in photo pose has one.
+    var widePicture: UIImage? {
+        switch media {
+        case .catalog: UIImage(named: wideAssetName)
+        case .files: nil
+        }
+    }
+
+    /// The clip that shows the move of a customer pose.
+    var clipURL: URL? {
+        switch media {
+        case .catalog: nil
+        case let .files(_, clip): clip
+        }
     }
 }

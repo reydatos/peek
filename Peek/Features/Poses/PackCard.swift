@@ -14,10 +14,10 @@ struct PackCard: View {
                         .accessibilityHidden(true)
                 }
             }
-            Text(pack.name)
+            pack.name.text
                 .font(.headline)
                 .foregroundStyle(PeekTheme.ink)
-            Text(pack.subtitle)
+            pack.subtitle.text
                 .font(.caption)
                 .foregroundStyle(PeekTheme.inkSecondary)
                 .lineLimit(2)

@@ -25,7 +25,7 @@ struct OuterCueView: View {
             FinishedStripView(strip: strip, isRightAligned: true)
                 .background(PeekTheme.page)
         } else if model.state.phase == .ready, model.state.subjectView == .reference,
-                  let cue = model.currentCue, UIImage(named: cue.assetName) != nil
+                  let cue = model.currentCue, cue.picture != nil
         {
             OuterReferenceStage(cue: cue, accent: model.accent)
         } else {

@@ -10,7 +10,7 @@ struct PoseMotionChip: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
-        if UIImage(named: cue.startAssetName) != nil {
+        if cue.startPicture != nil {
             PeekChip(text: reduceMotion ? .still : .animated, background: background)
                 .lineLimit(1)
                 .minimumScaleFactor(0.5)

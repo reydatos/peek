@@ -130,6 +130,26 @@ struct DraftTests {
         #expect(model.cameraStatus == .denied)
     }
 
+    @Test func aDraftOfARemovedCustomerPackComesBackWithTheClassicPoses() async {
+        let still = URL(filePath: "/dev/null/still.jpg")
+        let catalog = PoseCatalog(userPacks: [PosePack(id: "user-1", name: "Friday night", cues: [
+            PoseCue(id: "user-1-a", name: "One", still: still),
+            PoseCue(id: "user-1-b", name: "Two", still: still),
+        ])])
+        let first = BoothSessionModel(capture: FakeCapture(), packID: "user-1", catalog: catalog, saver: FakeSaver(), drafts: store, sleep: { _ in })
+        await first.startCamera()
+        await accept(1, in: first)
+
+        // The customer removed the pack. The next launch has a catalog with no such pack.
+        let second = model()
+        await second.restoreDraft()
+        await second.startCamera()
+        #expect(second.packID == PoseLibrary.classicID)
+        #expect(second.state.slots.map(\.cueID) == ["smile", "lookAtEachOther"])
+        #expect(second.state.slots.first.flatMap { second.image(for: $0) } != nil)
+        #expect(second.currentCue != nil)
+    }
+
     @Test func newSetDeletesTheDraft() async throws {
         let first = model()
         await first.startCamera()

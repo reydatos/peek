@@ -33,9 +33,9 @@ struct PictureEdgeTests {
         let kids = try #require(PoseLibrary.packs.first { $0.id == "kidsPoses" }?.cues.first)
         let classic = try #require(PoseLibrary.packs.first { $0.id == PoseLibrary.classicID }?.cues.first)
         let street = try #require(PoseLibrary.packs.first { $0.id == "streetStyle" }?.cues.first)
-        let cartoon = try #require(UIImage(named: kids.assetName))
-        let toys = try #require(UIImage(named: classic.assetName))
-        let photo = try #require(UIImage(named: street.assetName))
+        let cartoon = try #require(kids.picture)
+        let toys = try #require(classic.picture)
+        let photo = try #require(street.picture)
         #expect(PictureEdge.left.isPlain(in: cartoon))
         #expect(PictureEdge.left.isPlain(in: toys))
         #expect(!PictureEdge.left.isPlain(in: photo))
@@ -44,7 +44,7 @@ struct PictureEdgeTests {
     @Test func aWidePictureIsWiderThanTall() throws {
         // The wide copy of a photo pose picture covers the outer display. The person is at its right.
         let cue = try #require(PoseLibrary.packs.first { $0.id == "streetStyle" }?.cues.first)
-        let wide = try #require(UIImage(named: cue.wideAssetName))
+        let wide = try #require(cue.widePicture)
         #expect(wide.size.width > wide.size.height)
     }
 }
