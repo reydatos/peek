@@ -19,8 +19,8 @@ struct PoseArt: View {
         PeekTheme.fill
             .aspectRatio(3 / 4, contentMode: .fit)
             .overlay {
-                if let picture = UIImage(named: cue.assetName) {
-                    if showsMove, !reduceMotion, let start = UIImage(named: cue.startAssetName) {
+                if let picture = cue.picture {
+                    if showsMove, !reduceMotion, let start = cue.startPicture {
                         TimelineView(.periodic(from: .now, by: Self.stepSeconds)) { context in
                             let step = Int(context.date.timeIntervalSinceReferenceDate / Self.stepSeconds)
                             ZStack {
@@ -42,7 +42,7 @@ struct PoseArt: View {
                 }
             }
             .clipShape(.rect(cornerRadius: cornerRadius))
-            .accessibilityLabel(Text(cue.name))
+            .accessibilityLabel(cue.name.text)
     }
 
     private func fill(_ image: UIImage) -> some View {

@@ -12,6 +12,7 @@ enum PoseLibrary {
     /// The last cue of each kids pack: the child calls the pose. Lookbook page 04.
     private static let director = PoseCue(id: "director", name: .cueDirector, symbol: "megaphone")
 
+    /// The built-in packs. `PoseCatalog` adds the packs of the customer.
     static let packs: [PosePack] = [
         PosePack(id: classicID, name: .packClassic, subtitle: .packClassicSubtitle, accent: PeekTheme.strong, category: .classic, isFree: true, cues: [
             PoseCue(id: "smile", name: .cueSmile, symbol: "face.smiling"),
@@ -81,28 +82,7 @@ enum PoseLibrary {
         ]),
     ]
 
-    /// The packs in the order of the pose library: by group, and inside a group in the order of `packs`.
-    static func packs(for filter: PackFilter) -> [PosePack] {
-        packs.enumerated()
-            .filter { filter.shows($0.element) }
-            .sorted { ($0.element.category, $0.offset) < ($1.element.category, $1.offset) }
-            .map(\.element)
-    }
-
-    /// The Copycat packs: every pack but the classic booth.
-    static var copycatPacks: [PosePack] {
-        packs.filter { $0.id != classicID }
-    }
-
-    static func cueIDs(forPack id: String) -> [String] {
-        (packs.first { $0.id == id } ?? packs[0]).cues.map(\.id)
-    }
-
-    /// The first pack that has the cue.
-    static func pack(for cueID: String) -> PosePack? {
-        packs.first { $0.cues.contains { $0.id == cueID } }
-    }
-
+    /// A built-in pose by its ID.
     static func cue(for id: String) -> PoseCue? {
         packs.lazy.flatMap(\.cues).first { $0.id == id }
     }

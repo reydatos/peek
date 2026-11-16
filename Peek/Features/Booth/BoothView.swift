@@ -13,11 +13,12 @@ struct BoothView: View {
 
     private let resumesDraft: Bool
 
-    init(request: BoothRequest) {
+    init(request: BoothRequest, catalog: PoseCatalog) {
         resumesDraft = request.resumesDraft
         _model = State(initialValue: BoothSessionModel(
             capture: CaptureService(),
             packID: request.packID,
+            catalog: catalog,
             drafts: BoothDraftStore.shared
         ))
     }

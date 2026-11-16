@@ -21,11 +21,11 @@ struct CueLine: View {
             case let .countdown(remaining):
                 CountdownView(remaining: remaining, total: model.countdown.seconds, isLarge: isSubjectFacing)
             case .ready, .paused:
-                line(model.currentCue?.name ?? .samplePrompt, caption: .shotOf(number, count))
+                line(cueName, caption: .shotOf(number, count))
             case .capturePending:
-                line(.capturing, caption: .shotOf(number, count))
+                line(Text(.capturing), caption: .shotOf(number, count))
             case .review:
-                line(model.currentCue?.name ?? .samplePrompt, caption: .shotReview(number))
+                line(cueName, caption: .shotReview(number))
             case .setup, .complete:
                 EmptyView()
             }
@@ -33,9 +33,14 @@ struct CueLine: View {
         .frame(maxWidth: .infinity, alignment: .leading)
     }
 
-    private func line(_ name: LocalizedStringResource, caption: LocalizedStringResource) -> some View {
+    /// The name of the pose of the current shot.
+    private var cueName: Text {
+        model.currentCue?.name.text ?? Text(.samplePrompt)
+    }
+
+    private func line(_ name: Text, caption: LocalizedStringResource) -> some View {
         VStack(alignment: .leading) {
-            Text(name)
+            name
                 .font(isSubjectFacing ? .largeTitle : .title2)
                 .bold()
                 .foregroundStyle(PeekTheme.ink)

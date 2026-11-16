@@ -83,6 +83,8 @@ final class BoothSessionModel {
     /// The takes that have their bytes in storage.
     private var stored: Set<Take.ID> = []
     private var takesToDelete: [Take] = []
+    /// The built-in packs and the packs of the customer.
+    let catalog: PoseCatalog
     private let reducer = BoothReducer()
     private let sleep: @Sendable (Duration) async throws -> Void
 
@@ -90,6 +92,7 @@ final class BoothSessionModel {
         capture: any CaptureProviding,
         packID: String = PoseLibrary.classicID,
         cueIDs: [String]? = nil,
+        catalog: PoseCatalog = PoseCatalog(),
         saver: any PhotoSaving = PhotoLibrarySaver(),
         drafts: (any DraftStore)? = nil,
         sleep: @escaping @Sendable (Duration) async throws -> Void = { try await Task.sleep(for: $0) }
@@ -98,8 +101,11 @@ final class BoothSessionModel {
         self.saver = saver
         self.drafts = drafts
         self.sleep = sleep
-        self.packID = packID
-        state = BoothState(cueIDs: cueIDs ?? PoseLibrary.cueIDs(forPack: packID))
+        self.catalog = catalog
+        // A pack that the catalog does not have gives the classic booth.
+        let pack = catalog.packOrClassic(id: packID)
+        self.packID = pack.id
+        state = BoothState(cueIDs: cueIDs ?? pack.cues.map(\.id))
     }
 
     /// Starts a new four-shot session with the poses of a pack. The shots of the old session are discarded.
@@ -112,8 +118,9 @@ final class BoothSessionModel {
         saveStatus = .idle
         deleteDraft()
         isOnOneScreen = false
-        self.packID = packID
-        state = BoothState(cueIDs: PoseLibrary.cueIDs(forPack: packID), countdown: state.countdown)
+        let pack = catalog.packOrClassic(id: packID)
+        self.packID = pack.id
+        state = BoothState(cueIDs: pack.cues.map(\.id), countdown: state.countdown)
         if cameraStatus == .running {
             send(.finishSetup)
         }
@@ -128,7 +135,7 @@ final class BoothSessionModel {
     }
 
     var pack: PosePack? {
-        PoseLibrary.packs.first { $0.id == packID }
+        catalog.pack(id: packID)
     }
 
     var packCues: [PoseCue] {
@@ -150,7 +157,7 @@ final class BoothSessionModel {
 
     /// The pose of the current slot. Nil when the cue ID is not in the library.
     var currentCue: PoseCue? {
-        PoseLibrary.cue(for: state.currentSlot.cueID)
+        catalog.cue(for: state.currentSlot.cueID)
     }
 
     /// The numbers of the slots that have no accepted shot, in slot order.
@@ -210,9 +217,10 @@ final class BoothSessionModel {
     }
 
     /// The color of a label on the accent. A pack color is the same in light and in dark, so its label is dark.
-    /// The classic booth and a set with no pack have the strong color as accent, so their label is its opposite.
+    /// The classic booth, a customer pack, and a set with no pack have the strong color as accent, so their label
+    /// is its opposite.
     var onAccent: Color {
-        guard let pack, pack.id != PoseLibrary.classicID else { return PeekTheme.onStrong }
+        guard let pack, pack.category != .classic, pack.category != .mine else { return PeekTheme.onStrong }
         return PeekTheme.paperInk
     }
 
@@ -373,10 +381,13 @@ final class BoothSessionModel {
                 loaded[take.id] = data
             }
         }
-        let slots = record.slots.map { slot in
+        // A customer can remove a pack or a pose that the draft still names. Such a slot gets the classic pose
+        // of its position, so each slot has a pose that the catalog knows.
+        let classicIDs = catalog.classicPack.cues.map(\.id)
+        let slots = record.slots.enumerated().map { index, slot in
             Slot(
                 id: slot.id,
-                cueID: slot.cueID,
+                cueID: catalog.cue(for: slot.cueID) == nil ? classicIDs[index % classicIDs.count] : slot.cueID,
                 acceptedTake: slot.acceptedTake.flatMap { loaded[$0.id] == nil ? nil : $0 },
                 previousTake: slot.previousTake.flatMap { loaded[$0.id] == nil ? nil : $0 }
             )
@@ -387,7 +398,7 @@ final class BoothSessionModel {
         stored = Set(loaded.keys)
         draftID = record.id
         hasDraft = true
-        packID = record.templateID
+        packID = catalog.packOrClassic(id: record.templateID).id
         var restored = record
         restored.slots = slots
         state = BoothState(restoring: restored)

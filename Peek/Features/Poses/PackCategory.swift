@@ -5,6 +5,8 @@ import Foundation
 enum PackCategory: Int, CaseIterable, Comparable {
     /// The classic booth: it is first, and it shows only with all packs.
     case classic
+    /// The packs that the customer made. They are before the built-in groups.
+    case mine
     /// Cartoon and animal poses for children and families.
     case kids
     /// Photo poses in a city street.

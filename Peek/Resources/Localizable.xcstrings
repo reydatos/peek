@@ -793,6 +793,17 @@
         }
       }
     },
+    "filterMine" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mine"
+          }
+        }
+      }
+    },
     "filterStreet" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1240,6 +1251,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Illustrated prompts"
+          }
+        }
+      }
+    },
+    "packMineSubtitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your poses"
           }
         }
       }
