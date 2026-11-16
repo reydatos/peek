@@ -11,7 +11,7 @@ struct BoothStageView: View {
     let model: BoothSessionModel
     /// True when no outer display shows the cue. The people in the photo then read this display.
     let isSubjectFacing: Bool
-    /// False in the wide booth: the side rail shows the pose reference there.
+    /// False in the wide booth: the side rail shows the pose reference there, also with one screen.
     var showsPoseArt = true
     /// True on a tall display: the photo is a viewfinder at the full width, with the pose picture in its corner.
     var isFullBleed = false
@@ -125,21 +125,8 @@ struct BoothStageView: View {
                 .padding()
             } else if isSubjectFacing, canStepPose, let cue = model.currentCue {
                 // With one screen, the pose reference moves into the camera view.
-                if showsPoseArt {
-                    PoseGuide(cue: cue, accent: model.accent, isLarge: true)
-                        .padding()
-                } else {
-                    // The wide booth: the people in the photo read this display from a distance, so the
-                    // reference is large and shows the move. The side rail then has no pose reference.
-                    // Its height is a part of the photo, so it stays below the labels at each text size.
-                    GeometryReader { proxy in
-                        PoseReferenceFrame(cue: cue, accent: model.accent, showsMove: true)
-                            .frame(height: proxy.size.height * Self.wideGuideFraction)
-                            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomLeading)
-                    }
+                PoseGuide(cue: cue, accent: model.accent, isLarge: true)
                     .padding()
-                    .allowsHitTesting(false)
-                }
             }
         }
         // A sideways swipe changes the pose.
@@ -151,10 +138,6 @@ struct BoothStageView: View {
             isEnabled: canStepPose
         )
     }
-
-    /// The height of the one-screen pose reference in the wide booth, as a part of the photo height.
-    /// This is a design value.
-    private static let wideGuideFraction = 0.6
 
     /// The shape of the upright picture of a 4:3 camera: the width divided by the height. This is a design value.
     private static let uprightAspect: CGFloat = 3.0 / 4.0

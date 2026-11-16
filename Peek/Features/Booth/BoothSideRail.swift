@@ -4,7 +4,7 @@ import SwiftUI
 /// The side rail of a wide booth, on the trailing edge and clear of the fold.
 /// Top to bottom: the More menu, the pose reference, the four slots, the actions of the state (the flip button is left of the shutter), and the poses button.
 /// This is the one pose reference of the wide booth, so it also shows the move of an animated pose.
-/// With one screen, the pose reference is in the photo, for the people in the photo.
+/// The rail is the same with one screen and with two, and with each camera.
 struct BoothSideRail: View {
     let model: BoothSessionModel
     let actions: BoothActions
@@ -33,8 +33,7 @@ struct BoothSideRail: View {
                 Spacer()
                 BoothMoreMenu(model: model)
             }
-            // With one screen, the photo has the large pose reference, so the rail shows none.
-            if !model.isComplete, model.isOuterDisplayPresenting, let cue = model.currentCue {
+            if !model.isComplete, let cue = model.currentCue {
                 PoseReferenceFrame(cue: cue, accent: model.accent, showsMove: true)
                     .frame(height: thumbnailHeight)
                 Text(cue.name)
