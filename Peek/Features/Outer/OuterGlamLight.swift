@@ -18,5 +18,7 @@ struct OuterGlamLight: View {
         }
         // The light color is the same in light mode and in dark mode, so the numeral has the light-mode color.
         .environment(\.colorScheme, .light)
+        // The light covers the display to its edges, as the picture below it does.
+        .ignoresSafeArea()
     }
 }

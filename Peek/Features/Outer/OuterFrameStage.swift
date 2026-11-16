@@ -54,6 +54,8 @@ struct OuterFrameStage: View {
         }
         .clipped()
         .background(PeekTheme.page)
+        // The picture covers the display to its edges, not only the safe area.
+        .ignoresSafeArea()
     }
 
     private var hasCaption: Bool {

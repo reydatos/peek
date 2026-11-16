@@ -81,7 +81,7 @@ No serif and no italic lettering anywhere in the app.
 
 **Pose reference thumbnail.** 104 × 124, radius 14, 3 border in the pack accent. No pose name underneath: the name shows one time, on the cue line.
 
-**Reference frame, subject display.** Large reference image, 5 border in the pack accent, no "Pose reference" chip and no pose name on the picture (owner decisions, 2026-11-15).
+**Reference frame, subject display.** The complete reference image with no cut, as large as the display permits, at the far right, on black. The display is used to its edges. 5 border in the pack accent, no "Pose reference" chip and no pose name on the picture (owner decisions, 2026-11-15).
 
 **Cue line.** Pose name at 24 bold with a caption under it ("Shot 2 of 4"). Sits under the photo on the leading side, never across the hinge.
 
