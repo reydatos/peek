@@ -61,7 +61,6 @@ enum PeekTheme {
     static let touchTarget: CGFloat = 44
     /// The largest width of the pose tray. This is a design value: it fills a tall display,
     /// and it is less than one half of a wide display.
-    static let trayWidth: CGFloat = 420
     /// The width of the side rail in a wide booth.
     /// The rail is as wide as its widest row: the four slots, each with a 44-point touch target, the three spaces
     /// between them, and the padding of the rail on the two sides. That is 218.

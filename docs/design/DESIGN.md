@@ -102,7 +102,7 @@ No serif and no italic lettering anywhere in the app.
 
 **Segmented choice.** Pill container in `fill`; selected segment in `strong` with `onStrong` text and a check icon. Used for Classic / Copycat and Strip / 2×2.
 
-**Pack tile.** Row with a small tilted instant-photo thumbnail, a 6 × 44 accent bar, name, one-line description, chevron.
+**Pack card.** A card in the pose library grid: the poses of the pack as a block of small pictures (two in each row), the name, a one-line description, and a 2 border in the pack accent. A tap selects the pack. The grid replaces the long list of pack rows (owner decision, 2026-11-15); the packs show together with little scroll.
 
 **Instant strip.** `photoPaper` border, radius 4. Vertical (four stacked) and 2×2. Optional caption line with the wordmark and date.
 
@@ -161,8 +161,8 @@ Triggered when the outer display becomes unavailable mid-session.
 ### Standard iPhone (single screen, portrait)
 From the "Light style" screens.
 - Camera: photo fills the top; black bar at the bottom with last-shot thumbnail, shutter (white ring, red core) and a Poses button; four progress bars above them; "Shot 2 of 4" and zoom chips over the photo.
-- Pose tray: opens over the camera without leaving it. Tabs For you / Saved, a row of pose thumbnails, numbered red badges on the chosen ones, More ideas and Apply.
-- Pose library: Discover / Saved, poses grouped by pack as photo cards with a name and one-line description underneath.
+- Pose tray: removed (owner decision, 2026-11-15). The poses button opens the pose library at once.
+- Pose library: a grid of pack cards in the order of their groups (Classic, Kids, Street, Trends), with a filter All / Kids / Street / Trends. A tap on a card selects the pack. There is no Saved tab and no star; the choice of a pose for one shot is the sideways swipe on the photo.
 - Strip builder: choose four, frame colour chips (Cream, White, Black), layout chips (2×2, Strip), Retake and Save Strip.
 
 ## Layout rules for iPhone Duo

@@ -19,29 +19,6 @@ struct PoseTrayTests {
         }
     }
 
-    @Test func chosenPosesGetTheNumbersOfTheOpenSlotsInTapOrder() {
-        var selection = PoseSelection(openSlots: [2, 3, 4])
-        selection.toggle("walk")
-        selection.toggle("lean")
-
-        #expect(selection.ids == ["walk", "lean"])
-        #expect(selection.slotNumber(for: "walk") == 2)
-        #expect(selection.slotNumber(for: "lean") == 3)
-        #expect(selection.slotNumber(for: "smile") == nil)
-
-        // A second tap removes the pose. The pose after it moves to the earlier slot.
-        selection.toggle("walk")
-        #expect(selection.slotNumber(for: "lean") == 2)
-    }
-
-    @Test func selectionStopsAtTheNumberOfOpenSlots() {
-        var selection = PoseSelection(openSlots: [4])
-        selection.toggle("walk")
-        selection.toggle("lean")
-
-        #expect(selection.ids == ["walk"])
-    }
-
     @Test func savedPosesGoToTheStoreWithTheNewestFirst() {
         let store = MemoryStore(["walk"])
         let saved = SavedPoses(store: store)
