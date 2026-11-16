@@ -89,7 +89,11 @@ struct BoothStageView: View {
         }
         .overlay(alignment: .topLeading) {
             VStack(alignment: .leading) {
-                StageChips(model: model)
+                // The wide booth shows the shot number one time, on the cue line below the photo
+                // (owner decision, 2026-11-15). The viewfinder of a tall display has no cue line.
+                if isFullBleed {
+                    StageChips(model: model)
+                }
                 BoothBanners(model: model)
             }
             .padding()

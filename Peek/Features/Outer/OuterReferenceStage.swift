@@ -4,8 +4,9 @@ import SwiftUI
 /// is at the right edge of the display. The hinge cover of an open iPhone Duo is at the left, so the part of the
 /// picture that it hides is the left part.
 ///
-/// The label and the frame of the pack accent show that this is not the live camera. The label and the cue are
-/// in the column at the right, which stays in view.
+/// The label and the frame of the pack accent show that this is not the live camera. The label is in the column
+/// at the right, which stays in view. The picture has no pose name on it (owner decision, 2026-11-15), so the
+/// people see the full picture.
 struct OuterReferenceStage: View {
     let cue: PoseCue
     let accent: Color
@@ -28,14 +29,6 @@ struct OuterReferenceStage: View {
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 Spacer()
-                Text(cue.name)
-                    .font(.largeTitle)
-                    .bold()
-                    .multilineTextAlignment(.center)
-                    .foregroundStyle(PeekTheme.ink)
-                    .padding()
-                    .frame(maxWidth: .infinity)
-                    .background(PeekTheme.surface, in: .rect(cornerRadius: PeekTheme.cardCorner))
             }
             .padding()
             .frame(width: column.width, height: column.height)

@@ -41,7 +41,6 @@ struct OuterFrameStage: View {
                 if hasCaption {
                     OuterCaption(
                         phase: model.state.phase,
-                        cueName: model.currentCue?.name ?? .samplePrompt,
                         shotNumber: model.state.currentSlotID.index + 1,
                         countdownLength: model.countdown.seconds
                     )
@@ -59,7 +58,8 @@ struct OuterFrameStage: View {
 
     private var hasCaption: Bool {
         switch model.state.phase {
-        case .setup, .complete: false
+        // Live framing has no caption: the pose name does not cover the picture (owner decision, 2026-11-15).
+        case .setup, .ready, .complete: false
         default: true
         }
     }

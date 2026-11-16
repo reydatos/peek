@@ -81,7 +81,7 @@ No serif and no italic lettering anywhere in the app.
 
 **Pose reference thumbnail.** 104 × 124, radius 14, 3 border in the pack accent. No pose name underneath: the name shows one time, on the cue line.
 
-**Reference frame, subject display.** Large reference image, 5 border in the pack accent, a "Pose reference" chip above and the cue below.
+**Reference frame, subject display.** Large reference image, 5 border in the pack accent, a "Pose reference" chip above. No pose name on the picture.
 
 **Cue line.** Pose name at 24 bold with a caption under it ("Shot 2 of 4"). Sits under the photo on the leading side, never across the hinge.
 
@@ -124,13 +124,13 @@ Each entry gives the state, the primary action and the layout rule.
 - Primary action: shutter (starts the countdown).
 - Photographer: live photo on the leading side with the cue line under it; side rail with the one pose reference thumbnail. A sideways swipe on the photo, or the poses button, changes the pose. No leading panel: a second pose picture beside the photo conflicted with the rail thumbnail. The wide booth has this one layout with one screen and with two, and with each camera (owner decision, 2026-11-15).
 - Tall display (a closed iPhone Duo, a standard iPhone): a viewfinder as in a camera app. The upright 3:4 picture has the full width. The pose picture, with no name, is in the bottom-leading corner of the picture. The black bar below has the four progress bars and the shutter row. The shutter row is in the center: the flip button, the shutter, and the poses button. The zoom choices are in the center of the bottom of the picture. The countdown numeral is large, on a card in the center of the picture; the bar then has Cancel only. There is no cue line.
-- Subject: "Pose reference" chip, large reference in an accent frame, cue.
+- Subject: "Pose reference" chip and large reference in an accent frame. No pose name: the people see the full picture (owner decision, 2026-11-15).
 - The reference must look different from the live camera: different image treatment, an accent frame and a label.
 
 ### 3. Follow the cue (subject display)
 Three states in order. The live crop does not change between the second and third.
-1. Pose reference: reference image and cue.
-2. Live framing: live photo with the pose guide in its corner, cue.
+1. Pose reference: reference image, with no pose name.
+2. Live framing: live photo with the pose guide in its corner, with no pose name.
 3. Countdown: live photo, numeral and pips below it. The pose guide and cue are removed.
 
 ### 4. Kids Poses and Animations
