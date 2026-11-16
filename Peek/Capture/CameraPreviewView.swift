@@ -10,6 +10,8 @@ struct CameraPreviewView: UIViewRepresentable {
     let holder: PreviewHolder
     let deviceID: String?
     let isMirrored: Bool
+    /// `PreviewHolder.generation`. A new value makes this view take the preview back from another screen.
+    var generation = 0
 
     func makeUIView(context _: Context) -> UIView {
         let container = UIView()

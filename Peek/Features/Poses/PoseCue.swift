@@ -52,8 +52,21 @@ struct PoseCue: Identifiable {
     var picture: UIImage? {
         switch media {
         case .catalog: UIImage(named: assetName)
-        case let .files(still, _): UIImage(contentsOfFile: still.path)
+        case let .files(still, _): Self.picture(at: still)
         }
+    }
+
+    /// The pictures of customer poses that the app has read. A view asks for its picture each time it draws,
+    /// and a read of the file each time is slow.
+    private static let pictures = NSCache<NSURL, UIImage>()
+
+    private static func picture(at url: URL) -> UIImage? {
+        if let picture = pictures.object(forKey: url as NSURL) {
+            return picture
+        }
+        guard let picture = UIImage(contentsOfFile: url.path) else { return nil }
+        pictures.setObject(picture, forKey: url as NSURL)
+        return picture
     }
 
     /// The picture of the start of a move. Only a built-in pose has one; a customer pose shows its move as a clip.

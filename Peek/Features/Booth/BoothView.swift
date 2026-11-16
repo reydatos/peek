@@ -10,6 +10,8 @@ struct BoothView: View {
     @State private var posePicker: PosePickerRequest?
     @State private var packToConfirm: PosePack?
     @Environment(\.scenePhase) private var scenePhase
+    @Environment(UserPacks.self) private var userPacks
+    @State private var isEditingPack = false
 
     private let resumesDraft: Bool
 
@@ -33,11 +35,29 @@ struct BoothView: View {
         .toolbar(.hidden, for: .navigationBar)
         .sheet(item: $posePicker) { _ in
             // The warning shows on the sheet, so the photographer decides before the sheet closes.
-            PoseLibraryView { pack in
+            PoseLibraryView(packWithShotsID: model.hasShots ? model.packID : nil) { pack in
                 if model.hasShots {
                     packToConfirm = pack
                 } else {
                     load(pack)
+                }
+            } onNewPack: {
+                isEditingPack = true
+            } onDelete: { pack in
+                // The dialog of the library told the photographer that the shots of this pack go away.
+                // The booth leaves a pack before the pack goes away, so each slot keeps a pose that exists.
+                if model.packID == pack.id {
+                    model.loadPack(PoseLibrary.classicID)
+                }
+                Task { await userPacks.delete(packID: pack.id) }
+            }
+            .sheet(isPresented: $isEditingPack) {
+                PackEditorView(model: model) { draft in
+                    guard await userPacks.save(draft) != nil else { return false }
+                    isEditingPack = false
+                    return true
+                } onCancel: {
+                    isEditingPack = false
                 }
             }
             .confirmationDialog(

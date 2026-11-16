@@ -54,6 +54,22 @@ actor FakeCapture: CaptureProviding {
 
     func setFrameRotationAngle(_: CGFloat) {}
 
+    private(set) var clipCount = 0
+    var clipError: CaptureError?
+
+    func failClips(_ fails: Bool) {
+        clipError = fails ? .captureFailed : nil
+    }
+
+    func recordClip(to url: URL) throws -> Data {
+        if let clipError {
+            throw clipError
+        }
+        clipCount += 1
+        try Data("clip \(clipCount)".utf8).write(to: url)
+        return Self.photoData
+    }
+
     func capturePhoto() throws -> CapturedPhoto {
         captureCount += 1
         if let captureError {

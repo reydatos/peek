@@ -161,6 +161,7 @@ Triggered when the outer display becomes unavailable mid-session.
 ### Standard iPhone (single screen, portrait)
 From the "Light style" screens.
 - Camera: photo fills the top; black bar at the bottom with last-shot thumbnail, shutter (white ring, red core) and a Poses button; four progress bars above them; "Shot 2 of 4" and zoom chips over the photo.
+- Customer packs (owner decision, 2026-11-15): the first card of the pose library is "New pack". It opens the pack editor: a pack name, and four poses, each with a name and a Record button. The record screen shows the live camera, a 3-2-1 countdown, a 5-second silent clip with a progress bar, then "Use this pose" (red) and "Record again". "Save pack" is the one red action of the editor, and it is available when the pack has a name and four clips. A customer pack is in the group "Mine". A long press on its card gives "Delete pack", with a confirmation. The clip size (720 x 960), its bit rate (1.5 Mbit/s), and the 3-second start allowance are design values.
 - Pose tray: removed (owner decision, 2026-11-15). The poses button opens the pose library at once.
 - Pose library: a grid of pack cards in the order of their groups (Classic, Kids, Street, Trends), with a filter All / Kids / Street / Trends. A tap on a card selects the pack. There is no Saved tab and no star; the choice of a pose for one shot is the sideways swipe on the photo.
 - Strip builder: choose four, frame colour chips (Cream, White, Black), layout chips (2×2, Strip), Retake and Save Strip.

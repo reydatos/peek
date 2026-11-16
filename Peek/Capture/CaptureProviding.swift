@@ -18,4 +18,6 @@ nonisolated protocol CaptureProviding: Sendable {
     /// Sets the zoom of the camera in use.
     func setZoom(_ factor: Double) async throws
     func capturePhoto() async throws -> CapturedPhoto
+    /// Records a short silent clip of a pose to the file, and gives its last frame as JPEG bytes.
+    func recordClip(to url: URL) async throws -> Data
 }
