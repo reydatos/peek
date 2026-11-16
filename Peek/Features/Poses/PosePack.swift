@@ -8,6 +8,8 @@ struct PosePack: Identifiable {
     let subtitle: LocalizedStringResource
     /// The narrow color bar of the pack tile. The name and the subtitle carry the meaning.
     let accent: Color
+    /// The group of the pack. The pose library sorts and filters the packs by it.
+    let category: PackCategory
     let isFree: Bool
     let cues: [PoseCue]
 }

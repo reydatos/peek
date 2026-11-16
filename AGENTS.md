@@ -35,7 +35,7 @@ Verify the test COUNT. The tests use Swift Testing, so the XCTest line `Executed
 | `Peek/Design` | `PeekTheme` (tokens) and the shared controls: primary, secondary, and rail buttons, chip, banner, segmented choice, icon label. |
 | `Peek/Features` | SwiftUI by feature. The app opens on the booth (the viewfinder); there is no Home screen (owner decision, 2026-11-15). The camera starts at launch. The poses button changes the pack. |
 | `Peek/Features/Booth` | Inner display. `BoothLayout` selects the wide booth (photo, side rail with the one pose reference; a leading panel only for a finished set) or the tall booth (full-screen camera, black camera bar). `BoothSessionModel` drives the two displays. |
-| `Peek/Features/Poses` | Pose packs, the pose tray (an overlay of `BoothView`), the pose library (Discover and Saved), and `SavedPoses`. |
+| `Peek/Features/Poses` | Pose packs with their groups, and the pose library: a grid of pack cards with a group filter. The poses button of the booth opens it. There is no pose tray (owner decision, 2026-11-15). `SavedPoses` stays in the code but no screen uses it. |
 | `Peek/Features/Finish` | Strip and 2x2 renderer, frame color, save, share. |
 | `Peek/Features/Outer` | Outer display accessory: pose reference, live frame, countdown, shot, strip. |
 | `Peek/Capture` | `CaptureService` actor (camera, flip, zoom), preview layer view (inner), `FrameSource` frame feed view (outer), rotation. `CaptureProviding` is the seam for tests. |
@@ -52,7 +52,7 @@ Verify the test COUNT. The tests use Swift Testing, so the XCTest line `Executed
 - The outer display is an enhancement. Every flow must complete on the inner display alone.
 - The outer display draws frames from `FrameSource` (`AVCaptureVideoDataOutput`). Do not put a second `AVCaptureVideoPreviewLayer` there. On a physical Duo that layer showed no picture.
 - Keep purchase prompts, links, and account requests off the outer (subject) display.
-- The pose tray is an overlay of `BoothView`, not a sheet. The pose library is a sheet on the photographer's side.
+- The pose library is a sheet on the photographer's side. The booth has no pose tray.
 - A new `SessionRecord` field must decode a draft that does not have it, with a default and a test.
 - `SavedPoses` and `BoothSessionModel` have no store by default, so tests stay isolated. The app passes the stores.
 - The look follows the UI handoff in `docs/design` (`DESIGN.md`, `tokens.json`): light and dark from the same semantic tokens, the system font, and one red. Colors and corners live in `PeekTheme`; do not put a hex value or `Color.white` in a view. Each state has one red main action (`PeekPrimaryButtonStyle`). The exported strip has fixed colors.
