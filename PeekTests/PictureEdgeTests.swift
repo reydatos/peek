@@ -47,4 +47,16 @@ struct PictureEdgeTests {
         let wide = try #require(cue.widePicture)
         #expect(wide.size.width > wide.size.height)
     }
+
+    @Test func eachClassicPosePictureFillsTheOuterDisplay() throws {
+        // Owner rule (2026-11-15): each pose idea picture covers the outer display. A classic picture does this
+        // with plain edges at the left and at the right, so its background continues to the edges of the display.
+        let classic = try #require(PoseLibrary.packs.first { $0.id == PoseLibrary.classicID })
+        #expect(classic.cues.count == 4)
+        for cue in classic.cues {
+            let picture = try #require(UIImage(named: cue.assetName), "\(cue.id) has no picture")
+            #expect(PictureEdge.left.isPlain(in: picture), "\(cue.id): the left edge is not plain")
+            #expect(PictureEdge.right.isPlain(in: picture), "\(cue.id): the right edge is not plain")
+        }
+    }
 }
