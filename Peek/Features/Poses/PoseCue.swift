@@ -11,6 +11,12 @@ struct PoseCue: Identifiable {
         "pose-\(id)"
     }
 
+    /// A wide copy of the reference picture, for the outer display. A photo pose picture has one, because a 3:4
+    /// photo can not cover a wide display with the person complete. The person is at the right of the wide picture.
+    var wideAssetName: String {
+        "pose-\(id)-wide"
+    }
+
     /// The picture of the start of a move. With `assetName` as the end, the two pictures show the move.
     var startAssetName: String {
         "pose-\(id)-start"
