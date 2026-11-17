@@ -109,10 +109,14 @@ struct PoseRecorderView: View {
             Text(.recordHint)
                 .font(.subheadline)
                 .foregroundStyle(PeekTheme.inkSecondary)
-            Button { recording.start() } label: {
-                Label(.recordPose, systemImage: "record.circle")
+            HStack {
+                // The front camera lets a person record their own pose, with the view as a mirror.
+                FlipCameraButton(model: model)
+                Button { recording.start() } label: {
+                    Label(.recordPose, systemImage: "record.circle")
+                }
+                .buttonStyle(PeekPrimaryButtonStyle())
             }
-            .buttonStyle(PeekPrimaryButtonStyle())
         case .countdown, .recording:
             Button(role: .cancel) { recording.cancel() } label: {
                 Label(.cancel, systemImage: "xmark")

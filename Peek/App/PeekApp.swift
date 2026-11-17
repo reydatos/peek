@@ -9,6 +9,8 @@ struct PeekApp: App {
     @State private var packImport: PackImport
 
     init() {
+        // No pack draft exists when the app opens, so each clip in the temporary folder has no owner.
+        Task.detached { StaleClips.remove() }
         let catalog = PoseCatalog()
         _catalog = State(initialValue: catalog)
         let userPacks = UserPacks(catalog: catalog, store: UserPackStore.shared)

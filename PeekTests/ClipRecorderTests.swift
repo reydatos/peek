@@ -98,4 +98,45 @@ struct ClipRecorderTests {
         #expect(ClipRecorder.uprightCrop(of: CGRect(x: 0, y: 0, width: 300, height: 400)) == CGRect(x: 0, y: 0, width: 300, height: 400))
         #expect(ClipRecorder.uprightCrop(of: CGRect(x: 0, y: 0, width: 300, height: 600)) == CGRect(x: 0, y: 100, width: 300, height: 400))
     }
+
+    @Test func aSelfieClipIsAMirrorPicture() throws {
+        // A frame with the left half bright and the right half dark.
+        var pixels: CVPixelBuffer?
+        CVPixelBufferCreate(nil, 480, 640, kCVPixelFormatType_32BGRA, nil, &pixels)
+        let buffer = try #require(pixels)
+        CVPixelBufferLockBaseAddress(buffer, [])
+        let base = try #require(CVPixelBufferGetBaseAddress(buffer))
+        let rowBytes = CVPixelBufferGetBytesPerRow(buffer)
+        for row in 0 ..< 640 {
+            memset(base + row * rowBytes, 0xFF, 240 * 4)
+            // Black with full alpha. A pixel with no alpha becomes white in a JPEG.
+            let dark = (base + row * rowBytes + 240 * 4).bindMemory(to: UInt32.self, capacity: 240)
+            for column in 0 ..< 240 {
+                dark[column] = 0xFF00_0000
+            }
+        }
+        CVPixelBufferUnlockBaseAddress(buffer, [])
+
+        func leftIsBright(_ data: Data?) throws -> Bool {
+            let bytes = try #require(data)
+            let image = try #require(UIImage(data: bytes)?.cgImage)
+            // The complete picture goes into two pixels: the left half and the right half.
+            var pixel = [UInt8](repeating: 0, count: 8)
+            let context = try #require(CGContext(
+                data: &pixel, width: 2, height: 1, bitsPerComponent: 8, bytesPerRow: 8,
+                space: CGColorSpaceCreateDeviceRGB(), bitmapInfo: CGImageAlphaInfo.noneSkipLast.rawValue
+            ))
+            context.draw(image, in: CGRect(x: 0, y: 0, width: 2, height: 1))
+            return pixel[0] > pixel[4]
+        }
+        #expect(try leftIsBright(ClipRecorder.still(of: buffer, quarterTurns: 0)))
+        #expect(try !leftIsBright(ClipRecorder.still(of: buffer, quarterTurns: 0, isMirrored: true)))
+
+        // The clip stores the same flip, after the rotation that makes it upright.
+        let point = CGPoint(x: 1, y: 0)
+        #expect(point.applying(ClipRecorder.transform(quarterTurns: 0, isMirrored: true)).x == -1)
+        #expect(ClipRecorder.transform(quarterTurns: 0, isMirrored: false) == .identity)
+        let turned = point.applying(ClipRecorder.transform(quarterTurns: 1, isMirrored: true))
+        #expect(abs(turned.x) < 0.0001 && abs(turned.y - 1) < 0.0001)
+    }
 }
