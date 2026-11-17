@@ -60,4 +60,21 @@ struct PoseClipTests {
         draft.name = "Friday"
         #expect(draft.isComplete)
     }
+
+    @Test func theAppRemovesOldClipsAndPackFilesWhenItOpens() throws {
+        let folder = FileManager.default.temporaryDirectory.appending(path: UUID().uuidString)
+        let share = folder.appending(path: "Share-1")
+        try FileManager.default.createDirectory(at: share, withIntermediateDirectories: true)
+        let clip = folder.appending(path: "a.mov")
+        let pack = share.appending(path: "Beach.peekpack")
+        let other = folder.appending(path: "notes.txt")
+        for file in [clip, pack, other] {
+            try Data("x".utf8).write(to: file)
+        }
+        StaleClips.remove(in: folder)
+        #expect(!FileManager.default.fileExists(atPath: clip.path))
+        #expect(!FileManager.default.fileExists(atPath: share.path))
+        // A file of a different kind stays.
+        #expect(FileManager.default.fileExists(atPath: other.path))
+    }
 }
