@@ -81,7 +81,7 @@ final class UserPacks {
         do {
             for (index, pose) in poses.enumerated() {
                 let poseID = UUID()
-                let poseName = pose.name.trimmingCharacters(in: .whitespacesAndNewlines)
+                let poseName = PackFile.cleanName(pose.name)
                 try await store.writeMedia(pose.still, named: "\(poseID.uuidString).jpg", for: id)
                 try await store.writeMedia(pose.clip, named: "\(poseID.uuidString).mov", for: id)
                 records.append(UserPose(
@@ -91,7 +91,7 @@ final class UserPacks {
                     clipFile: "\(poseID.uuidString).mov"
                 ))
             }
-            try await store.commit(UserPack(id: id, name: name.trimmingCharacters(in: .whitespacesAndNewlines), poses: records))
+            try await store.commit(UserPack(id: id, name: PackFile.cleanName(name), poses: records))
         } catch {
             // A pack with no record is not a pack. Its files go away.
             try? await store.deletePack(id)
@@ -108,9 +108,10 @@ final class UserPacks {
         guard let store, let id = Self.uuid(of: packID),
               let pack = await (try? store.loadPacks())?.first(where: { $0.id == id })
         else { return nil }
-        let name = pack.name
+        // A pack that an older build stored can have a name that a file does not accept.
+        let name = PackFile.cleanName(pack.name)
         let sources = pack.poses.map { pose in
-            (pose.name, store.mediaURL(named: pose.stillFile, for: id), pose.clipFile.map { store.mediaURL(named: $0, for: id) })
+            (PackFile.cleanName(pose.name), store.mediaURL(named: pose.stillFile, for: id), pose.clipFile.map { store.mediaURL(named: $0, for: id) })
         }
         return await Task.detached {
             var poses: [PackFile.Pose] = []
@@ -152,6 +153,14 @@ final class UserPacks {
                 }
             }
             // The size is checked before the read, so a very large file does not fill the memory.
+            defer {
+                // The system puts an opened file in the Inbox folder of the app. The file has video of people,
+                // so the copy goes away after the read. A file in a different place is not the app's to remove.
+                let path = url.standardizedFileURL.path
+                if path.hasPrefix(NSHomeDirectory()), path.contains("/Inbox/") {
+                    try? FileManager.default.removeItem(at: url)
+                }
+            }
             guard let size = try? url.resourceValues(forKeys: [.fileSizeKey]).fileSize, size <= PackFile.maximumBytes,
                   let data = try? Data(contentsOf: url)
             else { return nil }

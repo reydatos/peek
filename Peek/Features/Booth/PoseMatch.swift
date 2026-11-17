@@ -45,9 +45,13 @@ final class PoseMatch {
         didSet { hold.reset() }
     }
 
-    /// True while a sheet covers the booth. The automatic shutter does not start a shot then.
+    /// True while a sheet covers the booth. The camera examines no frame then, so a clip recording gets each frame,
+    /// and the automatic shutter does not start a shot.
     var isBlocked = false {
-        didSet { hold.reset() }
+        didSet {
+            hold.reset()
+            syncLive()
+        }
     }
 
     /// Runs when the match has held for the full time.
@@ -114,7 +118,7 @@ final class PoseMatch {
 
     /// The camera sends body shapes only while the booth is ready and the pose has a reference.
     private func syncLive() {
-        let wantsLive = isCameraRunning && phase == .ready && reference != nil
+        let wantsLive = isCameraRunning && phase == .ready && reference != nil && !isBlocked
         if wantsLive != isLive {
             isLive = wantsLive
             var handler: (@Sendable (PoseSignature) -> Void)?

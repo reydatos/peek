@@ -110,6 +110,14 @@ public struct PackFile: Equatable, Sendable {
         self.poses = poses
     }
 
+    /// A name that a pack file accepts: no control character, no space at the ends, and not longer than the limit.
+    /// The app stores each name in this form, so each stored pack can go into a file.
+    public static func cleanName(_ name: String) -> String {
+        let scalars = name.unicodeScalars.filter { !CharacterSet.controlCharacters.contains($0) }
+        let text = String(String.UnicodeScalarView(scalars)).trimmingCharacters(in: .whitespacesAndNewlines)
+        return String(text.prefix(maximumNameLength)).trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
     private static func check(name: String, poseNames: [String], poseCount: Int) throws {
         guard poseCount == UserPack.poseCount else { throw Failure.wrongPoseCount }
         guard !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { throw Failure.badName }

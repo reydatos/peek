@@ -103,4 +103,16 @@ import UIKit
         #expect(await !PackMediaCheck.isClip(Data("clip".utf8)))
         #expect(await !PackMediaCheck.isClip(FakeCapture.photoData))
     }
+
+    @Test func aPackWithAVeryLongNameStillGoesIntoAFile() async throws {
+        let packs = packs()
+        let draft = try draft()
+        draft.name = String(repeating: "long name ", count: 20)
+        draft.poses[0].name = String(repeating: "x", count: 200)
+        let id = try #require(await packs.save(draft))
+        let url = try #require(await packs.exportFile(packID: id))
+        let file = try #require(await packs.readPackFile(at: url))
+        #expect(file.name.count <= PackFile.maximumNameLength)
+        #expect(file.poses[0].name.count == PackFile.maximumNameLength)
+    }
 }

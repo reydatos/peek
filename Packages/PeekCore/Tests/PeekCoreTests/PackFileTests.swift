@@ -86,4 +86,13 @@ struct PackFileTests {
         }
         #expect(throws: PackFile.Failure.badName) { try pack(name: " ").encoded() }
     }
+
+    @Test func aCleanNameIsANameThatAFileAccepts() throws {
+        let long = "  line\nbreak\u{0} " + String(repeating: "a", count: 100)
+        let clean = PackFile.cleanName(long)
+        #expect(clean.count == PackFile.maximumNameLength)
+        #expect(clean.hasPrefix("linebreak"))
+        #expect(PackFile.cleanName("  Beach day ") == "Beach day")
+        #expect(try PackFile(data: pack(name: clean).encoded()).name == clean)
+    }
 }
