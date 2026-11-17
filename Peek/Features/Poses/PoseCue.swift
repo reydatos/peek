@@ -92,4 +92,9 @@ struct PoseCue: Identifiable {
         case let .files(_, clip): clip
         }
     }
+
+    /// True when the pose can show its move: a built-in pose with a start picture, or a customer pose with a clip.
+    var hasMove: Bool {
+        clipURL != nil || startPicture != nil
+    }
 }

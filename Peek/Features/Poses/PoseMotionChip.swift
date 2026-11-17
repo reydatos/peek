@@ -2,7 +2,7 @@ import SwiftUI
 import UIKit
 
 /// The label of a pose that has a move: "Animated", or "Still" with Reduce Motion on.
-/// A pose with no start picture has no label.
+/// A pose with no move has no label.
 struct PoseMotionChip: View {
     let cue: PoseCue
     /// The fill. On a picture it is `surface`. On the page it is `fill`.
@@ -10,7 +10,7 @@ struct PoseMotionChip: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
-        if cue.startPicture != nil {
+        if cue.hasMove {
             PeekChip(text: reduceMotion ? .still : .animated, background: background)
                 .lineLimit(1)
                 .minimumScaleFactor(0.5)
