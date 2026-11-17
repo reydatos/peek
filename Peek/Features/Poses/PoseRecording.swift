@@ -40,21 +40,27 @@ final class PoseRecording {
         task = Task {
             for remaining in (1 ... CountdownLength.three.seconds).reversed() {
                 phase = .countdown(remaining)
-                do { try await sleep(.seconds(1)) } catch {
-                    phase = .ready
-                    return
-                }
+                // After a cancel, this task changes nothing: `cancel()` set the state, and a new recording can run.
+                do { try await sleep(.seconds(1)) } catch { return }
+                guard !Task.isCancelled else { return }
             }
             let url = FileManager.default.temporaryDirectory.appending(path: "\(UUID().uuidString).mov")
             recordingStart = .now
             phase = .recording
             do {
-                still = try await capture.recordClip(to: url)
+                let still = try await capture.recordClip(to: url)
+                guard !Task.isCancelled else {
+                    try? FileManager.default.removeItem(at: url)
+                    return
+                }
+                self.still = still
                 clipURL = url
-                phase = Task.isCancelled ? .ready : .done
+                phase = .done
             } catch {
                 try? FileManager.default.removeItem(at: url)
-                phase = Task.isCancelled ? .ready : .failed
+                if !Task.isCancelled {
+                    phase = .failed
+                }
             }
         }
     }

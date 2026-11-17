@@ -14,6 +14,9 @@ struct PoseLibraryView: View {
     /// Removes a pack of the customer, after the customer confirmed it.
     var onDelete: ((PosePack) -> Void)?
     @State private var packToDelete: PosePack?
+    @State private var packToShare: PosePack?
+    @State private var isImporting = false
+    @Environment(PackImport.self) private var packImport: PackImport?
     @Environment(PoseCatalog.self) private var catalog
     @State private var filter = PackFilter.all
     /// The least width of a pack card: two small pose pictures side by side. This is a design value.
@@ -37,6 +40,12 @@ struct PoseLibraryView: View {
                             }
                             .buttonStyle(.plain)
                             .contextMenu {
+                                // The customer can send their own pack to a different phone.
+                                if pack.category == .mine, packImport != nil {
+                                    Button { packToShare = pack } label: {
+                                        Label(.sharePack, systemImage: "square.and.arrow.up")
+                                    }
+                                }
                                 // Only a pack of the customer can go away.
                                 if pack.category == .mine, onDelete != nil {
                                     Button(role: .destructive) { packToDelete = pack } label: {
@@ -52,6 +61,24 @@ struct PoseLibraryView: View {
             .background(PeekTheme.page)
             .navigationTitle(Text(.poseIdeas))
             .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                if packImport != nil {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button { isImporting = true } label: {
+                            Label(.importPack, systemImage: "square.and.arrow.down")
+                        }
+                    }
+                }
+            }
+            .fileImporter(isPresented: $isImporting, allowedContentTypes: [.peekPack]) { result in
+                if case let .success(url) = result {
+                    Task { await packImport?.open(url) }
+                }
+            }
+            .sheet(item: $packToShare) { pack in
+                PackShareView(pack: pack)
+            }
+            .modifier(PackImportAlerts())
             .confirmationDialog(
                 Text(.deletePackTitle),
                 isPresented: Binding(

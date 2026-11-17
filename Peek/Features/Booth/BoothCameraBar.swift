@@ -12,9 +12,9 @@ struct BoothCameraBar: View {
             ShotProgressBars(model: model)
             if model.match.canMatch {
                 // The meter keeps its space in each state, so the photo does not change size between states.
-                MatchMeter(score: matchScore ?? nil)
-                    .opacity(matchScore == nil ? 0 : 1)
-                    .accessibilityHidden(matchScore == nil)
+                MatchMeter(score: model.match.meterScore ?? nil)
+                    .opacity(model.match.meterScore == nil ? 0 : 1)
+                    .accessibilityHidden(model.match.meterScore == nil)
             }
             ZStack {
                 // The bar keeps the height of the shutter row, so the photo does not change size between states.
@@ -28,15 +28,6 @@ struct BoothCameraBar: View {
         // The bar is black in light mode too, so its content has the dark colors.
         // With the glam light, the bar is the warm light, so its content has the light-mode colors.
         .environment(\.colorScheme, model.showsInnerGlamLight ? .light : .dark)
-    }
-
-    /// The live match before the shot, and the match of the shot in review. Nil in the other states.
-    private var matchScore: Double?? {
-        switch model.state.phase {
-        case .ready: .some(model.match.score)
-        case .review: .some(model.match.reviewScore)
-        default: nil
-        }
     }
 
     @ViewBuilder private var controls: some View {

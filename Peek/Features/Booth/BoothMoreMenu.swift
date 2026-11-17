@@ -24,7 +24,8 @@ struct BoothMoreMenu: View {
             Toggle(isOn: Binding(get: { model.match.isAutoShutterOn }, set: { model.match.isAutoShutterOn = $0 })) {
                 Label(.autoShutter, systemImage: "figure.wave.circle")
             }
-            .disabled(!model.match.canMatch)
+            // The photographer can always set it to off.
+            .disabled(!model.match.canMatch && !model.match.isAutoShutterOn)
             if model.isOnOneScreen {
                 // This item has no availability condition: the system can report the outer display
                 // as not available while the booth does not ask for it.

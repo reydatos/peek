@@ -106,6 +106,9 @@ struct PoseMatchTests {
         hold(Self.signature())
         #expect(starts == 0)
 
+        await match.task?.value
+        #expect(await capture.poseHandler == nil)
+
         match.isBlocked = false
         hold(Self.signature(armsUp: true))
         #expect(starts == 0)

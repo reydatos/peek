@@ -12,6 +12,8 @@ struct CameraPreviewView: UIViewRepresentable {
     let isMirrored: Bool
     /// `PreviewHolder.generation`. A new value makes this view take the preview back from another screen.
     var generation = 0
+    /// True for a screen that covers the booth. It keeps the preview until it gives it back with `release()`.
+    var isBorrower = false
 
     func makeUIView(context _: Context) -> UIView {
         let container = UIView()
@@ -29,6 +31,12 @@ struct CameraPreviewView: UIViewRepresentable {
     /// Puts the preview view in the container. A view has one parent, so it leaves its old container.
     @discardableResult private func mount(in container: UIView) -> PreviewUIView {
         let preview = holder.view(for: session)
+        if isBorrower {
+            holder.borrower = container
+        } else if let borrower = holder.borrower, borrower !== container, borrower.window != nil {
+            // A screen above has the preview. A draw of the covered booth does not take it away.
+            return preview
+        }
         if preview.superview !== container {
             preview.frame = container.bounds
             container.addSubview(preview)
