@@ -21,7 +21,8 @@ struct BoothView: View {
             capture: CaptureService(),
             packID: request.packID,
             catalog: catalog,
-            drafts: BoothDraftStore.shared
+            drafts: BoothDraftStore.shared,
+            analyzePose: { await PoseAnalyzer.signature(of: $0) }
         ))
     }
 
@@ -33,6 +34,8 @@ struct BoothView: View {
         // With the glam light, the page is the warm light.
         .background(model.showsInnerGlamLight ? PeekTheme.glamLight : PeekTheme.page)
         .toolbar(.hidden, for: .navigationBar)
+        // The automatic shutter starts no shot while the pose library or the pack editor covers the booth.
+        .onChange(of: posePicker != nil, initial: true) { _, isCovered in model.match.isBlocked = isCovered }
         .sheet(item: $posePicker) { _ in
             // The warning shows on the sheet, so the photographer decides before the sheet closes.
             PoseLibraryView(packWithShotsID: model.hasShots ? model.packID : nil) { pack in

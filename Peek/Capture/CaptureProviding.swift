@@ -1,4 +1,5 @@
 import AVFoundation
+import PeekCore
 
 /// The camera seam. Tests supply a fake.
 nonisolated protocol CaptureProviding: Sendable {
@@ -20,4 +21,7 @@ nonisolated protocol CaptureProviding: Sendable {
     func capturePhoto() async throws -> CapturedPhoto
     /// Records a short silent clip of a pose to the file, and gives its last frame as JPEG bytes.
     func recordClip(to url: URL) async throws -> Data
+    /// Sets the action that takes the body shape of the people in a live frame, a small number of times each second.
+    /// Nil stops the examination of the frames.
+    func setPoseHandler(_ handler: (@Sendable (PoseSignature) -> Void)?) async
 }

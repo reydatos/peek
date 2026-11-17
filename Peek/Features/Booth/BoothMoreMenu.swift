@@ -1,7 +1,7 @@
 import PeekCore
 import SwiftUI
 
-/// The controls that have no place on the rail: the countdown length, the glam light, and the outer display.
+/// The controls that have no place on the rail: the countdown length, the glam light, the automatic shutter, and the outer display.
 struct BoothMoreMenu: View {
     @Bindable var model: BoothSessionModel
     @State private var isConfirmingNewSet = false
@@ -20,6 +20,11 @@ struct BoothMoreMenu: View {
                 Label(.glamLight, systemImage: "moon.stars")
             }
             .disabled(model.glamLightSurface == .none)
+            // The pose picture needs a person in it. A robot or an animal gives no body shape to match.
+            Toggle(isOn: Binding(get: { model.match.isAutoShutterOn }, set: { model.match.isAutoShutterOn = $0 })) {
+                Label(.autoShutter, systemImage: "figure.wave.circle")
+            }
+            .disabled(!model.match.canMatch)
             if model.isOnOneScreen {
                 // This item has no availability condition: the system can report the outer display
                 // as not available while the booth does not ask for it.

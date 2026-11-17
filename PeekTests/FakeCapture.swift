@@ -1,6 +1,7 @@
 import AVFoundation
 import Foundation
 @testable import Peek
+import PeekCore
 
 actor FakeCapture: CaptureProviding {
     /// A 1 x 1 PNG.
@@ -68,6 +69,12 @@ actor FakeCapture: CaptureProviding {
         clipCount += 1
         try Data("clip \(clipCount)".utf8).write(to: url)
         return Self.photoData
+    }
+
+    private(set) var poseHandler: (@Sendable (PoseSignature) -> Void)?
+
+    func setPoseHandler(_ handler: (@Sendable (PoseSignature) -> Void)?) {
+        poseHandler = handler
     }
 
     func capturePhoto() throws -> CapturedPhoto {

@@ -16,6 +16,11 @@ final nonisolated class FrameSource: NSObject, AVCaptureVideoDataOutputSampleBuf
     private var frameCount = 0
     /// The recorder of a pose clip. It takes each frame while it records.
     private var recorder: ClipRecorder?
+    /// Takes a frame for the pose match.
+    private var onPoseFrame: (@Sendable (CMSampleBuffer) -> Void)?
+
+    /// The pose match examines one frame in this number of frames. This is a design value.
+    static let poseFrameInterval = 6
 
     /// One renderer with its synchronizer and its receiver. Each renderer gets its own synchronizer,
     /// so a renderer that goes away takes its synchronizer with it.
@@ -44,6 +49,11 @@ final nonisolated class FrameSource: NSObject, AVCaptureVideoDataOutputSampleBuf
     /// Sets the action for a dark place. It runs one time, then the source stops the check.
     func setLowLightHandler(_ handler: @escaping @Sendable () -> Void) {
         lock.withLock { onLowLight = handler }
+    }
+
+    /// Sets the action that takes a frame for the pose match. Nil stops it.
+    func setPoseFrameHandler(_ handler: (@Sendable (CMSampleBuffer) -> Void)?) {
+        lock.withLock { onPoseFrame = handler }
     }
 
     /// Reads the brightness of the scene from the metadata of a frame, at each 15th frame, as the Glam app does.
@@ -89,6 +99,9 @@ final nonisolated class FrameSource: NSObject, AVCaptureVideoDataOutputSampleBuf
     func captureOutput(_: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from _: AVCaptureConnection) {
         checkLowLight(sampleBuffer)
         lock.withLock { recorder }?.append(sampleBuffer)
+        if frameCount % Self.poseFrameInterval == 0 {
+            lock.withLock { onPoseFrame }?(sampleBuffer)
+        }
         guard let receiver = lock.withLock({ target?.receiver }) else { return }
         markForImmediateDisplay(sampleBuffer)
         // The ready buffer takes the frame. This method does not use the frame after that line.
