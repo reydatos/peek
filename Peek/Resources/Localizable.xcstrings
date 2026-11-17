@@ -705,6 +705,50 @@
         }
       }
     },
+    "deletePack" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete pack"
+          }
+        }
+      }
+    },
+    "deletePackInUseMessage" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The poses and their clips are removed from this phone. The shots of your set in progress are discarded."
+          }
+        }
+      }
+    },
+    "deletePackMessage" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The poses and their clips are removed from this phone."
+          }
+        }
+      }
+    },
+    "deletePackTitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete this pack?"
+          }
+        }
+      }
+    },
     "discardShots" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1013,6 +1057,28 @@
         }
       }
     },
+    "newPack" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "New pack"
+          }
+        }
+      }
+    },
+    "newPackHint" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Record four poses"
+          }
+        }
+      }
+    },
     "newSet" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1266,6 +1332,28 @@
         }
       }
     },
+    "packNamePrompt" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pack name"
+          }
+        }
+      }
+    },
+    "packNotSaved" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The pack was not saved. Try again."
+          }
+        }
+      }
+    },
     "packStreetStyle" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1332,6 +1420,28 @@
         }
       }
     },
+    "poseNamePrompt" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pose name"
+          }
+        }
+      }
+    },
+    "poseNumber" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pose %lld"
+          }
+        }
+      }
+    },
     "poseReference" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1350,6 +1460,61 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Poses"
+          }
+        }
+      }
+    },
+    "recordAgain" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Record again"
+          }
+        }
+      }
+    },
+    "recordFailed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The clip was not recorded. Try again."
+          }
+        }
+      }
+    },
+    "recordHint" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Each pose is a 5-second clip with no sound. End the clip in the pose."
+          }
+        }
+      }
+    },
+    "recordPose" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Record"
+          }
+        }
+      }
+    },
+    "recordingPose" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recording"
           }
         }
       }
@@ -1427,6 +1592,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "The save failed. Try again."
+          }
+        }
+      }
+    },
+    "savePack" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Save pack"
           }
         }
       }
@@ -1647,6 +1823,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Use outer display"
+          }
+        }
+      }
+    },
+    "usePose" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Use this pose"
           }
         }
       }

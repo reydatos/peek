@@ -99,6 +99,28 @@ actor CaptureService: CaptureProviding {
         return CapturedPhoto(data: data, rotationAngle: angle)
     }
 
+    /// The time that the camera gets to give the first frames, in seconds, after the length of the clip.
+    /// A recording that is not complete after that time stops with a fault. This is a design value.
+    private static let clipAllowance = 3.0
+
+    func recordClip(to url: URL) async throws -> Data {
+        guard session.isRunning, let rotationCoordinator else { throw CaptureError.notRunning }
+        // The frames have the rotation of the frame connection. The clip needs the rotation of a level photo.
+        let level = rotationCoordinator.videoRotationAngleForHorizonLevelCapture
+        let current = frameOutput.connection(with: .video)?.videoRotationAngle ?? 0
+        let source = frameSource
+        return try await withThrowingTaskGroup(of: Data.self) { group in
+            group.addTask { try await source.record(to: url, rotationAngle: level - current) }
+            group.addTask {
+                try await Task.sleep(for: .seconds(ClipRecorder.duration + Self.clipAllowance))
+                throw CaptureError.captureFailed
+            }
+            defer { group.cancelAll() }
+            guard let still = try await group.next() else { throw CaptureError.captureFailed }
+            return still
+        }
+    }
+
     private func isAuthorized() async -> Bool {
         switch AVCaptureDevice.authorizationStatus(for: .video) {
         case .authorized: true

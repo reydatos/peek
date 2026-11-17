@@ -30,15 +30,15 @@ Verify the test COUNT. The tests use Swift Testing, so the XCTest line `Executed
 |---|---|
 | `project.yml` | XcodeGen spec. `Peek.xcodeproj` is generated and gitignored. |
 | `Config/Shared.xcconfig` | Build settings. The Info.plist is generated from `INFOPLIST_KEY_*`. |
-| `Packages/PeekCore` | Pure Swift. Session reducer, data records (`SessionRecord` with layout and frame color), templates, `DraftStore` protocol and `FileDraftStore`. No AVFoundation or UIKit. |
+| `Packages/PeekCore` | Pure Swift. Session reducer, data records (`SessionRecord` with layout and frame color), templates, `DraftStore` protocol and `FileDraftStore`, customer packs (`UserPack`, `PackStore`, `FilePackStore`). No AVFoundation or UIKit. |
 | `docs/design` | The UI handoff: `DESIGN.md` (screens, components, rules) and `tokens.json` (colors, sizes, corners). |
 | `Peek/Design` | `PeekTheme` (tokens) and the shared controls: primary, secondary, and rail buttons, chip, banner, segmented choice, icon label. |
 | `Peek/Features` | SwiftUI by feature. The app opens on the booth (the viewfinder); there is no Home screen (owner decision, 2026-11-15). The camera starts at launch. The poses button changes the pack. |
 | `Peek/Features/Booth` | Inner display. `BoothLayout` selects the wide booth (photo, side rail with the one pose reference; a leading panel only for a finished set) or the tall booth (full-screen camera, black camera bar). `BoothSessionModel` drives the two displays. |
-| `Peek/Features/Poses` | `PoseCatalog` (the built-in packs of `PoseLibrary` plus the packs of the customer; a pose has its pictures in the asset catalog or in files). Pose packs with their groups, and the pose library: a grid of pack cards with a group filter. The poses button of the booth opens it. There is no pose tray (owner decision, 2026-11-15). `SavedPoses` stays in the code but no screen uses it. |
+| `Peek/Features/Poses` | `PoseCatalog` (the built-in packs of `PoseLibrary` plus the packs of the customer; a pose has its pictures in the asset catalog or in files). Pose packs with their groups, and the pose library: a grid of pack cards with a group filter. The poses button of the booth opens it. There is no pose tray (owner decision, 2026-11-15). `UserPacks` reads and writes the packs of the customer; the pack editor (`PackEditorView`) and the record screen (`PoseRecorderView`) make a pack of four 5-second clips. `SavedPoses` stays in the code but no screen uses it. |
 | `Peek/Features/Finish` | Strip and 2x2 renderer, frame color, save, share. |
 | `Peek/Features/Outer` | Outer display accessory: pose reference, live frame, countdown, shot, strip. |
-| `Peek/Capture` | `CaptureService` actor (camera, flip, zoom), preview layer view (inner), `FrameSource` frame feed view (outer), rotation. `CaptureProviding` is the seam for tests. |
+| `Peek/Capture` | `CaptureService` actor (camera, flip, zoom), preview layer view (inner), `FrameSource` frame feed view (outer), rotation, `ClipRecorder` (a silent pose clip from the live frames). `CaptureProviding` is the seam for tests. |
 | `Peek/Resources/Localizable.xcstrings` | Manual keys. Use generated symbols: `Text(.poseIdeas)`. |
 | `PeekTests` | App tests with `FakeCapture`, `FakeSaver`, and `FlakyDraftStore`. |
 

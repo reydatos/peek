@@ -67,7 +67,8 @@ struct BoothStageView: View {
                     session: model.capture.session,
                     holder: model.preview,
                     deviceID: model.deviceID,
-                    isMirrored: model.isSelfie
+                    isMirrored: model.isSelfie,
+                    generation: model.preview.generation
                 )
                 .accessibilityLabel(Text(.livePreview))
             }

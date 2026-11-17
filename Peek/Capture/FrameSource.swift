@@ -14,6 +14,8 @@ final nonisolated class FrameSource: NSObject, AVCaptureVideoDataOutputSampleBuf
     /// Runs one time, when a frame shows a dark place.
     private var onLowLight: (@Sendable () -> Void)?
     private var frameCount = 0
+    /// The recorder of a pose clip. It takes each frame while it records.
+    private var recorder: ClipRecorder?
 
     /// One renderer with its synchronizer and its receiver. Each renderer gets its own synchronizer,
     /// so a renderer that goes away takes its synchronizer with it.
@@ -65,8 +67,28 @@ final nonisolated class FrameSource: NSObject, AVCaptureVideoDataOutputSampleBuf
         handler?()
     }
 
+    /// Records a clip of `ClipRecorder.duration` seconds from the next frames, and gives the last frame as JPEG bytes.
+    /// - Parameter rotationAngle: the clockwise angle, in degrees, that makes a frame upright.
+    /// A cancel of the task stops the recording.
+    func record(to url: URL, rotationAngle: CGFloat) async throws -> Data {
+        // One recording at a time: a second one would take the place of the first, and the first would not end.
+        guard lock.withLock({ recorder == nil }) else { throw ClipRecorder.Failure.stopped }
+        return try await withTaskCancellationHandler {
+            try await withCheckedThrowingContinuation { continuation in
+                let recorder = ClipRecorder(url: url, rotationAngle: rotationAngle) { [weak self] result in
+                    self?.lock.withLock { self?.recorder = nil }
+                    continuation.resume(with: result)
+                }
+                lock.withLock { self.recorder = recorder }
+            }
+        } onCancel: {
+            lock.withLock { recorder }?.stop()
+        }
+    }
+
     func captureOutput(_: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from _: AVCaptureConnection) {
         checkLowLight(sampleBuffer)
+        lock.withLock { recorder }?.append(sampleBuffer)
         guard let receiver = lock.withLock({ target?.receiver }) else { return }
         markForImmediateDisplay(sampleBuffer)
         // The ready buffer takes the frame. This method does not use the frame after that line.
