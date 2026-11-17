@@ -1728,6 +1728,28 @@
         }
       }
     },
+    "saveNeedsName" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Type a pack name at the top to save the pack."
+          }
+        }
+      }
+    },
+    "saveNeedsPoses" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Record all four poses to save the pack."
+          }
+        }
+      }
+    },
     "savePack" : {
       "extractionState" : "manual",
       "localizations" : {

@@ -113,8 +113,10 @@ actor CaptureService: CaptureProviding {
         let level = rotationCoordinator.videoRotationAngleForHorizonLevelCapture
         let current = frameOutput.connection(with: .video)?.videoRotationAngle ?? 0
         let source = frameSource
+        // The live view of the front camera is a mirror. The clip of a selfie pose is the same mirror picture.
+        let isMirrored = device?.position == .front
         return try await withThrowingTaskGroup(of: Data.self) { group in
-            group.addTask { try await source.record(to: url, rotationAngle: level - current) }
+            group.addTask { try await source.record(to: url, rotationAngle: level - current, isMirrored: isMirrored) }
             group.addTask {
                 try await Task.sleep(for: .seconds(ClipRecorder.duration + Self.clipAllowance))
                 throw CaptureError.captureFailed

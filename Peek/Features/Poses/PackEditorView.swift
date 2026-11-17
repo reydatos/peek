@@ -60,6 +60,12 @@ struct PackEditorView: View {
                     }
                     .buttonStyle(PeekPrimaryButtonStyle())
                     .disabled(!draft.isComplete || isSaving)
+                    // A gray button with no reason is a dead end. This line says what the pack still needs.
+                    if !draft.isComplete {
+                        Label(draft.poses.allSatisfy(\.isRecorded) ? .saveNeedsName : .saveNeedsPoses, systemImage: "info.circle")
+                            .font(.subheadline)
+                            .foregroundStyle(PeekTheme.inkSecondary)
+                    }
                 }
                 .padding()
             }

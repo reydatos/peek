@@ -32,6 +32,7 @@ final nonisolated class ClipRecorder: @unchecked Sendable {
     private let input: AVAssetWriterInput
     private let duration: Double
     private let quarterTurns: Int
+    private let isMirrored: Bool
     private var start: CMTime?
     private var lastFrame: CVPixelBuffer?
     private var isDone = false
@@ -39,16 +40,20 @@ final nonisolated class ClipRecorder: @unchecked Sendable {
 
     /// - Parameters:
     ///   - rotationAngle: the clockwise angle, in degrees, that makes a frame upright: 0, 90, 180, or 270.
+    ///   - isMirrored: true for the front camera. The clip and the still picture are then a mirror picture,
+    ///     the same as the live view that the person saw.
     ///   - completion: runs one time, with the JPEG bytes of the last frame, or with the fault.
     init(
         url: URL,
         rotationAngle: CGFloat,
+        isMirrored: Bool = false,
         duration: Double = ClipRecorder.duration,
         codec: AVVideoCodecType = .hevc,
         completion: @escaping @Sendable (Result<Data, any Error>) -> Void
     ) {
         self.duration = duration
         self.completion = completion
+        self.isMirrored = isMirrored
         quarterTurns = ((Int((rotationAngle / 90).rounded()) % 4) + 4) % 4
         // The writer stores the frame as the camera gives it. With a quarter turn, the stored frame is wide,
         // and the rotation in the clip makes it upright.
@@ -61,7 +66,7 @@ final nonisolated class ClipRecorder: @unchecked Sendable {
             AVVideoCompressionPropertiesKey: [AVVideoAverageBitRateKey: Self.bitRate],
         ])
         input.expectsMediaDataInRealTime = true
-        input.transform = CGAffineTransform(rotationAngle: CGFloat(quarterTurns) * .pi / 2)
+        input.transform = Self.transform(quarterTurns: quarterTurns, isMirrored: isMirrored)
         try? FileManager.default.removeItem(at: url)
         let writer = try? AVAssetWriter(outputURL: url, fileType: .mov)
         if let writer, writer.canAdd(input) {
@@ -101,7 +106,7 @@ final nonisolated class ClipRecorder: @unchecked Sendable {
             nonisolated(unsafe) let last = lastFrame ?? frame
             writer.finishWriting { [self] in
                 let result: Result<Data, any Error> = writer.status == .completed
-                    ? Self.still(of: last, quarterTurns: quarterTurns).map { .success($0) } ?? .failure(Failure.still)
+                    ? Self.still(of: last, quarterTurns: quarterTurns, isMirrored: isMirrored).map { .success($0) } ?? .failure(Failure.still)
                     : .failure(Failure.writer)
                 deliver(result)
             }
@@ -143,10 +148,19 @@ final nonisolated class ClipRecorder: @unchecked Sendable {
         completion?(result)
     }
 
+    /// The rotation that the clip stores. For a mirror picture, the upright frame is then flipped left to right.
+    static func transform(quarterTurns: Int, isMirrored: Bool) -> CGAffineTransform {
+        let turn = CGAffineTransform(rotationAngle: CGFloat(quarterTurns) * .pi / 2)
+        return isMirrored ? turn.concatenating(CGAffineTransform(scaleX: -1, y: 1)) : turn
+    }
+
     /// The upright 3:4 picture of a frame, as JPEG bytes.
-    static func still(of frame: CVPixelBuffer, quarterTurns: Int) -> Data? {
+    static func still(of frame: CVPixelBuffer, quarterTurns: Int, isMirrored: Bool = false) -> Data? {
         let orientations: [CGImagePropertyOrientation] = [.up, .right, .down, .left]
-        let upright = CIImage(cvPixelBuffer: frame).oriented(orientations[((quarterTurns % 4) + 4) % 4])
+        var upright = CIImage(cvPixelBuffer: frame).oriented(orientations[((quarterTurns % 4) + 4) % 4])
+        if isMirrored {
+            upright = upright.oriented(.upMirrored)
+        }
         let cropped = upright.cropped(to: uprightCrop(of: upright.extent))
         let context = CIContext()
         guard let image = context.createCGImage(cropped, from: cropped.extent) else { return nil }
