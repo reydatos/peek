@@ -29,7 +29,7 @@ Verify the test COUNT. The tests use Swift Testing, so the XCTest line `Executed
 | Path | Purpose |
 |---|---|
 | `project.yml` | XcodeGen spec. `Peek.xcodeproj` is generated and gitignored. |
-| `Config/Shared.xcconfig` | Build settings. The Info.plist is generated from `INFOPLIST_KEY_*`. |
+| `Config/Shared.xcconfig` | Build settings. The Info.plist is generated from `INFOPLIST_KEY_*`, plus `Config/Peek-Info.plist`, which `xcodegen generate` writes from `info:` in `project.yml` (the `.peekpack` file type). Git ignores that file. |
 | `Packages/PeekCore` | Pure Swift. Session reducer, data records (`SessionRecord` with layout and frame color), templates, `DraftStore` protocol and `FileDraftStore`, customer packs (`UserPack`, `PackStore`, `FilePackStore`). No AVFoundation or UIKit. |
 | `docs/design` | The UI handoff: `DESIGN.md` (screens, components, rules) and `tokens.json` (colors, sizes, corners). |
 | `Peek/Design` | `PeekTheme` (tokens) and the shared controls: primary, secondary, and rail buttons, chip, banner, segmented choice, icon label. |

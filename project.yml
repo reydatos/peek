@@ -17,6 +17,25 @@ targets:
     sources: [Peek]
     dependencies:
       - package: PeekCore
+    # XcodeGen writes this file. Git ignores it (*.plist). The build adds the INFOPLIST_KEY_* settings to it.
+    # It exists because a file type can not be declared with a build setting.
+    info:
+      path: Config/Peek-Info.plist
+      properties:
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        LSSupportsOpeningDocumentsInPlace: false
+        UTExportedTypeDeclarations:
+          - UTTypeIdentifier: com.a8media.peek.pack
+            UTTypeDescription: PEEK Pose Pack
+            UTTypeConformsTo: [public.data]
+            UTTypeTagSpecification:
+              public.filename-extension: [peekpack]
+        CFBundleDocumentTypes:
+          - CFBundleTypeName: PEEK Pose Pack
+            CFBundleTypeRole: Viewer
+            LSHandlerRank: Owner
+            LSItemContentTypes: [com.a8media.peek.pack]
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.a8media.peek

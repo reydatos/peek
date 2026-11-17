@@ -13,15 +13,27 @@ final class UserPacks {
     private let store: (any PackStore)?
     /// True after the first read of storage. The booth starts after that, so a stored set finds its pack.
     private(set) var isLoaded = false
+    /// Examines the pictures and the clips of a pack file from a different phone.
+    private let checkMedia: @Sendable (PackFile) async -> Bool
 
     /// The default is no store, so tests and previews stay isolated. The app passes the file store.
-    init(catalog: PoseCatalog, store: (any PackStore)? = nil) {
+    init(
+        catalog: PoseCatalog,
+        store: (any PackStore)? = nil,
+        checkMedia: @escaping @Sendable (PackFile) async -> Bool = PackMediaCheck.isUsable
+    ) {
         self.catalog = catalog
         self.store = store
+        self.checkMedia = checkMedia
     }
 
     static func packID(_ id: UserPack.ID) -> String {
         idPrefix + id.uuidString
+    }
+
+    /// The storage ID of a customer pack. Nil for a built-in pack.
+    static func uuid(of packID: String) -> UserPack.ID? {
+        packID.hasPrefix(idPrefix) ? UUID(uuidString: String(packID.dropFirst(idPrefix.count))) : nil
     }
 
     /// Reads the packs from storage and puts them in the catalog.
@@ -42,42 +54,116 @@ final class UserPacks {
     }
 
     /// Stores a pack that the customer made, and gives the ID of the new pack in the catalog.
-    /// Nil when the pack is not complete or storage refused it.
+    /// Nil when the pack is not complete or storage refused it. The draft then keeps its recordings.
     func save(_ draft: PackDraft) async -> String? {
-        guard let store, draft.isComplete else { return nil }
+        guard draft.isComplete else { return nil }
+        var poses: [PackFile.Pose] = []
+        for pose in draft.poses {
+            // The clip stays in the temporary folder until the record is stored, so a fault loses no recording.
+            guard let still = pose.still, let clipURL = pose.clipURL, let clip = try? Data(contentsOf: clipURL) else { return nil }
+            poses.append(PackFile.Pose(name: pose.name, still: still, clip: clip))
+        }
+        guard let id = await store(name: draft.name, poses: poses) else { return nil }
+        draft.discard()
+        return id
+    }
+
+    /// Stores a pack from a pack file, and gives the ID of the new pack in the catalog.
+    /// The app makes new IDs and new file names. It takes none from the file.
+    func add(_ file: PackFile) async -> String? {
+        await store(name: file.name, poses: file.poses)
+    }
+
+    private func store(name: String, poses: [PackFile.Pose]) async -> String? {
+        guard let store, poses.count == UserPack.poseCount else { return nil }
         let id = UUID()
-        var poses: [UserPose] = []
+        var records: [UserPose] = []
         do {
-            for (index, pose) in draft.poses.enumerated() {
-                guard let still = pose.still, let clipURL = pose.clipURL else { return nil }
+            for (index, pose) in poses.enumerated() {
                 let poseID = UUID()
-                let name = pose.name.trimmingCharacters(in: .whitespacesAndNewlines)
-                try await store.writeMedia(still, named: "\(poseID.uuidString).jpg", for: id)
-                // The clip stays in the temporary folder until the record is stored, so a fault loses no recording.
-                try await store.writeMedia(Data(contentsOf: clipURL), named: "\(poseID.uuidString).mov", for: id)
-                poses.append(UserPose(
+                let poseName = pose.name.trimmingCharacters(in: .whitespacesAndNewlines)
+                try await store.writeMedia(pose.still, named: "\(poseID.uuidString).jpg", for: id)
+                try await store.writeMedia(pose.clip, named: "\(poseID.uuidString).mov", for: id)
+                records.append(UserPose(
                     id: poseID,
-                    name: name.isEmpty ? String(localized: .poseNumber(index + 1)) : name,
+                    name: poseName.isEmpty ? String(localized: .poseNumber(index + 1)) : poseName,
                     stillFile: "\(poseID.uuidString).jpg",
                     clipFile: "\(poseID.uuidString).mov"
                 ))
             }
-            let pack = UserPack(id: id, name: draft.name.trimmingCharacters(in: .whitespacesAndNewlines), poses: poses)
-            try await store.commit(pack)
+            try await store.commit(UserPack(id: id, name: name.trimmingCharacters(in: .whitespacesAndNewlines), poses: records))
         } catch {
-            // A pack with no record is not a pack. Its files go away. The draft keeps its recordings.
+            // A pack with no record is not a pack. Its files go away.
             try? await store.deletePack(id)
             return nil
         }
-        draft.discard()
         await load()
         return Self.packID(id)
     }
 
+    // MARK: Pack files
+
+    /// The pack as the content of a pack file. Nil when the pack is not in storage or a file of it can not be read.
+    func file(forPackID packID: String) async -> PackFile? {
+        guard let store, let id = Self.uuid(of: packID),
+              let pack = await (try? store.loadPacks())?.first(where: { $0.id == id })
+        else { return nil }
+        let name = pack.name
+        let sources = pack.poses.map { pose in
+            (pose.name, store.mediaURL(named: pose.stillFile, for: id), pose.clipFile.map { store.mediaURL(named: $0, for: id) })
+        }
+        return await Task.detached {
+            var poses: [PackFile.Pose] = []
+            for (poseName, stillURL, clipURL) in sources {
+                guard let clipURL, let still = try? Data(contentsOf: stillURL), let clip = try? Data(contentsOf: clipURL)
+                else { return nil }
+                poses.append(PackFile.Pose(name: poseName, still: still, clip: clip))
+            }
+            return PackFile(name: name, poses: poses)
+        }.value
+    }
+
+    /// Writes the pack file of a pack to the temporary folder, for the Share button.
+    func exportFile(packID: String) async -> URL? {
+        guard let file = await file(forPackID: packID) else { return nil }
+        return await Task.detached {
+            // The file name comes from the pack name, with no character that divides a path.
+            let safe = file.name.components(separatedBy: CharacterSet(charactersIn: "/\\:")).joined(separator: "-")
+            let folder = FileManager.default.temporaryDirectory.appending(path: "Share-\(UUID().uuidString)")
+            let url = folder.appending(path: "\(safe).\(PackFile.fileExtension)")
+            do {
+                try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+                try file.encoded().write(to: url, options: .atomic)
+                return url
+            } catch {
+                return nil
+            }
+        }.value
+    }
+
+    /// Reads a pack file that came from a different phone. The file is not trusted.
+    /// Nil when the file is too large, is not a pack file, is damaged, or has media that the app does not accept.
+    func readPackFile(at url: URL) async -> PackFile? {
+        let file = await Task.detached { () -> PackFile? in
+            let isScoped = url.startAccessingSecurityScopedResource()
+            defer {
+                if isScoped {
+                    url.stopAccessingSecurityScopedResource()
+                }
+            }
+            // The size is checked before the read, so a very large file does not fill the memory.
+            guard let size = try? url.resourceValues(forKeys: [.fileSizeKey]).fileSize, size <= PackFile.maximumBytes,
+                  let data = try? Data(contentsOf: url)
+            else { return nil }
+            return try? PackFile(data: data)
+        }.value
+        guard let file, await checkMedia(file) else { return nil }
+        return file
+    }
+
     /// Removes a customer pack from storage and from the catalog.
     func delete(packID: String) async {
-        guard let store, packID.hasPrefix(Self.idPrefix), let id = UUID(uuidString: String(packID.dropFirst(Self.idPrefix.count)))
-        else { return }
+        guard let store, let id = Self.uuid(of: packID) else { return }
         try? await store.deletePack(id)
         await load()
     }

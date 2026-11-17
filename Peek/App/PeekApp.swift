@@ -6,11 +6,14 @@ struct PeekApp: App {
     /// The built-in packs and the packs of the customer.
     @State private var catalog: PoseCatalog
     @State private var userPacks: UserPacks
+    @State private var packImport: PackImport
 
     init() {
         let catalog = PoseCatalog()
         _catalog = State(initialValue: catalog)
-        _userPacks = State(initialValue: UserPacks(catalog: catalog, store: UserPackStore.shared))
+        let userPacks = UserPacks(catalog: catalog, store: UserPackStore.shared)
+        _userPacks = State(initialValue: userPacks)
+        _packImport = State(initialValue: PackImport(userPacks: userPacks))
     }
 
     var body: some Scene {
@@ -29,6 +32,12 @@ struct PeekApp: App {
             .environment(savedPoses)
             .environment(catalog)
             .environment(userPacks)
+            .environment(packImport)
+            // A pack file from AirDrop, Messages, Mail, or Files. The customer confirms before the app adds the pack.
+            .onOpenURL { url in
+                Task { await packImport.open(url) }
+            }
+            .modifier(PackImportAlerts())
             .task { await userPacks.load() }
         }
     }

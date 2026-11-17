@@ -1,6 +1,39 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "addPack" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add pack"
+          }
+        }
+      }
+    },
+    "addPackMessage" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@” is a pose pack from a file. It has pictures and video."
+          }
+        }
+      }
+    },
+    "addPackTitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add this pack?"
+          }
+        }
+      }
+    },
     "animated" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -969,6 +1002,39 @@
         }
       }
     },
+    "importFailedMessage" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This file is not a PEEK pose pack, or it is damaged."
+          }
+        }
+      }
+    },
+    "importFailedTitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The file can not be used"
+          }
+        }
+      }
+    },
+    "importPack" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Import pack"
+          }
+        }
+      }
+    },
     "keepShot" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1152,6 +1218,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "No saved poses. Tap the star on a pose to save it."
+          }
+        }
+      }
+    },
+    "ok" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OK"
           }
         }
       }
@@ -1735,6 +1812,39 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Selected"
+          }
+        }
+      }
+    },
+    "sharePack" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Share pack"
+          }
+        }
+      }
+    },
+    "sharePackFailed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The pack file was not made. Try again."
+          }
+        }
+      }
+    },
+    "sharePackNote" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This pack has pictures and video of the people in it. The person who gets the file gets a copy. They can keep it and send it to other people."
           }
         }
       }
