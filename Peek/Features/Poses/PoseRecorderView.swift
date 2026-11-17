@@ -70,7 +70,8 @@ struct PoseRecorderView: View {
                 holder: model.preview,
                 deviceID: model.deviceID,
                 isMirrored: model.isSelfie,
-                generation: model.preview.generation
+                generation: model.preview.generation,
+                isBorrower: true
             )
             .accessibilityLabel(Text(.livePreview))
         }

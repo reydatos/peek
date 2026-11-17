@@ -93,6 +93,11 @@ struct PackFileTests {
         #expect(clean.count == PackFile.maximumNameLength)
         #expect(clean.hasPrefix("linebreak"))
         #expect(PackFile.cleanName("  Beach day ") == "Beach day")
+        // A joiner inside an emoji and a direction mark stay in the name.
+        let family = "\u{1F468}\u{200D}\u{1F469}\u{200D}\u{1F467} \u{200F}pack"
+        #expect(PackFile.cleanName(family) == family)
+        #expect(try PackFile(data: pack(name: family).encoded()).name == family)
+        #expect(PackFile.cleanName("\u{0}\u{1}  ").isEmpty)
         #expect(try PackFile(data: pack(name: clean).encoded()).name == clean)
     }
 }

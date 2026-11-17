@@ -75,7 +75,9 @@ final class UserPacks {
     }
 
     private func store(name: String, poses: [PackFile.Pose]) async -> String? {
-        guard let store, poses.count == UserPack.poseCount else { return nil }
+        let packName = PackFile.cleanName(name)
+        // A pack with no name does not come back from storage, so it is not stored.
+        guard let store, poses.count == UserPack.poseCount, !packName.isEmpty else { return nil }
         let id = UUID()
         var records: [UserPose] = []
         do {
@@ -91,7 +93,7 @@ final class UserPacks {
                     clipFile: "\(poseID.uuidString).mov"
                 ))
             }
-            try await store.commit(UserPack(id: id, name: PackFile.cleanName(name), poses: records))
+            try await store.commit(UserPack(id: id, name: packName, poses: records))
         } catch {
             // A pack with no record is not a pack. Its files go away.
             try? await store.deletePack(id)
@@ -162,7 +164,7 @@ final class UserPacks {
                 }
             }
             guard let size = try? url.resourceValues(forKeys: [.fileSizeKey]).fileSize, size <= PackFile.maximumBytes,
-                  let data = try? Data(contentsOf: url)
+                  let data = try? Data(contentsOf: url, options: .mappedIfSafe)
             else { return nil }
             return try? PackFile(data: data)
         }.value

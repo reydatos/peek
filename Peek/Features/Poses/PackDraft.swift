@@ -24,7 +24,8 @@ final class PackDraft {
 
     /// True when the customer can save the pack: it has a name, and each pose has its clip.
     var isComplete: Bool {
-        !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && poses.allSatisfy(\.isRecorded)
+        // The same rule as storage, so a name that storage makes empty is not accepted here.
+        !PackFile.cleanName(name).isEmpty && poses.allSatisfy(\.isRecorded)
     }
 
     /// Puts a new recording in a pose. The clip of the old recording is removed.

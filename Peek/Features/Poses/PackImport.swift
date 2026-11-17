@@ -29,8 +29,8 @@ final class PackImport {
         }
     }
 
-    func confirm() async {
-        guard let file = pending else { return }
+    /// Adds the pack. The caller gives the file: the alert clears `pending` when it closes, before this runs.
+    func confirm(_ file: PackFile) async {
         pending = nil
         if await userPacks.add(file) == nil {
             isFailed = true
@@ -57,8 +57,8 @@ struct PackImportAlerts: ViewModifier {
                     }
                 }),
                 presenting: packImport?.pending
-            ) { _ in
-                Button { Task { await packImport?.confirm() } } label: { Text(.addPack) }
+            ) { file in
+                Button { Task { await packImport?.confirm(file) } } label: { Text(.addPack) }
                 Button(role: .cancel) { packImport?.cancel() } label: { Text(.cancel) }
             } message: { file in
                 Text(.addPackMessage(file.name))

@@ -85,6 +85,16 @@ final class PoseMatch {
         reference != nil
     }
 
+    /// The score that the meter shows: the live match before the shot, and the match of the shot in review.
+    /// The outer nil is for a state with no meter. The inner nil is for no person in view.
+    var meterScore: Double?? {
+        switch phase {
+        case .ready: .some(score)
+        case .review: .some(reviewScore)
+        default: nil
+        }
+    }
+
     /// The booth calls this after each change of its state.
     /// - Parameter reviewImage: the shot in review.
     func update(cue: PoseCue?, phase: BoothPhase, isCameraRunning: Bool, reviewImage: UIImage?) {

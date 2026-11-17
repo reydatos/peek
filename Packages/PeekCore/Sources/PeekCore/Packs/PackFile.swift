@@ -79,13 +79,15 @@ public struct PackFile: Equatable, Sendable {
     /// Reads a file that is not trusted.
     public init(data file: Data) throws {
         guard file.count <= Self.maximumBytes else { throw Failure.tooLarge }
-        // A copy has indexes that start at 0.
-        let data = Data(file)
+        // The indexes of a slice do not start at 0. All offsets here are from `base`, and no copy of the file is made.
+        let data = file
+        let base = data.startIndex
+        let end = data.endIndex
         let header = Self.magic.count
         guard data.count >= header + 4, data.prefix(header) == Self.magic else { throw Failure.notAPack }
-        let length = data[header ..< header + 4].reduce(0) { $0 << 8 | Int($1) }
-        let start = header + 4
-        guard length > 0, length <= Self.maximumManifestBytes, data.count - start >= length else { throw Failure.damaged }
+        let length = data[base + header ..< base + header + 4].reduce(0) { $0 << 8 | Int($1) }
+        let start = base + header + 4
+        guard length > 0, length <= Self.maximumManifestBytes, end - start >= length else { throw Failure.damaged }
         guard let manifest = try? JSONDecoder().decode(Manifest.self, from: data[start ..< start + length]) else {
             throw Failure.damaged
         }
@@ -96,7 +98,7 @@ public struct PackFile: Equatable, Sendable {
         for entry in manifest.poses {
             // Each size is checked against the bytes that remain, so a false size can not make a large read.
             guard entry.stillBytes > 0, entry.clipBytes > 0,
-                  entry.stillBytes <= data.count - offset, entry.clipBytes <= data.count - offset - entry.stillBytes
+                  entry.stillBytes <= end - offset, entry.clipBytes <= end - offset - entry.stillBytes
             else { throw Failure.damaged }
             let still = data.subdata(in: offset ..< offset + entry.stillBytes)
             offset += entry.stillBytes
@@ -105,7 +107,7 @@ public struct PackFile: Equatable, Sendable {
             poses.append(Pose(name: entry.name, still: still, clip: clip))
         }
         // The file ends where the last clip ends.
-        guard offset == data.count else { throw Failure.damaged }
+        guard offset == end else { throw Failure.damaged }
         name = manifest.name
         self.poses = poses
     }
@@ -113,9 +115,18 @@ public struct PackFile: Equatable, Sendable {
     /// A name that a pack file accepts: no control character, no space at the ends, and not longer than the limit.
     /// The app stores each name in this form, so each stored pack can go into a file.
     public static func cleanName(_ name: String) -> String {
-        let scalars = name.unicodeScalars.filter { !CharacterSet.controlCharacters.contains($0) }
+        let scalars = name.unicodeScalars.filter { !isRefused($0) }
         let text = String(String.UnicodeScalarView(scalars)).trimmingCharacters(in: .whitespacesAndNewlines)
         return String(text.prefix(maximumNameLength)).trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    /// A name has no control character and no line break. Format characters stay: an emoji sequence and some
+    /// languages need them.
+    private static func isRefused(_ scalar: Unicode.Scalar) -> Bool {
+        switch scalar.properties.generalCategory {
+        case .control, .lineSeparator, .paragraphSeparator: true
+        default: false
+        }
     }
 
     private static func check(name: String, poseNames: [String], poseCount: Int) throws {
@@ -123,7 +134,7 @@ public struct PackFile: Equatable, Sendable {
         guard !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { throw Failure.badName }
         for text in [name] + poseNames {
             guard text.count <= maximumNameLength,
-                  !text.unicodeScalars.contains(where: { CharacterSet.controlCharacters.contains($0) })
+                  !text.unicodeScalars.contains(where: isRefused)
             else { throw Failure.badName }
         }
     }

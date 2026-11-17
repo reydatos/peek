@@ -15,8 +15,13 @@ final class PreviewHolder {
     /// value, so it draws again and takes the preview back.
     private(set) var generation = 0
 
+    /// The container of a screen that covers the booth and shows the preview, as the record screen does.
+    /// While it is on a display, the booth below does not take the preview back.
+    @ObservationIgnored weak var borrower: UIView?
+
     /// Call this when a screen that had the preview goes away.
     func release() {
+        borrower = nil
         generation += 1
     }
 

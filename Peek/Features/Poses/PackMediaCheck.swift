@@ -10,6 +10,10 @@ nonisolated enum PackMediaCheck {
     static let maximumPictureSide = 4096
     /// A clip can be this much longer than the clip of the recorder, in seconds. This is a design value.
     static let lengthTolerance = 1.0
+    /// The longest side of a clip, in pixels. The recorder makes 720 x 960. This is a design value.
+    static let maximumClipSide = 1920.0
+    /// The largest frame rate of a clip, in frames each second. This is a design value.
+    static let maximumFrameRate: Float = 60
 
     static func isUsable(_ file: PackFile) async -> Bool {
         for pose in file.poses {
@@ -30,7 +34,8 @@ nonisolated enum PackMediaCheck {
         return (1 ... maximumPictureSide).contains(width) && (1 ... maximumPictureSide).contains(height)
     }
 
-    /// True for a clip that plays, has one video track and no sound track, and is not longer than a pose clip.
+    /// True for a clip that plays, has one video track and no sound track, is not longer than a pose clip,
+    /// and is not larger or faster than the players of the app are made for.
     static func isClip(_ data: Data) async -> Bool {
         let url = FileManager.default.temporaryDirectory.appending(path: "check-\(UUID().uuidString).mov")
         defer { try? FileManager.default.removeItem(at: url) }
@@ -40,6 +45,12 @@ nonisolated enum PackMediaCheck {
               let duration = try? await asset.load(.duration),
               let video = try? await asset.loadTracks(withMediaType: .video), video.count == 1,
               let audio = try? await asset.loadTracks(withMediaType: .audio), audio.isEmpty
+        else { return false }
+        guard let track = video.first,
+              let size = try? await track.load(.naturalSize),
+              let rate = try? await track.load(.nominalFrameRate),
+              size.width > 0, size.height > 0, max(size.width, size.height) <= maximumClipSide,
+              rate <= maximumFrameRate
         else { return false }
         let seconds = duration.seconds
         return seconds > 0 && seconds <= ClipRecorder.duration + lengthTolerance

@@ -27,15 +27,6 @@ struct BoothSideRail: View {
         .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
     }
 
-    /// The live match before the shot, and the match of the shot in review. Nil in the other states.
-    private var matchScore: Double?? {
-        switch model.state.phase {
-        case .ready: .some(model.match.score)
-        case .review: .some(model.match.reviewScore)
-        default: nil
-        }
-    }
-
     private var content: some View {
         VStack {
             HStack {
@@ -47,7 +38,7 @@ struct BoothSideRail: View {
                 // The move shows only before the shot. The countdown and the capture then have the full power of the phone.
                 PoseReferenceFrame(cue: cue, accent: model.accent, showsMove: model.state.phase == .ready)
                     .frame(height: thumbnailHeight)
-                if model.match.canMatch, let score = matchScore {
+                if model.match.canMatch, let score = model.match.meterScore {
                     MatchMeter(score: score)
                 }
             }

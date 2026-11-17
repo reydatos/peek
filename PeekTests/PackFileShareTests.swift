@@ -78,7 +78,10 @@ import UIKit
         #expect(packs.catalog.userPacks.count == 1)
 
         await packImport.open(url)
-        await packImport.confirm()
+        let file = try #require(packImport.pending)
+        // The alert clears the waiting pack when it closes, before the add runs.
+        packImport.cancel()
+        await packImport.confirm(file)
         #expect(packs.catalog.userPacks.count == 2)
         #expect(!packImport.isFailed)
 

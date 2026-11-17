@@ -81,15 +81,26 @@ final nonisolated class FrameSource: NSObject, AVCaptureVideoDataOutputSampleBuf
     /// - Parameter rotationAngle: the clockwise angle, in degrees, that makes a frame upright.
     /// A cancel of the task stops the recording.
     func record(to url: URL, rotationAngle: CGFloat) async throws -> Data {
-        // One recording at a time: a second one would take the place of the first, and the first would not end.
-        guard lock.withLock({ recorder == nil }) else { throw ClipRecorder.Failure.stopped }
-        return try await withTaskCancellationHandler {
+        try await withTaskCancellationHandler {
             try await withCheckedThrowingContinuation { continuation in
                 let recorder = ClipRecorder(url: url, rotationAngle: rotationAngle) { [weak self] result in
                     self?.lock.withLock { self?.recorder = nil }
                     continuation.resume(with: result)
                 }
-                lock.withLock { self.recorder = recorder }
+                // One recording at a time. The check and the change are one step, so two calls can not both pass.
+                let isFirst = lock.withLock {
+                    guard self.recorder == nil else { return false }
+                    self.recorder = recorder
+                    return true
+                }
+                guard isFirst else {
+                    continuation.resume(throwing: ClipRecorder.Failure.stopped)
+                    return
+                }
+                // A cancel that came before the recorder was in place found nothing to stop.
+                if Task.isCancelled {
+                    recorder.stop()
+                }
             }
         } onCancel: {
             lock.withLock { recorder }?.stop()
