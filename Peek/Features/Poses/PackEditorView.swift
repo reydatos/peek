@@ -110,6 +110,8 @@ struct PackEditorView: View {
                     }
                 }
                 .clipShape(.rect(cornerRadius: PeekTheme.slotCorner))
+                // The picture is decoration. The play button above it has the label.
+                .accessibilityHidden(true)
                 .overlay {
                     // A tap on a recorded pose plays its clip again.
                     if pose.isRecorded {
@@ -123,6 +125,8 @@ struct PackEditorView: View {
                         }
                         .buttonStyle(.plain)
                         .accessibilityLabel(Text(.playClip(index + 1)))
+                        // A save removes the clips of the draft. No replay or new recording can start then.
+                        .disabled(isSaving)
                     }
                 }
                 .frame(width: thumbnailWidth)
@@ -138,6 +142,7 @@ struct PackEditorView: View {
                 Label(pose.isRecorded ? .recordAgain : .recordPose, systemImage: pose.isRecorded ? "arrow.counterclockwise" : "record.circle")
             }
             .buttonStyle(PeekRailButtonStyle())
+            .disabled(isSaving)
         }
         .padding(PeekTheme.tightSpace * 2)
         .background(PeekTheme.surface, in: .rect(cornerRadius: PeekTheme.cardCorner))

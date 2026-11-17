@@ -1662,6 +1662,17 @@
         }
       }
     },
+    "recordedClip" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The recorded clip of pose %lld"
+          }
+        }
+      }
+    },
     "recordingPose" : {
       "extractionState" : "manual",
       "localizations" : {

@@ -38,6 +38,30 @@ struct PoseClipView: UIViewRepresentable {
     }
 }
 
+/// A recorded pose: its last frame, and above it the clip. The frame is never empty while the clip loads.
+struct PoseClipPicture: View {
+    /// The JPEG bytes of the last frame of the clip.
+    let still: Data
+    /// Nil shows the last frame only.
+    let clipURL: URL?
+
+    var body: some View {
+        Color.clear
+            .overlay {
+                if let image = UIImage(data: still) {
+                    Image(uiImage: image)
+                        .resizable()
+                        .scaledToFill()
+                }
+            }
+            .overlay {
+                if let clipURL {
+                    PoseClipView(url: clipURL)
+                }
+            }
+    }
+}
+
 /// A view with a player layer. One player has one layer: a second layer of the same player shows no picture.
 final class ClipUIView: UIView {
     override static var layerClass: AnyClass {
