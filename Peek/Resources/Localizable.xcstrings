@@ -837,6 +837,17 @@
         }
       }
     },
+    "done" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Done"
+          }
+        }
+      }
+    },
     "draftNotSaved" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1537,6 +1548,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "PEEK cannot add to Photos. Allow access in Settings."
+          }
+        }
+      }
+    },
+    "playClip" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Play the clip of pose %lld"
           }
         }
       }

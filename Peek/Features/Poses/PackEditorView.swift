@@ -14,6 +14,8 @@ struct PackEditorView: View {
     @State private var draft = PackDraft()
     /// The index of the pose that the customer records now.
     @State private var recordingIndex: Int?
+    /// The index of the pose that the customer plays again now.
+    @State private var previewIndex: Int?
     @State private var isSaving = false
     @State private var didFail = false
     @ScaledMetric(relativeTo: .body) private var thumbnailWidth = 60
@@ -26,6 +28,14 @@ struct PackEditorView: View {
                     recordingIndex = nil
                 } onCancel: {
                     recordingIndex = nil
+                }
+            } else if let index = previewIndex, let still = draft.poses[index].still, let clipURL = draft.poses[index].clipURL {
+                // The replay is a state of this sheet too, for the same reason as the record screen.
+                PosePreviewView(poseNumber: index + 1, still: still, clipURL: clipURL) {
+                    previewIndex = nil
+                } onRecordAgain: {
+                    previewIndex = nil
+                    recordingIndex = index
                 }
             } else {
                 editor
@@ -100,8 +110,22 @@ struct PackEditorView: View {
                     }
                 }
                 .clipShape(.rect(cornerRadius: PeekTheme.slotCorner))
+                .overlay {
+                    // A tap on a recorded pose plays its clip again.
+                    if pose.isRecorded {
+                        Button { previewIndex = index } label: {
+                            Image(systemName: "play.circle.fill")
+                                .font(.title)
+                                .symbolRenderingMode(.palette)
+                                .foregroundStyle(PeekTheme.ink, PeekTheme.surface)
+                                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                                .contentShape(.rect)
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityLabel(Text(.playClip(index + 1)))
+                    }
+                }
                 .frame(width: thumbnailWidth)
-                .accessibilityHidden(true)
             VStack(alignment: .leading) {
                 Text(.poseNumber(index + 1))
                     .font(.caption)
