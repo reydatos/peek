@@ -4,6 +4,7 @@ import UIKit
 /// The reference picture of a pose, or a symbol when the app has no picture for it.
 ///
 /// A pose with a start picture can show its move: the art changes between the start and the final pose.
+/// A customer pose shows its move as a clip that plays again and again, above its still picture.
 /// With Reduce Motion on, it shows the final pose only.
 struct PoseArt: View {
     let cue: PoseCue
@@ -30,6 +31,10 @@ struct PoseArt: View {
                             }
                             .animation(.easeInOut, value: step)
                         }
+                    } else if showsMove, !reduceMotion, let clip = cue.clipURL {
+                        // The still picture is the last frame of the clip. It shows while the clip loads.
+                        fill(picture)
+                            .overlay { PoseClipView(url: clip) }
                     } else {
                         fill(picture)
                     }
