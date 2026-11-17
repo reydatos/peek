@@ -34,6 +34,17 @@
         }
       }
     },
+    "autoShutter" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Automatic shutter"
+          }
+        }
+      }
+    },
     "boothKind" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1020,6 +1031,50 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Live camera preview"
+          }
+        }
+      }
+    },
+    "matchDifferent" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Different pose"
+          }
+        }
+      }
+    },
+    "matchDone" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pose matched"
+          }
+        }
+      }
+    },
+    "matchNear" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Near the pose"
+          }
+        }
+      }
+    },
+    "matchNoPerson" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No person in view"
           }
         }
       }

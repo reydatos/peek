@@ -85,6 +85,8 @@ final class BoothSessionModel {
     private var takesToDelete: [Take] = []
     /// The built-in packs and the packs of the customer.
     let catalog: PoseCatalog
+    /// The pose match: the live score, the automatic shutter, and the score of the shot in review.
+    let match: PoseMatch
     private let reducer = BoothReducer()
     private let sleep: @Sendable (Duration) async throws -> Void
 
@@ -95,6 +97,7 @@ final class BoothSessionModel {
         catalog: PoseCatalog = PoseCatalog(),
         saver: any PhotoSaving = PhotoLibrarySaver(),
         drafts: (any DraftStore)? = nil,
+        analyzePose: @escaping @Sendable (UIImage) async -> PoseSignature? = { _ in nil },
         sleep: @escaping @Sendable (Duration) async throws -> Void = { try await Task.sleep(for: $0) }
     ) {
         self.capture = capture
@@ -106,6 +109,19 @@ final class BoothSessionModel {
         let pack = catalog.packOrClassic(id: packID)
         self.packID = pack.id
         state = BoothState(cueIDs: cueIDs ?? pack.cues.map(\.id))
+        // The default finds no body shape, so tests stay isolated. The app passes the Vision analyzer.
+        match = PoseMatch(capture: capture, analyze: analyzePose)
+        // The automatic shutter sends the same event as the shutter button. The reducer accepts it in `ready` only.
+        match.onHold = { [weak self] in self?.send(.start) }
+    }
+
+    /// Gives the state of the booth to the pose match.
+    private func updateMatch() {
+        var reviewImage: UIImage?
+        if case let .review(take) = state.phase {
+            reviewImage = images[take.id]
+        }
+        match.update(cue: currentCue, phase: state.phase, isCameraRunning: cameraStatus == .running, reviewImage: reviewImage)
     }
 
     /// Starts a new four-shot session with the poses of a pack. The shots of the old session are discarded.
@@ -124,6 +140,7 @@ final class BoothSessionModel {
         if cameraStatus == .running {
             send(.finishSetup)
         }
+        updateMatch()
     }
 
     /// True when a pack change discards work: an accepted shot, or a shot in review.
@@ -344,6 +361,7 @@ final class BoothSessionModel {
     func stopCamera() {
         send(.pause(.interruption))
         cameraStatus = .idle
+        updateMatch()
         Task { [capture] in await capture.stop() }
     }
 
@@ -361,6 +379,7 @@ final class BoothSessionModel {
             run(effect)
         }
         updateStrip()
+        updateMatch()
         // While the draft is not stored, each event stores it again.
         if state.slots != slots || !takesToDelete.isEmpty || isDraftUnsaved {
             persist()

@@ -1,4 +1,5 @@
 import AVFoundation
+import PeekCore
 
 /// Owns the one capture session. It starts with the rear camera (PRD FR-02).
 /// The UX lookbook (page 07A) adds the front camera for a group selfie. The session has one input at a time.
@@ -11,6 +12,9 @@ actor CaptureService: CaptureProviding {
     private var input: AVCaptureDeviceInput?
     private var rotationCoordinator: AVCaptureDevice.RotationCoordinator?
     private var inFlight: PhotoCaptureDelegate?
+    private var poseHandler: (@Sendable (PoseSignature) -> Void)?
+    /// True while one frame is in examination. A frame that comes then is not examined.
+    private var isExaminingPose = false
 
     func start() async throws -> String {
         guard await isAuthorized() else { throw CaptureError.permissionDenied }
@@ -121,6 +125,32 @@ actor CaptureService: CaptureProviding {
         }
     }
 
+    func setPoseHandler(_ handler: (@Sendable (PoseSignature) -> Void)?) {
+        poseHandler = handler
+        guard handler != nil else {
+            frameSource.setPoseFrameHandler(nil)
+            return
+        }
+        frameSource.setPoseFrameHandler { [weak self] frame in
+            // The frame is read only, and one task has it.
+            let frame = LiveFrame(buffer: frame)
+            Task { await self?.examinePose(in: frame.buffer) }
+        }
+    }
+
+    private func examinePose(in frame: CMSampleBuffer) async {
+        guard !isExaminingPose, poseHandler != nil, let rotationCoordinator else { return }
+        isExaminingPose = true
+        defer { isExaminingPose = false }
+        // The same rotation as a clip: the frame has the rotation of the frame connection.
+        let level = rotationCoordinator.videoRotationAngleForHorizonLevelCapture
+        let current = frameOutput.connection(with: .video)?.videoRotationAngle ?? 0
+        let orientation = PoseAnalyzer.orientation(rotationAngle: level - current)
+        if let signature = await PoseAnalyzer.signature(in: frame, orientation: orientation) {
+            poseHandler?(signature)
+        }
+    }
+
     private func isAuthorized() async -> Bool {
         switch AVCaptureDevice.authorizationStatus(for: .video) {
         case .authorized: true
@@ -158,4 +188,9 @@ actor CaptureService: CaptureProviding {
         self.input = input
         return camera
     }
+}
+
+/// A live frame on its way to the pose examination.
+private nonisolated struct LiveFrame: @unchecked Sendable {
+    let buffer: CMSampleBuffer
 }

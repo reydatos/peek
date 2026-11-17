@@ -203,6 +203,7 @@ From Apple's "Designing for iPhone Duo" guidance.
 2. **Red for all primary actions.** This spec uses red for Keep shot, Save Strip and Resume. The earlier rule was red only for Start a Booth. Confirm.
 3. **Create together.** Friends adding one shot each by link appears in the Light style screens. It needs share links and conflicts with "No account". Not in scope until confirmed.
 4. **Controls with no home.** Timer length, the outer display toggle, captions, pause, and Copycat's Silhouette and Replay are not in these designs. Defaults assumed: 3 seconds, outer display on.
+   Owner decision, 2026-11-15: the booth has a pose match (a match meter on the photographer's side, an automatic shutter switch in the More menu, and the match of the shot in review). Its three limits are provisional until the owner sets them on the phone.
 5. **Display sizes.** Mock frames are proportional stand-ins (inner 4:3, outer 3:4). Use real device metrics.
 
 ## Assets
