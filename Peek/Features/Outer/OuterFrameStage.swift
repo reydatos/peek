@@ -21,6 +21,12 @@ struct OuterFrameStage: View {
                     // The live view stays in place below the shot, so it does not start again after review.
                     FramePreviewView(capture: model.capture, deviceID: model.deviceID, isMirrored: model.isOuterPreviewMirrored)
                         .accessibilityLabel(Text(.livePreview))
+                    // The ghost: the clip of the pose over the live picture, so the people line up with it.
+                    // The clip is the upright center column of the camera picture, so it has that place here.
+                    if model.shownClipLook == .ghost, model.stillImage == nil, let url = model.currentCue?.clipURL {
+                        PoseGhost(url: url, opacity: model.ghostOpacity)
+                            .aspectRatio(PoseGhost.clipAspect, contentMode: .fit)
+                    }
                     if let still = model.stillImage {
                         Image(uiImage: still)
                             .resizable()

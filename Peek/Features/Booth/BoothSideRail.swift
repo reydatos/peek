@@ -11,6 +11,9 @@ struct BoothSideRail: View {
     @State private var isConfirmingNewSet = false
     @ScaledMetric(relativeTo: .body) private var thumbnailHeight = 124
 
+    /// The space between the flip button and the shutter. This is a design value.
+    private static let shutterSpace = PeekTheme.tightSpace * 4
+
     var body: some View {
         GeometryReader { proxy in
             // The camera housing of an open iPhone Duo is in a top corner of the rail. The rail starts below it,
@@ -70,7 +73,8 @@ struct BoothSideRail: View {
             EmptyView()
         case .ready:
             // The flip button is directly left of the shutter, as on the camera bar.
-            HStack(spacing: PeekTheme.tightSpace) {
+            // The space keeps a finger on the flip button clear of the shutter.
+            HStack(spacing: Self.shutterSpace) {
                 FlipCameraButton(model: model)
                 VStack {
                     ShutterButton(label: model.countdown == .manual ? .takeShot : .startCountdown) { model.send(.start) }

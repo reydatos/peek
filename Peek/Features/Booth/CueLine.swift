@@ -1,7 +1,7 @@
 import PeekCore
 import SwiftUI
 
-/// The line below the photo: the pose name with a caption, or the countdown.
+/// The line below the photo: the pose name with a caption. It also keeps the space of the countdown.
 struct CueLine: View {
     let model: BoothSessionModel
     /// True when the people in the photo read this display.
@@ -18,8 +18,9 @@ struct CueLine: View {
                     .hidden()
             }
             switch model.state.phase {
-            case let .countdown(remaining):
-                CountdownView(remaining: remaining, total: model.countdown.seconds, isLarge: isSubjectFacing)
+            case .countdown:
+                // The countdown is at the center below the photo. `BoothStageView` puts it there, in this space.
+                EmptyView()
             case .ready, .paused:
                 line(cueName, caption: .shotOf(number, count))
             case .capturePending:

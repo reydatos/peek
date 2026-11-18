@@ -21,9 +21,23 @@ struct BoothStageView: View {
                 .aspectRatio(Self.uprightAspect, contentMode: .fit)
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         } else {
-            VStack(alignment: .leading) {
+            VStack(alignment: .leading, spacing: Self.cueSpace) {
                 photo
                     .modifier(PhotoCardShape(aspect: cardAspect))
+                    .overlay(alignment: .bottom) {
+                        // The countdown is at the center below the photo (owner decision, 2026-11-17), in the space
+                        // that the cue line keeps for it. It is not in the layout, so the photo has the same size.
+                        // A line with no height at the bottom edge of the photo. The countdown hangs below it.
+                        Color.clear
+                            .frame(height: 0)
+                            .overlay(alignment: .top) {
+                                if case let .countdown(remaining) = model.state.phase {
+                                    CountdownView(remaining: remaining, total: model.countdown.seconds, isLarge: isSubjectFacing)
+                                        .fixedSize()
+                                        .padding(.top, Self.cueSpace)
+                                }
+                            }
+                    }
                 CueLine(model: model, isSubjectFacing: isSubjectFacing)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
@@ -163,6 +177,9 @@ struct BoothStageView: View {
             isEnabled: canStepPose
         )
     }
+
+    /// The space between the photo and the line below it.
+    private static let cueSpace = PeekTheme.tightSpace
 
     /// The shape of the upright picture of a 4:3 camera: the width divided by the height. This is a design value.
     private static let uprightAspect: CGFloat = 3.0 / 4.0
