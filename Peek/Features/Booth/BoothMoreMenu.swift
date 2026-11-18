@@ -23,7 +23,11 @@ struct BoothMoreMenu: View {
             .disabled(!model.match.canMatch && !model.match.isAutoShutterOn)
             // The duet needs the clip of a pose, so only a pack with clips has it.
             Toggle(isOn: Binding(get: { model.isDuetOn }, set: { model.isDuetOn = $0 })) {
-                Label(.duetVideo, systemImage: "rectangle.split.2x1")
+                Label(.duetVideo, systemImage: "rectangle.split.1x2")
+                // A gray switch with no reason is a dead end. This line says what the duet needs.
+                if !model.hasPoseClips {
+                    Text(.duetNeedsPack)
+                }
             }
             .disabled(!model.hasPoseClips && !model.isDuetOn)
             if model.isOnOneScreen {

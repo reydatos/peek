@@ -925,6 +925,17 @@
         }
       }
     },
+    "duetNeedsPack" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Select a pack that you made"
+          }
+        }
+      }
+    },
     "duetVideo" : {
       "extractionState" : "manual",
       "localizations" : {
