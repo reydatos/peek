@@ -136,7 +136,7 @@ Three states in order. The live crop does not change between the second and thir
 ### 4. Kids Poses and Animations
 - Photographer sees the live photo and controls when the countdown starts.
 - Subject sees an illustrated character and a short cue ("Freeze like a robot"). Accent is lime.
-- Animations: the character demonstrates the move. With Reduce Motion on, show the still final pose instead. Label the two states "Animated" and "Still".
+- Animations: the character demonstrates the move. With Reduce Motion on, show the still final pose instead. Label the two states "Animated" and "Still". A clip that the customer made or asked for plays with Reduce Motion on too: the record screen after a recording, and the replay in the pack editor (owner decision, 2026-11-17).
 
 ### 5. Review and retake
 - State: a shot was just captured and its slot is selected.
