@@ -62,11 +62,15 @@ actor FakeCapture: CaptureProviding {
         clipError = fails ? .captureFailed : nil
     }
 
-    func recordClip(to url: URL) throws -> Data {
+    /// The length that each recording asked for.
+    private(set) var clipDurations: [Double] = []
+
+    func recordClip(to url: URL, duration: Double) throws -> Data {
         if let clipError {
             throw clipError
         }
         clipCount += 1
+        clipDurations.append(duration)
         try Data("clip \(clipCount)".utf8).write(to: url)
         return Self.photoData
     }

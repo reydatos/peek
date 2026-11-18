@@ -53,10 +53,15 @@ final nonisolated class FrameSource: NSObject, AVCaptureVideoDataOutputSampleBuf
     /// - Parameter rotationAngle: the clockwise angle, in degrees, that makes a frame upright.
     /// A cancel of the task stops the recording.
     /// - Parameter isMirrored: true for the front camera, so the clip is a mirror picture as the live view is.
-    func record(to url: URL, rotationAngle: CGFloat, isMirrored: Bool = false) async throws -> Data {
+    func record(
+        to url: URL,
+        rotationAngle: CGFloat,
+        isMirrored: Bool = false,
+        duration: Double = ClipRecorder.duration
+    ) async throws -> Data {
         try await withTaskCancellationHandler {
             try await withCheckedThrowingContinuation { continuation in
-                let recorder = ClipRecorder(url: url, rotationAngle: rotationAngle, isMirrored: isMirrored) { [weak self] result in
+                let recorder = ClipRecorder(url: url, rotationAngle: rotationAngle, isMirrored: isMirrored, duration: duration) { [weak self] result in
                     self?.lock.withLock { self?.recorder = nil }
                     continuation.resume(with: result)
                 }

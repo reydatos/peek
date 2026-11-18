@@ -110,6 +110,9 @@ struct BoothStageView: View {
                     StageChips(model: model)
                 }
                 BoothBanners(model: model)
+                if model.isRecordingAttempt {
+                    RecordingSign()
+                }
                 #if DEBUG
                     if model.shownClipLook == .ghost {
                         GhostOpacityStepper(model: model)

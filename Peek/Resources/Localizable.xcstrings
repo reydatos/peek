@@ -925,6 +925,28 @@
         }
       }
     },
+    "duetNeedsPack" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Select a pack that you made"
+          }
+        }
+      }
+    },
+    "duetVideo" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Duet video"
+          }
+        }
+      }
+    },
     "filterAll" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1768,6 +1790,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Recording"
+          }
+        }
+      }
+    },
+    "recordingVideo" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recording video"
           }
         }
       }

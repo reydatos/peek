@@ -43,6 +43,10 @@ struct OuterFrameStage: View {
                 if model.state.phase == .ready, let cue = model.currentCue {
                     PoseGuide(cue: cue, accent: model.accent)
                 }
+                // The people in the photo see that the booth records them.
+                if model.isRecordingAttempt {
+                    RecordingSign()
+                }
                 Spacer()
                 if hasCaption {
                     OuterCaption(
