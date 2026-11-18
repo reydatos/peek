@@ -10,7 +10,6 @@ struct PoseRecorderView: View {
     let onUse: (Data, URL) -> Void
     let onCancel: () -> Void
     @State private var recording: PoseRecording
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     init(model: BoothSessionModel, poseNumber: Int, onUse: @escaping (Data, URL) -> Void, onCancel: @escaping () -> Void) {
         self.model = model
@@ -49,10 +48,11 @@ struct PoseRecorderView: View {
         }
     }
 
-    /// The live camera. After the recording: the clip, above its last frame. With Reduce Motion on, the last frame only.
+    /// The live camera. After the recording: the clip, above its last frame. It plays with Reduce Motion on too:
+    /// the customer made this clip a moment ago and must see it before "Use this pose".
     @ViewBuilder private var picture: some View {
         if recording.phase == .done, let still = recording.still {
-            PoseClipPicture(still: still, clipURL: reduceMotion ? nil : recording.clipURL)
+            PoseClipPicture(still: still, clipURL: recording.clipURL)
                 .accessibilityElement()
                 .accessibilityLabel(Text(.capturedPhoto))
         } else {
