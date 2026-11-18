@@ -51,19 +51,10 @@ struct PoseRecorderView: View {
 
     /// The live camera. After the recording: the clip, above its last frame. With Reduce Motion on, the last frame only.
     @ViewBuilder private var picture: some View {
-        if recording.phase == .done, let still = recording.still, let image = UIImage(data: still) {
-            Color.clear.overlay {
-                Image(uiImage: image)
-                    .resizable()
-                    .scaledToFill()
-            }
-            .overlay {
-                if !reduceMotion, let clip = recording.clipURL {
-                    PoseClipView(url: clip)
-                }
-            }
-            .accessibilityElement()
-            .accessibilityLabel(Text(.capturedPhoto))
+        if recording.phase == .done, let still = recording.still {
+            PoseClipPicture(still: still, clipURL: reduceMotion ? nil : recording.clipURL)
+                .accessibilityElement()
+                .accessibilityLabel(Text(.capturedPhoto))
         } else {
             CameraPreviewView(
                 session: model.capture.session,

@@ -837,6 +837,17 @@
         }
       }
     },
+    "done" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Done"
+          }
+        }
+      }
+    },
     "draftNotSaved" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1541,6 +1552,17 @@
         }
       }
     },
+    "playClip" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Play the clip of pose %lld"
+          }
+        }
+      }
+    },
     "poseIdeas" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1636,6 +1658,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Record"
+          }
+        }
+      }
+    },
+    "recordedClip" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The recorded clip of pose %lld"
           }
         }
       }
