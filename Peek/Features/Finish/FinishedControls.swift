@@ -25,6 +25,12 @@ struct FinishedControls: View {
                 .buttonStyle(PeekSecondaryButtonStyle())
             }
             ChallengeShareButton(model: model, style: PeekSecondaryButtonStyle())
+            if !model.duetSegments.isEmpty {
+                Button { Task { await model.saveDuet() } } label: {
+                    Label(.saveDuet, systemImage: "rectangle.split.1x2")
+                }
+                .buttonStyle(PeekSecondaryButtonStyle())
+            }
             Button { Task { await model.saveShots() } } label: { Text(.saveShots) }
                 .buttonStyle(PeekSecondaryButtonStyle())
             // A new set discards the shots, so the photographer confirms first.
