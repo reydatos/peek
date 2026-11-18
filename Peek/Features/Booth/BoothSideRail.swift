@@ -36,8 +36,15 @@ struct BoothSideRail: View {
             if !model.isComplete, let cue = model.currentCue {
                 // The pose name shows one time, on the cue line below the photo (owner decision, 2026-11-15).
                 // The move shows only before the shot. The countdown and the capture then have the full power of the phone.
-                PoseReferenceFrame(cue: cue, accent: model.accent, showsMove: model.state.phase == .ready)
+                // While the clip plays over the camera picture, the rail shows the still: one player is enough.
+                PoseClipButton(model: model) {
+                    PoseReferenceFrame(
+                        cue: cue,
+                        accent: model.accent,
+                        showsMove: model.state.phase == .ready && model.shownClipLook == .corner
+                    )
                     .frame(height: thumbnailHeight)
+                }
                 if model.match.canMatch, let score = model.match.meterScore {
                     MatchMeter(score: score)
                 }
