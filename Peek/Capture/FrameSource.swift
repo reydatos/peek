@@ -11,8 +11,6 @@ final nonisolated class FrameSource: NSObject, AVCaptureVideoDataOutputSampleBuf
     let queue = DispatchQueue(label: "com.a8media.peek.frames")
     private let lock = NSLock()
     private var target: Target?
-    /// Runs one time, when a frame shows a dark place.
-    private var onLowLight: (@Sendable () -> Void)?
     private var frameCount = 0
     /// The recorder of a pose clip. It takes each frame while it records.
     private var recorder: ClipRecorder?
@@ -46,35 +44,9 @@ final nonisolated class FrameSource: NSObject, AVCaptureVideoDataOutputSampleBuf
         }
     }
 
-    /// Sets the action for a dark place. It runs one time, then the source stops the check.
-    func setLowLightHandler(_ handler: @escaping @Sendable () -> Void) {
-        lock.withLock { onLowLight = handler }
-    }
-
     /// Sets the action that takes a frame for the pose match. Nil stops it.
     func setPoseFrameHandler(_ handler: (@Sendable (CMSampleBuffer) -> Void)?) {
         lock.withLock { onPoseFrame = handler }
-    }
-
-    /// Reads the brightness of the scene from the metadata of a frame, at each 15th frame, as the Glam app does.
-    private func checkLowLight(_ sampleBuffer: CMSampleBuffer) {
-        frameCount += 1
-        guard frameCount % 15 == 0, lock.withLock({ onLowLight != nil }) else { return }
-        guard
-            let metadata = CMCopyDictionaryOfAttachments(
-                allocator: nil,
-                target: sampleBuffer,
-                attachmentMode: kCMAttachmentMode_ShouldPropagate
-            ) as? [String: Any],
-            let exif = metadata["{Exif}"] as? [String: Any],
-            let brightness = exif["BrightnessValue"] as? Double,
-            GlamLight.isLowLight(brightnessValue: brightness)
-        else { return }
-        let handler = lock.withLock {
-            defer { onLowLight = nil }
-            return onLowLight
-        }
-        handler?()
     }
 
     /// Records a clip of `ClipRecorder.duration` seconds from the next frames, and gives the last frame as JPEG bytes.
@@ -109,7 +81,7 @@ final nonisolated class FrameSource: NSObject, AVCaptureVideoDataOutputSampleBuf
     }
 
     func captureOutput(_: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from _: AVCaptureConnection) {
-        checkLowLight(sampleBuffer)
+        frameCount += 1
         lock.withLock { recorder }?.append(sampleBuffer)
         if frameCount % Self.poseFrameInterval == 0 {
             lock.withLock { onPoseFrame }?(sampleBuffer)

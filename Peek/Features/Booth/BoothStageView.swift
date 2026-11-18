@@ -74,12 +74,6 @@ struct BoothStageView: View {
             }
         }
         .overlay {
-            // For a selfie, the photo is the warm light during the countdown and the capture.
-            if model.showsInnerGlamLight, model.isGlamLightFull {
-                PeekTheme.glamLight
-            }
-        }
-        .overlay {
             // The ghost is above the live picture and inside its shape. The camera view below it does not change.
             if model.shownClipLook == .ghost, let url = model.currentCue?.clipURL {
                 PoseGhost(url: url, opacity: model.ghostOpacity)

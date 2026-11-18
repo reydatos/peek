@@ -89,7 +89,7 @@ No serif and no italic lettering anywhere in the app.
 
 **Pose guide.** Small copy of the reference (46 × 55, accent border) in the top-leading corner of the live photo on the subject display. Shown during live framing only.
 
-**Glam light.** A fill light for dark places, as in the Glam app. A switch in the More menu; a dark place starts it one time, and after that only the photographer changes it. The light is the display that faces the people. For a selfie, that is the inner display: full brightness, with the page and the camera bar in the warm light color (`glamLight`, #FFE8D1) and light-mode content. The live picture and the shots get no tint. With one screen and the rear camera, no display faces the people, so the switch is not available. During the countdown and the capture, the display that faces the people is fully the warm light: the outer display shows only the countdown numeral, and for a selfie the photo of the inner display is the warm light. The people do not see the live picture for those seconds.
+**Glam light.** Removed (owner decision, 2026-11-17). The booth has no fill light: the warm display hid the live picture during the countdown.
 
 **Chip.** Fill background, 12 bold uppercase. Accent variant uses the pack accent fill. Over a photo, use `surface` as the chip background.
 

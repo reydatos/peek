@@ -24,10 +24,9 @@ struct BoothCameraBar: View {
         }
         .padding()
         .foregroundStyle(PeekTheme.ink)
-        .background(model.showsInnerGlamLight ? PeekTheme.glamLight : PeekTheme.cameraChrome)
+        .background(PeekTheme.cameraChrome)
         // The bar is black in light mode too, so its content has the dark colors.
-        // With the glam light, the bar is the warm light, so its content has the light-mode colors.
-        .environment(\.colorScheme, model.showsInnerGlamLight ? .light : .dark)
+        .environment(\.colorScheme, .dark)
     }
 
     @ViewBuilder private var controls: some View {
@@ -76,7 +75,7 @@ struct BoothCameraBar: View {
             ShutterButton(
                 label: model.countdown == .manual ? .takeShot : .startCountdown,
                 action: { model.send(.start) },
-                ringColor: model.showsInnerGlamLight ? PeekTheme.strong : PeekTheme.paperWhite
+                ringColor: PeekTheme.paperWhite
             )
             Text(model.countdown == .manual ? .takeShot : .startAfterSeconds(model.countdown.seconds))
                 .font(.footnote)

@@ -11,8 +11,6 @@ struct BoothLayout: View {
     let model: BoothSessionModel
     let actions: BoothActions
 
-    @Environment(\.colorScheme) private var colorScheme
-
     var body: some View {
         GeometryReader { proxy in
             if model.cameraStatus == .running, isWide(proxy) {
@@ -26,8 +24,6 @@ struct BoothLayout: View {
                     BoothSideRail(model: model, actions: actions)
                         .frame(width: PeekTheme.railWidth)
                 }
-                // With the glam light, the page is the warm light, so the content has the light-mode colors.
-                .environment(\.colorScheme, model.showsInnerGlamLight ? .light : colorScheme)
                 // The clock and the battery of an open iPhone Duo are in the corner of the rail, over its buttons.
                 .statusBarHidden()
             } else if model.cameraStatus == .running, !model.isComplete {
@@ -44,7 +40,7 @@ struct BoothLayout: View {
                         }
                     BoothCameraBar(model: model, actions: actions)
                 }
-                .background(model.showsInnerGlamLight ? PeekTheme.glamLight : PeekTheme.cameraChrome)
+                .background(PeekTheme.cameraChrome)
                 // The bar and the labels on the photo have a fixed space. Above this text size they do not fit.
                 .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
             } else {
