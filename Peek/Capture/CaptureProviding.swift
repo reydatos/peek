@@ -20,8 +20,15 @@ nonisolated protocol CaptureProviding: Sendable {
     func setZoom(_ factor: Double) async throws
     func capturePhoto() async throws -> CapturedPhoto
     /// Records a short silent clip of a pose to the file, and gives its last frame as JPEG bytes.
-    func recordClip(to url: URL) async throws -> Data
+    func recordClip(to url: URL, duration: Double) async throws -> Data
     /// Sets the action that takes the body shape of the people in a live frame, a small number of times each second.
     /// Nil stops the examination of the frames.
     func setPoseHandler(_ handler: (@Sendable (PoseSignature) -> Void)?) async
+}
+
+extension CaptureProviding {
+    /// Records a pose clip of the standard length.
+    func recordClip(to url: URL) async throws -> Data {
+        try await recordClip(to: url, duration: ClipRecorder.duration)
+    }
 }

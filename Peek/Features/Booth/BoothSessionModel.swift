@@ -139,6 +139,9 @@ final class BoothSessionModel {
     func loadPack(_ packID: String) {
         countdownTask?.cancel()
         captureTask?.cancel()
+        cancelAttempt()
+        attempts.values.forEach(Self.remove)
+        attempts.removeAll()
         images.removeAll()
         originals.removeAll()
         strip = nil
@@ -186,6 +189,87 @@ final class BoothSessionModel {
     /// The pose of the current slot. Nil when the cue ID is not in the library.
     var currentCue: PoseCue? {
         catalog.cue(for: state.currentSlot.cueID)
+    }
+
+    // MARK: The duet: a clip of the people during the countdown
+
+    /// The photographer sets this. With it on, the booth records a silent clip of the people during each
+    /// countdown, for the duet video. It is off at the start of each run of the app, and no storage has it.
+    var isDuetOn = false
+
+    /// True when the pack has a pose with a clip. Only such a pack has a duet.
+    var hasPoseClips: Bool {
+        pack?.cues.contains { $0.clipURL != nil } ?? false
+    }
+
+    /// True while the booth records the people. The two displays show a sign then.
+    private(set) var isRecordingAttempt = false
+    /// The clip of each take, in the temporary folder. A draft does not keep them.
+    private var attempts: [Take.ID: URL] = [:]
+    /// The recording of this countdown. It gives the clip, or nil after a fault or a cancel.
+    private(set) var attemptTask: Task<URL?, Never>?
+
+    /// The clip of the people for the accepted shot of a slot.
+    func attemptClip(for slot: Slot) -> URL? {
+        slot.acceptedTake.flatMap { attempts[$0.id] }
+    }
+
+    /// Starts the clip with the countdown. It has the length of the countdown, so it ends at the shot.
+    /// A fault here changes nothing for the shot: that pose then has no duet.
+    private func startAttempt(seconds: Int) {
+        cancelAttempt()
+        guard isDuetOn, seconds > 0, currentCue?.clipURL != nil else { return }
+        let url = FileManager.default.temporaryDirectory.appending(path: "Attempt-\(UUID().uuidString).mov")
+        isRecordingAttempt = true
+        attemptTask = Task { [capture] in
+            do {
+                _ = try await capture.recordClip(to: url, duration: Double(seconds))
+                return url
+            } catch {
+                Self.remove(url)
+                return nil
+            }
+        }
+    }
+
+    /// Gives the clip to the shot of its countdown, or removes it when the countdown did not end in a shot.
+    private func updateAttempt() {
+        guard let task = attemptTask else { return }
+        switch state.phase {
+        case .countdown, .capturePending:
+            break
+        case let .review(take):
+            attemptTask = nil
+            Task {
+                let url = await task.value
+                isRecordingAttempt = attemptTask != nil
+                guard let url else { return }
+                // The take can be gone when the clip is ready: a fast retake, or a new set.
+                if images[take.id] != nil {
+                    attempts[take.id] = url
+                } else {
+                    Self.remove(url)
+                }
+            }
+        default:
+            cancelAttempt()
+        }
+    }
+
+    private func cancelAttempt() {
+        guard let task = attemptTask else { return }
+        attemptTask = nil
+        isRecordingAttempt = false
+        task.cancel()
+        Task {
+            if let url = await task.value {
+                Self.remove(url)
+            }
+        }
+    }
+
+    private nonisolated static func remove(_ url: URL) {
+        try? FileManager.default.removeItem(at: url)
     }
 
     // MARK: The clip over the camera picture
@@ -394,6 +478,7 @@ final class BoothSessionModel {
         }
         updateStrip()
         updateMatch()
+        updateAttempt()
         // The large clip covers the picture, so it closes when the shot starts. The ghost stays on for the next pose.
         if clipLook == .large, state.phase != .ready {
             clipLook = .corner
@@ -635,6 +720,7 @@ final class BoothSessionModel {
     private func run(_ effect: BoothEffect) {
         switch effect {
         case let .startCountdown(seconds):
+            startAttempt(seconds: seconds)
             countdownTask?.cancel()
             countdownTask = Task { [sleep] in
                 for _ in 0 ..< seconds {
@@ -668,6 +754,7 @@ final class BoothSessionModel {
             }
 
         case let .discardTake(take):
+            attempts.removeValue(forKey: take.id).map(Self.remove)
             images[take.id] = nil
             originals[take.id] = nil
             takesToDelete.append(take)

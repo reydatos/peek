@@ -107,7 +107,7 @@ actor CaptureService: CaptureProviding {
     /// A recording that is not complete after that time stops with a fault. This is a design value.
     private static let clipAllowance = 3.0
 
-    func recordClip(to url: URL) async throws -> Data {
+    func recordClip(to url: URL, duration: Double) async throws -> Data {
         guard session.isRunning, let rotationCoordinator else { throw CaptureError.notRunning }
         // The frames have the rotation of the frame connection. The clip needs the rotation of a level photo.
         let level = rotationCoordinator.videoRotationAngleForHorizonLevelCapture
@@ -116,9 +116,9 @@ actor CaptureService: CaptureProviding {
         // The live view of the front camera is a mirror. The clip of a selfie pose is the same mirror picture.
         let isMirrored = device?.position == .front
         return try await withThrowingTaskGroup(of: Data.self) { group in
-            group.addTask { try await source.record(to: url, rotationAngle: level - current, isMirrored: isMirrored) }
+            group.addTask { try await source.record(to: url, rotationAngle: level - current, isMirrored: isMirrored, duration: duration) }
             group.addTask {
-                try await Task.sleep(for: .seconds(ClipRecorder.duration + Self.clipAllowance))
+                try await Task.sleep(for: .seconds(duration + Self.clipAllowance))
                 throw CaptureError.captureFailed
             }
             defer { group.cancelAll() }
