@@ -57,17 +57,25 @@ nonisolated enum StripRenderer {
         _ shots: [UIImage],
         layout: PeekCore.Layout = .verticalStrip,
         frame: FrameColor = .cream,
-        date: Date = .now
+        date: Date = .now,
+        stamp: String? = nil
     ) -> UIImage {
-        draw(shots, layout: layout, date: date, style: .paper(frame))
+        draw(shots, layout: layout, date: date, style: .paper(frame), stamp: stamp)
     }
 
     /// Draws the picture off the main actor, so the decode of the full-size shots does not stop the interface.
-    @concurrent static func renderInBackground(_ shots: [UIImage], layout: PeekCore.Layout, date: Date = .now, style: Style) async -> UIImage {
-        draw(shots, layout: layout, date: date, style: style)
+    /// - Parameter stamp: the match score in words, for the center of the footer. Nil gives a footer with no stamp.
+    @concurrent static func renderInBackground(
+        _ shots: [UIImage],
+        layout: PeekCore.Layout,
+        date: Date = .now,
+        style: Style,
+        stamp: String? = nil
+    ) async -> UIImage {
+        draw(shots, layout: layout, date: date, style: style, stamp: stamp)
     }
 
-    private static func draw(_ shots: [UIImage], layout: PeekCore.Layout, date: Date, style: Style) -> UIImage {
+    private static func draw(_ shots: [UIImage], layout: PeekCore.Layout, date: Date, style: Style, stamp: String?) -> UIImage {
         let format = UIGraphicsImageRendererFormat()
         format.scale = 1
         format.opaque = true
@@ -89,6 +97,7 @@ nonisolated enum StripRenderer {
             drawFooter(
                 date: date,
                 style: style,
+                stamp: stamp,
                 in: CGRect(x: margin, y: size.height - footer, width: size.width - 2 * margin, height: footer)
             )
         }
@@ -110,7 +119,7 @@ nonisolated enum StripRenderer {
         context.restoreGState()
     }
 
-    private static func drawFooter(date: Date, style: Style, in frame: CGRect) {
+    private static func drawFooter(date: Date, style: Style, stamp: String?, in frame: CGRect) {
         let ink = style.ink
         let dateFont = UIFont.systemFont(ofSize: footer / 6, weight: .semibold)
         let day = NSAttributedString(
@@ -124,5 +133,13 @@ nonisolated enum StripRenderer {
             wordmark.draw(in: CGRect(x: frame.minX, y: frame.midY - height / 2, width: width, height: height))
         }
         day.draw(at: CGPoint(x: frame.maxX - day.size().width, y: frame.midY - day.size().height / 2))
+        // The match score, in the center of the footer. Its size is a design value.
+        if let stamp {
+            let words = NSAttributedString(
+                string: stamp,
+                attributes: [.font: UIFont.systemFont(ofSize: footer / 4, weight: .bold), .foregroundColor: ink]
+            )
+            words.draw(at: CGPoint(x: frame.midX - words.size().width / 2, y: frame.midY - words.size().height / 2))
+        }
     }
 }

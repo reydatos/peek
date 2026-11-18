@@ -12,6 +12,7 @@ struct BoothLeadingPanel: View {
                 .bold()
             LayoutPicker(model: model)
             FramePicker(model: model)
+            MatchStampToggle(model: model)
             Spacer()
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)

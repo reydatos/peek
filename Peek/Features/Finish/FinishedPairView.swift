@@ -13,10 +13,15 @@ struct FinishedPairView: View {
             choice(.verticalStrip, label: .layoutStrip)
             choice(.grid2x2, label: .layoutGrid)
         }
-        .task(id: PreviewKey(layout: model.layout, frame: model.frame)) {
+        .task(id: PreviewKey(layout: model.layout, frame: model.frame, stamp: model.stripStamp)) {
             other = nil
             let layout: PeekCore.Layout = model.layout == .verticalStrip ? .grid2x2 : .verticalStrip
-            other = await StripRenderer.renderInBackground(model.finishedShots, layout: layout, style: .paper(model.frame))
+            other = await StripRenderer.renderInBackground(
+                model.finishedShots,
+                layout: layout,
+                style: .paper(model.frame),
+                stamp: model.stripStamp
+            )
         }
     }
 
@@ -55,5 +60,6 @@ struct FinishedPairView: View {
     private struct PreviewKey: Hashable {
         let layout: PeekCore.Layout
         let frame: FrameColor
+        let stamp: String?
     }
 }
