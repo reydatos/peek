@@ -177,6 +177,40 @@ final class BoothSessionModel {
         catalog.cue(for: state.currentSlot.cueID)
     }
 
+    // MARK: The clip over the camera picture
+
+    /// How the clip of the current pose shows over the camera picture. This is a state of the screen, not of
+    /// the session, so the reducer and the draft do not have it.
+    private(set) var clipLook = ClipLook.corner
+
+    /// True when the photographer can play the clip of the pose: the booth waits for a shot, and the pose has a clip.
+    var canPlayClip: Bool {
+        state.phase == .ready && currentCue?.clipURL != nil
+    }
+
+    /// The look that the screen shows now. Out of live framing, the clip does not show.
+    var shownClipLook: ClipLook {
+        canPlayClip ? clipLook : .corner
+    }
+
+    /// A tap on the pose picture: it opens the large clip, or closes the large clip or the ghost.
+    func togglePoseClip() {
+        guard canPlayClip else { return }
+        clipLook = clipLook == .corner ? .large : .corner
+    }
+
+    func setClipLook(_ look: ClipLook) {
+        guard canPlayClip || look == .corner else { return }
+        clipLook = look
+    }
+
+    #if DEBUG
+        /// The ghost transparency that the owner tries on the phone. The release build has the fixed value.
+        var ghostOpacity = PoseClipTuning.ghostOpacity
+    #else
+        let ghostOpacity = PoseClipTuning.ghostOpacity
+    #endif
+
     /// The numbers of the slots that have no accepted shot, in slot order.
     var openSlotNumbers: [Int] {
         state.slots.filter { $0.acceptedTake == nil }.map { $0.id.index + 1 }
@@ -380,6 +414,10 @@ final class BoothSessionModel {
         }
         updateStrip()
         updateMatch()
+        // The large clip covers the picture, so it closes when the shot starts. The ghost stays on for the next pose.
+        if clipLook == .large, state.phase != .ready {
+            clipLook = .corner
+        }
         // While the draft is not stored, each event stores it again.
         if state.slots != slots || !takesToDelete.isEmpty || isDraftUnsaved {
             persist()

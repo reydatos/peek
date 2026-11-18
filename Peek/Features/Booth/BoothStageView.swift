@@ -79,6 +79,12 @@ struct BoothStageView: View {
                 PeekTheme.glamLight
             }
         }
+        .overlay {
+            // The ghost is above the live picture and inside its shape. The camera view below it does not change.
+            if model.shownClipLook == .ghost, let url = model.currentCue?.clipURL {
+                PoseGhost(url: url, opacity: model.ghostOpacity)
+            }
+        }
         .clipShape(.rect(cornerRadius: isFullBleed ? 0 : PeekTheme.photoCorner))
         .overlay {
             // The viewfinder has no cue line, so the countdown is on the picture, large, on a card.
@@ -96,6 +102,11 @@ struct BoothStageView: View {
                     StageChips(model: model)
                 }
                 BoothBanners(model: model)
+                #if DEBUG
+                    if model.shownClipLook == .ghost {
+                        GhostOpacityStepper(model: model)
+                    }
+                #endif
             }
             .padding()
             // On a tall display, the close button and the More menu are above the labels.
@@ -130,8 +141,23 @@ struct BoothStageView: View {
                 .padding()
             } else if isSubjectFacing, canStepPose, let cue = model.currentCue {
                 // With one screen, the pose reference moves into the camera view.
-                PoseGuide(cue: cue, accent: model.accent, isLarge: true)
-                    .padding()
+                PoseClipButton(model: model) {
+                    PoseGuide(cue: cue, accent: model.accent, isLarge: true)
+                }
+                .padding()
+            }
+        }
+        .overlay {
+            // The large clip is above the labels, the pose picture and the zoom choices. A tap beside it closes it.
+            if model.shownClipLook == .large, let cue = model.currentCue, let url = cue.clipURL {
+                ZStack {
+                    PeekTheme.scrim
+                        .onTapGesture { model.setClipLook(.corner) }
+                        .accessibilityHidden(true)
+                    PoseClipCard(model: model, cue: cue, url: url)
+                        .padding()
+                }
+                .clipShape(.rect(cornerRadius: isFullBleed ? 0 : PeekTheme.photoCorner))
             }
         }
         // A sideways swipe changes the pose.
@@ -155,7 +181,9 @@ struct BoothStageView: View {
     /// The pose picture in the corner of the viewfinder.
     @ViewBuilder private var poseCorner: some View {
         if showsPoseCard, let cue = model.currentCue {
-            PoseGuide(cue: cue, accent: model.accent, isLarge: isSubjectFacing)
+            PoseClipButton(model: model) {
+                PoseGuide(cue: cue, accent: model.accent, isLarge: isSubjectFacing)
+            }
         }
     }
 

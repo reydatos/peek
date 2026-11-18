@@ -232,6 +232,17 @@
         }
       }
     },
+    "closePoseClip" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Close the clip of the pose"
+          }
+        }
+      }
+    },
     "continueOneScreen" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1002,6 +1013,17 @@
         }
       }
     },
+    "ghost" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ghost"
+          }
+        }
+      }
+    },
     "glamLight" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1559,6 +1581,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Play the clip of pose %lld"
+          }
+        }
+      }
+    },
+    "playPoseClip" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Play the clip of the pose"
           }
         }
       }

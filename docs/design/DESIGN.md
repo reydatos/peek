@@ -204,6 +204,7 @@ From Apple's "Designing for iPhone Duo" guidance.
 3. **Create together.** Friends adding one shot each by link appears in the Light style screens. It needs share links and conflicts with "No account". Not in scope until confirmed.
 4. **Controls with no home.** Timer length, the outer display toggle, captions, pause, and Copycat's Silhouette and Replay are not in these designs. Defaults assumed: 3 seconds, outer display on.
    Owner decision, 2026-11-15: the booth has a pose match (a match meter on the photographer's side, an automatic shutter switch in the More menu, and the match of the shot in review). Its three limits are provisional until the owner sets them on the phone.
+   Owner request, 2026-11-17: the clip of a customer pose plays over the camera picture. A tap on the pose picture opens the clip large; "Ghost" puts it over the live picture, partly transparent. Both start with a tap, so they play with Reduce Motion on. The ghost transparency (`PoseClipTuning.ghostOpacity`) is provisional, and the owner must still confirm the ghost itself on the phone.
 5. **Display sizes.** Mock frames are proportional stand-ins (inner 4:3, outer 3:4). Use real device metrics.
 
 ## Assets

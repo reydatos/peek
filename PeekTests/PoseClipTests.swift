@@ -77,4 +77,57 @@ struct PoseClipTests {
         // A file of a different kind stays.
         #expect(FileManager.default.fileExists(atPath: other.path))
     }
+
+    /// A booth at "ready" with a customer pack. The first pose has a clip, or not.
+    private func booth(hasClip: Bool) async -> BoothSessionModel {
+        let clip = hasClip ? URL(filePath: "/nowhere/clip.mov") : nil
+        let catalog = PoseCatalog(userPacks: [PosePack(id: "user-1", name: "Friday night", cues: [
+            PoseCue(id: "user-1-a", name: "One", still: still, clip: clip),
+            PoseCue(id: "user-1-b", name: "Two", still: still, clip: clip),
+        ])])
+        let model = BoothSessionModel(capture: FakeCapture(), packID: "user-1", catalog: catalog, saver: FakeSaver(), sleep: { _ in })
+        await model.startCamera()
+        return model
+    }
+
+    @Test func aTapOnThePosePictureOpensTheLargeClipAndASecondTapClosesIt() async {
+        let model = await booth(hasClip: true)
+        #expect(model.canPlayClip)
+        #expect(model.shownClipLook == .corner)
+        model.togglePoseClip()
+        #expect(model.shownClipLook == .large)
+        model.togglePoseClip()
+        #expect(model.shownClipLook == .corner)
+    }
+
+    @Test func aPoseWithNoClipHasNoClipOverThePicture() async {
+        let model = await booth(hasClip: false)
+        #expect(!model.canPlayClip)
+        model.togglePoseClip()
+        model.setClipLook(.ghost)
+        #expect(model.shownClipLook == .corner)
+    }
+
+    @Test func theLargeClipClosesWhenTheShotStarts() async {
+        let model = await booth(hasClip: true)
+        model.togglePoseClip()
+        model.send(.start)
+        #expect(model.state.phase != .ready)
+        #expect(model.clipLook == .corner)
+    }
+
+    @Test func theGhostHidesDuringTheShotAndStaysOnForTheNextPose() async {
+        let model = await booth(hasClip: true)
+        model.setClipLook(.ghost)
+        #expect(model.shownClipLook == .ghost)
+        model.send(.start)
+        // Out of live framing the ghost does not show, so it is not in the way of the countdown.
+        #expect(model.shownClipLook == .corner)
+        #expect(model.clipLook == .ghost)
+        // A tap on the pose picture closes the ghost.
+        model.send(.cancel)
+        #expect(model.shownClipLook == .ghost)
+        model.togglePoseClip()
+        #expect(model.shownClipLook == .corner)
+    }
 }
