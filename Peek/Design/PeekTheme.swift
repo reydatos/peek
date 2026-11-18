@@ -37,8 +37,6 @@ enum PeekTheme {
     static let paperBlack = fixed(0x000000)
     /// The bar of the full-screen camera on a tall display. It is black in the two modes.
     static let cameraChrome = fixed(0x000000)
-    /// The warm fill light for dark places. The value is the Night Out light of the Glam app.
-    static let glamLight = fixed(0xFFE8D1)
     /// The shade behind a white label on a photo.
     static let scrim = Color.black.opacity(0.6)
 

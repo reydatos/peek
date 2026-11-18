@@ -31,8 +31,7 @@ struct BoothView: View {
             // The poses button opens the pack cards at once. The booth has no pose tray (owner decision, 2026-11-15).
             showPoses: { posePicker = PosePickerRequest() }
         ))
-        // With the glam light, the page is the warm light.
-        .background(model.showsInnerGlamLight ? PeekTheme.glamLight : PeekTheme.page)
+        .background(PeekTheme.page)
         .toolbar(.hidden, for: .navigationBar)
         // The automatic shutter starts no shot while the pose library or the pack editor covers the booth.
         .onChange(of: posePicker != nil, initial: true) { _, isCovered in model.match.isBlocked = isCovered }
@@ -83,8 +82,6 @@ struct BoothView: View {
             }
         }
         .modifier(OuterDisplayAccessory(model: model))
-        // The inner display is the light for a selfie: full brightness, only while the app is in front.
-        .background(ScreenBrightness(isBright: model.showsInnerGlamLight && scenePhase == .active))
         .task {
             if resumesDraft {
                 await model.restoreDraft()
