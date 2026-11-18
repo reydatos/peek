@@ -10,9 +10,9 @@ enum ClipLook: Equatable {
     case ghost
 }
 
-/// The design values of the clip over the camera picture. They are provisional: the owner sets them on the phone.
+/// The design values of the clip over the camera picture.
 enum PoseClipTuning {
-    /// How solid the ghost is, from 0 to 1.
+    /// How solid the ghost is, from 0 to 1. The owner set this value on the phone (2026-11-17).
     static let ghostOpacity = 0.4
     /// The values that the DEBUG control steps through.
     static let ghostOpacityChoices = [0.25, 0.4, 0.55, 0.7]
@@ -23,6 +23,9 @@ enum PoseClipTuning {
 struct PoseGhost: View {
     let url: URL
     let opacity: Double
+
+    /// The shape of a pose clip: the width divided by the height.
+    static let clipAspect: CGFloat = 3.0 / 4.0
 
     var body: some View {
         PoseClipView(url: url)

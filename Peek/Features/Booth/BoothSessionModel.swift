@@ -198,6 +198,11 @@ final class BoothSessionModel {
     func setClipLook(_ look: ClipLook) {
         guard canPlayClip || look == .corner else { return }
         clipLook = look
+        // The ghost is over the live picture. The people in the photo must see that picture on the outer display,
+        // not the pose reference.
+        if look == .ghost, isOuterDisplayPresenting, state.subjectView != .live {
+            send(.showSubject(.live))
+        }
     }
 
     #if DEBUG

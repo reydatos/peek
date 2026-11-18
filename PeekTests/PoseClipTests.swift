@@ -130,4 +130,14 @@ struct PoseClipTests {
         model.togglePoseClip()
         #expect(model.shownClipLook == .corner)
     }
+
+    @Test func theGhostShowsTheLivePictureOnTheOuterDisplay() async {
+        let model = await booth(hasClip: true)
+        model.setOuterDisplayAvailable(true)
+        #expect(model.isOuterDisplayPresenting)
+        model.send(.showSubject(.reference))
+        model.setClipLook(.ghost)
+        // The people in the photo see the ghost over the live picture, not the pose reference.
+        #expect(model.state.subjectView == .live)
+    }
 }
