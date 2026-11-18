@@ -22,10 +22,10 @@ struct OuterFrameStage: View {
                     FramePreviewView(capture: model.capture, deviceID: model.deviceID, isMirrored: model.isOuterPreviewMirrored)
                         .accessibilityLabel(Text(.livePreview))
                     // The ghost: the clip of the pose over the live picture, so the people line up with it.
-                    // The clip is the upright center column of the camera picture, so it has that place here.
+                    // The complete clip shows inside the camera picture: an upright clip is its center column,
+                    // and a wide clip covers it.
                     if model.shownClipLook == .ghost, model.stillImage == nil, let url = model.currentCue?.clipURL {
-                        PoseGhost(url: url, opacity: model.ghostOpacity)
-                            .aspectRatio(PoseGhost.clipAspect, contentMode: .fit)
+                        PoseGhost(url: url, opacity: model.ghostOpacity, showsAll: true)
                     }
                     if let still = model.stillImage {
                         Image(uiImage: still)

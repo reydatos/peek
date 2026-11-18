@@ -4,9 +4,10 @@ import UIKit
 
 /// Records a short silent clip of a pose from the live frames, and gives the last frame as the still picture.
 ///
-/// The clip is upright and 3:4, as each pose picture is. The frames come as the camera gives them, so the
-/// recorder gets the rotation that makes them upright: it writes that rotation in the clip, and it turns the
-/// still picture. A frame that is not 3:4 after the rotation loses its sides or its top and bottom.
+/// The frames come as the camera gives them, so the recorder gets the rotation that makes them level: it writes
+/// that rotation in the clip, and it turns the still picture. A clip from an upright camera picture is upright
+/// and 3:4, as each pose picture is. A clip from a wide camera picture keeps its full width, 4:3. The still
+/// picture is always the upright 3:4 middle part.
 ///
 /// The clip has no sound, so the app needs no microphone access.
 final nonisolated class ClipRecorder: @unchecked Sendable {
@@ -29,7 +30,9 @@ final nonisolated class ClipRecorder: @unchecked Sendable {
 
     private let lock = NSLock()
     private let writer: AVAssetWriter?
-    private let input: AVAssetWriterInput
+    /// The app makes the input at the first frame, because the size of the clip comes from the shape of the frame.
+    private var input: AVAssetWriterInput?
+    private let codec: AVVideoCodecType
     private let duration: Double
     private let quarterTurns: Int
     private let isMirrored: Bool
@@ -54,27 +57,44 @@ final nonisolated class ClipRecorder: @unchecked Sendable {
         self.duration = duration
         self.completion = completion
         self.isMirrored = isMirrored
+        self.codec = codec
         quarterTurns = ((Int((rotationAngle / 90).rounded()) % 4) + 4) % 4
-        // The writer stores the frame as the camera gives it. With a quarter turn, the stored frame is wide,
-        // and the rotation in the clip makes it upright.
+        try? FileManager.default.removeItem(at: url)
+        writer = try? AVAssetWriter(outputURL: url, fileType: .mov)
+    }
+
+    /// The size that the writer stores for a frame of this size.
+    ///
+    /// The writer stores the frame as the camera gives it, and the rotation in the clip makes it level.
+    /// A frame that is upright when level gives the upright 3:4 clip. A frame that is wide when level keeps its
+    /// full width (owner decision, 2026-11-17): the outer display shows such a clip from edge to edge, and a
+    /// 3:4 view shows its middle part.
+    static func storedSize(frameWidth: Int, frameHeight: Int, quarterTurns: Int) -> (width: Int, height: Int) {
         let isSideways = quarterTurns % 2 == 1
-        input = AVAssetWriterInput(mediaType: .video, outputSettings: [
+        let isWideWhenLevel = isSideways ? frameHeight > frameWidth : frameWidth > frameHeight
+        // The stored frame is wide when exactly one of the two is true: the level picture is wide, or it has a quarter turn.
+        return isWideWhenLevel != isSideways ? (longSide, shortSide) : (shortSide, longSide)
+    }
+
+    /// Makes the input for the first frame. The caller holds the lock.
+    private func makeInput(for frame: CVPixelBuffer, in writer: AVAssetWriter) -> AVAssetWriterInput? {
+        let size = Self.storedSize(
+            frameWidth: CVPixelBufferGetWidth(frame),
+            frameHeight: CVPixelBufferGetHeight(frame),
+            quarterTurns: quarterTurns
+        )
+        let input = AVAssetWriterInput(mediaType: .video, outputSettings: [
             AVVideoCodecKey: codec,
-            AVVideoWidthKey: isSideways ? Self.longSide : Self.shortSide,
-            AVVideoHeightKey: isSideways ? Self.shortSide : Self.longSide,
+            AVVideoWidthKey: size.width,
+            AVVideoHeightKey: size.height,
             AVVideoScalingModeKey: AVVideoScalingModeResizeAspectFill,
             AVVideoCompressionPropertiesKey: [AVVideoAverageBitRateKey: Self.bitRate],
         ])
         input.expectsMediaDataInRealTime = true
         input.transform = Self.transform(quarterTurns: quarterTurns, isMirrored: isMirrored)
-        try? FileManager.default.removeItem(at: url)
-        let writer = try? AVAssetWriter(outputURL: url, fileType: .mov)
-        if let writer, writer.canAdd(input) {
-            writer.add(input)
-            self.writer = writer
-        } else {
-            self.writer = nil
-        }
+        guard writer.canAdd(input) else { return nil }
+        writer.add(input)
+        return input
     }
 
     /// Takes one live frame. Call this on one queue, in the order of the frames.
@@ -89,14 +109,15 @@ final nonisolated class ClipRecorder: @unchecked Sendable {
             return
         }
         if start == nil {
-            guard writer.startWriting() else {
+            input = makeInput(for: frame, in: writer)
+            guard input != nil, writer.startWriting() else {
                 finish(.failure(Failure.writer))
                 return
             }
             writer.startSession(atSourceTime: time)
             start = time
         }
-        guard let start else { return }
+        guard let start, let input else { return }
         if CMTimeGetSeconds(CMTimeSubtract(time, start)) >= duration {
             isDone = true
             input.markAsFinished()

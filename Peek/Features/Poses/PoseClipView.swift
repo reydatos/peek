@@ -24,12 +24,15 @@ final nonisolated class ClipLoop: @unchecked Sendable {
 /// The caller puts the still picture below it, so the frame is never empty while the clip loads.
 struct PoseClipView: UIViewRepresentable {
     let url: URL
+    /// True shows the complete clip inside the frame. False, the standard, covers the frame.
+    var showsAll = false
 
     func makeUIView(context _: Context) -> ClipUIView {
         ClipUIView()
     }
 
     func updateUIView(_ view: ClipUIView, context _: Context) {
+        view.showsAll = showsAll
         view.show(url)
     }
 
@@ -68,6 +71,10 @@ final class ClipUIView: UIView {
         AVPlayerLayer.self
     }
 
+    var showsAll = false {
+        didSet { playerLayer?.videoGravity = showsAll ? .resizeAspect : .resizeAspectFill }
+    }
+
     private var url: URL?
     private var loop: ClipLoop?
     private var activeObserver: (any NSObjectProtocol)?
@@ -80,7 +87,7 @@ final class ClipUIView: UIView {
         guard self.url != url else { return }
         stop()
         self.url = url
-        playerLayer?.videoGravity = .resizeAspectFill
+        playerLayer?.videoGravity = showsAll ? .resizeAspect : .resizeAspectFill
         isUserInteractionEnabled = false
         Task {
             let loop = await Task.detached { ClipLoop(url: url) }.value
@@ -121,5 +128,28 @@ final class ClipUIView: UIView {
         } else {
             loop?.player.play()
         }
+    }
+}
+
+/// The shape of pose clips: the width of the level picture divided by its height.
+/// A clip from a wide camera picture is 4:3. A clip from an upright camera picture is 3:4.
+enum ClipShape {
+    private static var known: [URL: CGFloat] = [:]
+
+    /// Nil when the file is not a video that the system can read.
+    static func aspect(of url: URL) async -> CGFloat? {
+        if let aspect = known[url] {
+            return aspect
+        }
+        let aspect = await Task.detached { () -> CGFloat? in
+            guard
+                let track = try? await AVURLAsset(url: url).loadTracks(withMediaType: .video).first,
+                let (size, transform) = try? await track.load(.naturalSize, .preferredTransform)
+            else { return nil }
+            let shown = CGRect(origin: .zero, size: size).applying(transform)
+            return shown.height > 0 ? abs(shown.width) / abs(shown.height) : nil
+        }.value
+        known[url] = aspect
+        return aspect
     }
 }

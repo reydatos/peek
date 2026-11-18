@@ -128,26 +128,42 @@ nonisolated enum DuetVideo {
         writer.add(input)
         guard reader.startReading(), writer.startWriting() else { throw Failure.export }
         writer.startSession(atSourceTime: .zero)
-        while let sample = output.copyNextSampleBuffer() {
-            try Task.checkCancellation()
-            guard let frame = CMSampleBufferGetImageBuffer(sample) else { continue }
-            let time = CMSampleBufferGetPresentationTimeStamp(sample)
-            if let cover = covers.first(where: { $0.range.containsTime(time) }) ?? covers.last {
-                draw(cover.image, on: frame)
+        // The reader and the writer wait for the system, so they have their own queue and no shared worker thread.
+        nonisolated(unsafe) let job = (reader: reader, writer: writer, output: output, input: input, adaptor: adaptor)
+        let isComplete: Bool = await withCheckedContinuation { continuation in
+            nonisolated(unsafe) var isDone = false
+            job.input.requestMediaDataWhenReady(on: DispatchQueue(label: "com.a8media.peek.duet")) {
+                guard !isDone else { return }
+                while job.input.isReadyForMoreMediaData {
+                    guard let sample = job.output.copyNextSampleBuffer() else {
+                        isDone = true
+                        job.input.markAsFinished()
+                        guard job.reader.status == .completed else {
+                            job.writer.cancelWriting()
+                            continuation.resume(returning: false)
+                            return
+                        }
+                        job.writer.finishWriting {
+                            continuation.resume(returning: job.writer.status == .completed)
+                        }
+                        return
+                    }
+                    guard let frame = CMSampleBufferGetImageBuffer(sample) else { continue }
+                    let time = CMSampleBufferGetPresentationTimeStamp(sample)
+                    if let cover = covers.first(where: { $0.range.containsTime(time) }) ?? covers.last {
+                        draw(cover.image, on: frame)
+                    }
+                    guard job.adaptor.append(frame, withPresentationTime: time) else {
+                        isDone = true
+                        job.reader.cancelReading()
+                        job.writer.cancelWriting()
+                        continuation.resume(returning: false)
+                        return
+                    }
+                }
             }
-            while !input.isReadyForMoreMediaData {
-                guard writer.status == .writing else { throw Failure.export }
-                try await Task.sleep(for: .milliseconds(5))
-            }
-            guard adaptor.append(frame, withPresentationTime: time) else { throw Failure.export }
         }
-        guard reader.status == .completed else {
-            writer.cancelWriting()
-            throw Failure.export
-        }
-        input.markAsFinished()
-        await writer.finishWriting()
-        guard writer.status == .completed else { throw Failure.export }
+        guard isComplete else { throw Failure.export }
     }
 
     /// The average bit rate of the video, in bits per second. This is a design value.
