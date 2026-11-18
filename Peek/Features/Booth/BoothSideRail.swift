@@ -131,6 +131,7 @@ struct BoothSideRail: View {
             }
             .buttonStyle(PeekRailButtonStyle())
         }
+        ChallengeShareButton(model: model, style: PeekRailButtonStyle())
         Button { Task { await model.saveShots() } } label: {
             Label(.saveShots, systemImage: "photo.on.rectangle")
         }

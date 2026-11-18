@@ -118,4 +118,17 @@ import UIKit
         #expect(file.name.count <= PackFile.maximumNameLength)
         #expect(file.poses[0].name.count == PackFile.maximumNameLength)
     }
+
+    @Test func aChallengeHasTheStripAndThePackFileInOneFolder() async throws {
+        let packs = packs()
+        let id = try #require(try await packs.save(draft()))
+        let files = try #require(await packs.challengeFiles(strip: FakeCapture.photoData, packID: id))
+        #expect(files.map(\.pathExtension) == ["jpg", "peekpack"])
+        #expect(Set(files.map { $0.deletingLastPathComponent() }).count == 1)
+        // The app removes this folder at the next start, if the share sheet did not.
+        #expect(files[0].deletingLastPathComponent().lastPathComponent.hasPrefix("Share-"))
+        #expect(try Data(contentsOf: files[0]) == FakeCapture.photoData)
+        // A built-in pack has no pack file, so it has no challenge.
+        #expect(await packs.challengeFiles(strip: FakeCapture.photoData, packID: PoseLibrary.classicID) == nil)
+    }
 }

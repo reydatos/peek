@@ -42,6 +42,21 @@ final class BoothSessionModel {
         }
     }
 
+    /// True when the finished picture has the match score in its footer. The photographer sets this.
+    var showsMatchStamp = false {
+        didSet {
+            if showsMatchStamp != oldValue {
+                redrawStrip()
+            }
+        }
+    }
+
+    /// The match of the finished set to its poses, in percent: the mean of the shots whose pose picture has a
+    /// person. A shot with no person counts as 0. Nil while the app calculates it, and for a set with no such pose.
+    /// It is in memory only: a draft that comes back gets a new calculation.
+    private(set) var matchPercent: Int?
+    private(set) var scoreTask: Task<Int?, Never>?
+
     private func redrawStrip() {
         stripTask?.cancel()
         stripTask = nil
@@ -518,10 +533,19 @@ final class BoothSessionModel {
     /// Makes the strip when the last shot is accepted. Drops it when a retake reopens the session.
     private func updateStrip() {
         if isComplete {
+            if scoreTask == nil {
+                startScore()
+            }
             guard strip == nil, stripTask == nil else { return }
             let shots = state.slots.compactMap { image(for: $0) }
-            stripTask = Task { [layout, frame] in
-                let picture = await StripRenderer.renderInBackground(shots, layout: layout, style: .paper(frame))
+            stripTask = Task { [layout, frame, showsMatchStamp, scoreTask] in
+                // A picture with the stamp waits for the score, so no save gets a picture without it.
+                var stamp: String?
+                if showsMatchStamp, let percent = await scoreTask?.value {
+                    stamp = Self.stampText(percent: percent)
+                }
+                guard !Task.isCancelled else { return }
+                let picture = await StripRenderer.renderInBackground(shots, layout: layout, style: .paper(frame), stamp: stamp)
                 // A retake, a new layout, or a new set cancels this draw.
                 guard !Task.isCancelled else { return }
                 strip = picture
@@ -530,11 +554,49 @@ final class BoothSessionModel {
         } else {
             stripTask?.cancel()
             stripTask = nil
+            scoreTask?.cancel()
+            scoreTask = nil
+            matchPercent = nil
             if strip != nil {
                 strip = nil
                 saveStatus = .idle
             }
         }
+    }
+
+    /// Calculates the match of each accepted shot to its pose, one time for a finished set.
+    private func startScore() {
+        let pairs = state.slots.compactMap { slot -> (UIImage, PoseCue)? in
+            guard let shot = image(for: slot), let cue = catalog.cue(for: slot.cueID) else { return nil }
+            return (shot, cue)
+        }
+        scoreTask = Task { [match] in
+            var scores: [Double] = []
+            for (shot, cue) in pairs {
+                if let score = await match.finalScore(of: shot, cue: cue) {
+                    scores.append(score)
+                }
+            }
+            guard !Task.isCancelled, !scores.isEmpty else { return nil }
+            let percent = Int((scores.reduce(0, +) / Double(scores.count) * 100).rounded())
+            matchPercent = percent
+            return percent
+        }
+    }
+
+    /// The stamp of the finished picture now: nil with the switch off, or while the score is not known.
+    var stripStamp: String? {
+        guard showsMatchStamp, let matchPercent else { return nil }
+        return Self.stampText(percent: matchPercent)
+    }
+
+    /// The words of the stamp, for example "92% match".
+    static func stampText(percent: Int) -> String {
+        String(localized: .matchStamp(percentText(percent)))
+    }
+
+    static func percentText(_ percent: Int) -> String {
+        (Double(percent) / 100).formatted(.percent)
     }
 
     /// Saves the strip to Photos. The system asks for add-only access the first time.

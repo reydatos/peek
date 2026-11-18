@@ -210,6 +210,50 @@
         }
       }
     },
+    "challengeMessage" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Here is my PEEK pose pack. Can you copy my poses?"
+          }
+        }
+      }
+    },
+    "challengeMessageScore" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "I got %@ on my PEEK pose pack. Can you beat my score?"
+          }
+        }
+      }
+    },
+    "challengeNote" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This sends two files: your strip, and your pose pack. The pack has pictures and video of the people in it. The person who gets the files gets a copy. They can keep them and send them to other people."
+          }
+        }
+      }
+    },
+    "challengeTitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Challenge a friend"
+          }
+        }
+      }
+    },
     "classic" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1167,6 +1211,28 @@
         }
       }
     },
+    "matchStamp" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ match"
+          }
+        }
+      }
+    },
+    "matchStampToggle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Show match score"
+          }
+        }
+      }
+    },
     "mirrorOuterPreview" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1889,6 +1955,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Selected"
+          }
+        }
+      }
+    },
+    "shareChallenge" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Share strip and pack"
           }
         }
       }

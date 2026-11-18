@@ -144,6 +144,22 @@ final class UserPacks {
         }.value
     }
 
+    /// Writes the two files of a challenge: the finished picture and the pack file, in one temporary folder.
+    /// The caller removes the folder after the share. Nil when the pack is not in storage or a write fails.
+    func challengeFiles(strip: Data, packID: String) async -> [URL]? {
+        guard let pack = await exportFile(packID: packID) else { return nil }
+        return await Task.detached {
+            let picture = pack.deletingLastPathComponent().appending(path: "PEEK strip.jpg")
+            do {
+                try strip.write(to: picture, options: .atomic)
+                return [picture, pack]
+            } catch {
+                try? FileManager.default.removeItem(at: pack.deletingLastPathComponent())
+                return nil
+            }
+        }.value
+    }
+
     /// Reads a pack file that came from a different phone. The file is not trusted.
     /// Nil when the file is too large, is not a pack file, is damaged, or has media that the app does not accept.
     func readPackFile(at url: URL) async -> PackFile? {

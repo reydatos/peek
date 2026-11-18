@@ -10,6 +10,7 @@ struct FinishedControls: View {
             SaveStatusLabel(status: model.saveStatus)
             LayoutPicker(model: model)
             FramePicker(model: model)
+            MatchStampToggle(model: model)
             Button { Task { await model.saveStrip() } } label: {
                 Label(.saveStrip, systemImage: "square.and.arrow.down")
             }
@@ -23,6 +24,7 @@ struct FinishedControls: View {
                 }
                 .buttonStyle(PeekSecondaryButtonStyle())
             }
+            ChallengeShareButton(model: model, style: PeekSecondaryButtonStyle())
             Button { Task { await model.saveShots() } } label: { Text(.saveShots) }
                 .buttonStyle(PeekSecondaryButtonStyle())
             // A new set discards the shots, so the photographer confirms first.

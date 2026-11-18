@@ -164,4 +164,70 @@ struct FinishedStripTests {
         }
         return pixel
     }
+
+    /// A booth with four accepted shots, where the detector gives this body shape for each picture.
+    private func scoredModel(_ signature: PoseSignature?) async -> BoothSessionModel {
+        let model = BoothSessionModel(capture: FakeCapture(), saver: FakeSaver(), analyzePose: { _ in signature }, sleep: { _ in })
+        await model.startCamera()
+        for _ in 0 ..< 4 {
+            model.send(.start)
+            await model.countdownTask?.value
+            await model.captureTask?.value
+            model.send(.accept)
+        }
+        await model.stripTask?.value
+        _ = await model.scoreTask?.value
+        return model
+    }
+
+    private nonisolated static let person = PoseSignature(bodies: [PoseSignature.Body(joints: [
+        .neck: PosePoint(x: 0, y: 0.72), .root: PosePoint(x: 0, y: 0.4),
+        .leftShoulder: PosePoint(x: -0.1, y: 0.7), .rightShoulder: PosePoint(x: 0.1, y: 0.7),
+        .leftElbow: PosePoint(x: -0.1, y: 0.55), .leftWrist: PosePoint(x: -0.1, y: 0.4),
+        .rightElbow: PosePoint(x: 0.1, y: 0.55), .rightWrist: PosePoint(x: 0.1, y: 0.4),
+    ])])
+
+    @Test func aFinishedSetHasItsMatchScore() async {
+        let model = await scoredModel(Self.person)
+        // The shots and the pose pictures have the same body shape.
+        #expect(model.matchPercent == 100)
+        #expect(BoothSessionModel.stampText(percent: 92).contains("92"))
+    }
+
+    @Test func aSetWithNoPersonInItsPosePicturesHasNoScore() async {
+        let model = await scoredModel(nil)
+        #expect(model.matchPercent == nil)
+    }
+
+    @Test func theStampSwitchDrawsThePictureAgainAtTheSameSize() async throws {
+        let model = await scoredModel(Self.person)
+        let plain = try #require(model.strip)
+        model.showsMatchStamp = true
+        #expect(model.strip == nil)
+        await model.stripTask?.value
+        let stamped = try #require(model.strip)
+        #expect(stamped.size == plain.size)
+        #expect(stamped.pngData() != plain.pngData())
+    }
+
+    @Test func aRetakeAfterTheLastShotDropsTheScore() async {
+        let model = await scoredModel(Self.person)
+        model.send(.retake(model.state.slots[0].id))
+        #expect(model.matchPercent == nil)
+        #expect(model.scoreTask == nil)
+    }
+
+    @Test func theStampIsInTheFooterOnly() throws {
+        let shots = [UIImage(), UIImage()]
+        let date = Date(timeIntervalSince1970: 0)
+        let plain = StripRenderer.render(shots, date: date)
+        let stamped = StripRenderer.render(shots, date: date, stamp: "92% match")
+        #expect(stamped.size == plain.size)
+        #expect(stamped.pngData() != plain.pngData())
+        // The part above the footer is the same.
+        let top = CGRect(x: 0, y: 0, width: plain.size.width, height: plain.size.height - StripRenderer.footer)
+        let plainTop = try #require(plain.cgImage?.cropping(to: top))
+        let stampedTop = try #require(stamped.cgImage?.cropping(to: top))
+        #expect(UIImage(cgImage: plainTop).pngData() == UIImage(cgImage: stampedTop).pngData())
+    }
 }

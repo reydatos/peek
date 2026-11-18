@@ -113,11 +113,30 @@ final class PoseMatch {
         syncReview(image: reviewImage)
     }
 
+    /// The match of a finished shot to its pose, from 0 to 1. Nil when the pose picture has no person that the
+    /// detector finds, so the pose has no score. A shot with no person in it scores 0.
+    func finalScore(of shot: UIImage, cue: PoseCue) async -> Double? {
+        var reference: PoseSignature?
+        if let known = references[cue.id] {
+            reference = known
+        } else if let picture = cue.picture {
+            reference = await Self.reference(in: analyze(picture))
+            references[cue.id] = .some(reference)
+        }
+        guard let reference else { return nil }
+        let signature = await analyze(shot)
+        return signature.flatMap { PoseMatcher.score(reference: reference, live: $0) } ?? 0
+    }
+
+    /// The body shape of a pose picture, or nil when it has no person.
+    private static func reference(in signature: PoseSignature?) -> PoseSignature? {
+        signature.flatMap { $0.bodies.contains { !$0.joints.isEmpty } ? $0 : nil }
+    }
+
     /// Finds the body shape of a pose picture, one time for each pose.
     private func examine(_ picture: UIImage, of id: String) {
         enqueue { [analyze] in
-            let signature = await analyze(picture)
-            let found = signature.flatMap { $0.bodies.contains { !$0.joints.isEmpty } ? $0 : nil }
+            let found = await Self.reference(in: analyze(picture))
             self.references[id] = .some(found)
             if self.cueID == id {
                 self.reference = found
