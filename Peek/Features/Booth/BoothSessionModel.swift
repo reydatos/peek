@@ -56,6 +56,8 @@ final class BoothSessionModel {
     /// It is in memory only: a draft that comes back gets a new calculation.
     private(set) var matchPercent: Int?
     private(set) var scoreTask: Task<Int?, Never>?
+    /// The match of each shot of the finished set, in percent, by the pose of the shot.
+    private(set) var shotPercents: [String: Int] = [:]
 
     private func redrawStrip() {
         stripTask?.cancel()
@@ -642,6 +644,7 @@ final class BoothSessionModel {
             scoreTask?.cancel()
             scoreTask = nil
             matchPercent = nil
+            shotPercents = [:]
             if strip != nil {
                 strip = nil
                 saveStatus = .idle
@@ -657,12 +660,15 @@ final class BoothSessionModel {
         }
         scoreTask = Task { [match] in
             var scores: [Double] = []
+            var byCue: [String: Int] = [:]
             for (shot, cue) in pairs {
                 if let score = await match.finalScore(of: shot, cue: cue) {
                     scores.append(score)
+                    byCue[cue.id] = Int((score * 100).rounded())
                 }
             }
             guard !Task.isCancelled, !scores.isEmpty else { return nil }
+            shotPercents = byCue
             let percent = Int((scores.reduce(0, +) / Double(scores.count) * 100).rounded())
             matchPercent = percent
             return percent
@@ -705,6 +711,41 @@ final class BoothSessionModel {
             if isComplete {
                 deleteDraft()
             }
+        } catch PhotoSaveError.denied {
+            saveStatus = .denied
+        } catch {
+            saveStatus = .failed
+        }
+    }
+
+    /// The poses of the finished set that have the two clips of a duet: the clip of the pose and the clip of the people.
+    var duetSegments: [DuetVideo.Segment] {
+        guard isComplete else { return [] }
+        return state.slots.enumerated().compactMap { index, slot in
+            guard let pose = catalog.cue(for: slot.cueID)?.clipURL, let attempt = attemptClip(for: slot) else { return nil }
+            var label = String(localized: .poseNumber(index + 1))
+            // The video shows the score only when the picture shows it.
+            if showsMatchStamp, let percent = shotPercents[slot.cueID] {
+                label += " · " + Self.stampText(percent: percent)
+            }
+            return DuetVideo.Segment(pose: pose, attempt: attempt, label: label)
+        }
+    }
+
+    /// Makes the duet video and saves it to Photos. The copy in the temporary folder is removed after the save.
+    func saveDuet() async {
+        let segments = duetSegments
+        guard !segments.isEmpty, saveStatus != .saving else { return }
+        saveStatus = .saving
+        // The app removes a "Share-" folder at its next start, if this function does not get to the end.
+        let folder = FileManager.default.temporaryDirectory.appending(path: "Share-\(UUID().uuidString)")
+        defer { try? FileManager.default.removeItem(at: folder) }
+        do {
+            try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+            let url = folder.appending(path: "PEEK duet.mp4")
+            try await DuetVideo.make(segments, to: url, style: .paper)
+            try await saver.saveVideo(at: url)
+            saveStatus = .saved
         } catch PhotoSaveError.denied {
             saveStatus = .denied
         } catch {

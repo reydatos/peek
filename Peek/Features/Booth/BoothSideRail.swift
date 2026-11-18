@@ -132,6 +132,12 @@ struct BoothSideRail: View {
             .buttonStyle(PeekRailButtonStyle())
         }
         ChallengeShareButton(model: model, style: PeekRailButtonStyle())
+        if !model.duetSegments.isEmpty {
+            Button { Task { await model.saveDuet() } } label: {
+                Label(.saveDuet, systemImage: "rectangle.split.1x2")
+            }
+            .buttonStyle(PeekRailButtonStyle())
+        }
         Button { Task { await model.saveShots() } } label: {
             Label(.saveShots, systemImage: "photo.on.rectangle")
         }

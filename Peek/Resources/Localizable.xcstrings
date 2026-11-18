@@ -1871,6 +1871,17 @@
         }
       }
     },
+    "saveDuet" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Save duet video"
+          }
+        }
+      }
+    },
     "saveFailed" : {
       "extractionState" : "manual",
       "localizations" : {

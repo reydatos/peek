@@ -116,4 +116,36 @@ struct DuetTests {
         #expect(exists(second))
         #expect(second != first)
     }
+
+    @Test func aFinishedSetHasADuetOnlyForThePosesWithTheTwoClips() async {
+        let model = await booth()
+        await shoot(model)
+        model.send(.accept)
+        #expect(model.duetSegments.isEmpty, "the set is not finished")
+        // The second shot has no clip of the people.
+        model.isDuetOn = false
+        await shoot(model)
+        model.send(.accept)
+        #expect(model.isComplete)
+        #expect(model.duetSegments.count == 1)
+        #expect(model.duetSegments[0].label.contains("1"))
+    }
+
+    @Test func aDuetThatTheAppCanNotMakeGivesAFaultAndSavesNothing() async {
+        let saver = FakeSaver()
+        let still = URL(filePath: "/nowhere/still.jpg")
+        let catalog = PoseCatalog(userPacks: [PosePack(id: "user-1", name: "Friday night", cues: [
+            PoseCue(id: "user-1-a", name: "One", still: still, clip: URL(filePath: "/nowhere/clip.mov")),
+        ])])
+        let model = BoothSessionModel(capture: capture, packID: "user-1", catalog: catalog, saver: saver, sleep: { _ in })
+        await model.startCamera()
+        model.isDuetOn = true
+        await shoot(model)
+        model.send(.accept)
+        #expect(model.duetSegments.count == 1)
+        // The clips of this test are not video.
+        await model.saveDuet()
+        #expect(model.saveStatus == .failed)
+        #expect(await saver.savedVideos.isEmpty)
+    }
 }

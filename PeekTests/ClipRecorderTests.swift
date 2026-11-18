@@ -6,13 +6,13 @@ import UIKit
 
 struct ClipRecorderTests {
     /// One camera frame with a plain color, at a time on the capture clock.
-    func frame(width: Int, height: Int, at seconds: Double) throws -> CMSampleBuffer {
+    func frame(width: Int, height: Int, at seconds: Double, fill: UInt8 = 0x80) throws -> CMSampleBuffer {
         var pixels: CVPixelBuffer?
         let attributes = [kCVPixelBufferIOSurfacePropertiesKey: [:] as CFDictionary] as CFDictionary
         CVPixelBufferCreate(nil, width, height, kCVPixelFormatType_32BGRA, attributes, &pixels)
         let buffer = try #require(pixels)
         CVPixelBufferLockBaseAddress(buffer, [])
-        memset(CVPixelBufferGetBaseAddress(buffer), 0x80, CVPixelBufferGetDataSize(buffer))
+        memset(CVPixelBufferGetBaseAddress(buffer), Int32(fill), CVPixelBufferGetDataSize(buffer))
         CVPixelBufferUnlockBaseAddress(buffer, [])
         var format: CMVideoFormatDescription?
         CMVideoFormatDescriptionCreateForImageBuffer(allocator: nil, imageBuffer: buffer, formatDescriptionOut: &format)
@@ -33,8 +33,8 @@ struct ClipRecorderTests {
     }
 
     /// Feeds frames at 30 a second until the recorder ends, and gives the still picture.
-    func record(to url: URL, rotationAngle: CGFloat, duration: Double, width: Int, height: Int) async throws -> Data {
-        let frames = try (0 ... Int(duration * 30) + 5).map { try frame(width: width, height: height, at: Double($0) / 30) }
+    func record(to url: URL, rotationAngle: CGFloat, duration: Double, width: Int, height: Int, fill: UInt8 = 0x80) async throws -> Data {
+        let frames = try (0 ... Int(duration * 30) + 5).map { try frame(width: width, height: height, at: Double($0) / 30, fill: fill) }
         nonisolated(unsafe) let unsafeFrames = frames
         return try await withCheckedThrowingContinuation { continuation in
             // H.264 is the codec here: the simulator has no HEVC encoder on each host.
