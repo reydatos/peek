@@ -25,7 +25,14 @@ public struct BoothReducer: Sendable {
             return []
 
         case let (.ready, .swapCue(cueID)):
-            state.slots[state.currentSlotID.index].cueID = cueID
+            // A pose shows one time in a session. The open slot that has the pose gets the old pose of the
+            // current slot. An accepted shot keeps its pose, so the current slot does not take a copy of it.
+            let current = state.currentSlotID.index
+            if let other = state.slots.indices.first(where: { $0 != current && state.slots[$0].cueID == cueID }) {
+                guard state.slots[other].acceptedTake == nil else { return [] }
+                state.slots[other].cueID = state.slots[current].cueID
+            }
+            state.slots[current].cueID = cueID
             state.subjectView = .reference
             return []
 

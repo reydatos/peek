@@ -85,6 +85,42 @@ struct BoothSessionModelTests {
         #expect(model.currentCue?.id == ids[0])
     }
 
+    @Test func thePoseArrowsShowOnlyWhileTheBoothWaitsAndAnotherPoseIsOpen() async {
+        let model = BoothSessionModel(capture: FakeCapture(), sleep: { _ in })
+        await model.startCamera()
+        #expect(model.canStepPose)
+
+        model.send(.start)
+        #expect(!model.canStepPose)
+        await settle(model)
+        model.send(.accept)
+        for _ in 0 ..< 2 {
+            model.send(.start)
+            await settle(model)
+            model.send(.accept)
+        }
+
+        // The last shot: each other pose has an accepted shot, so there is no pose to change to.
+        #expect(model.state.currentSlotID == SlotID(3))
+        #expect(model.steppablePoseIDs == [model.packCues[3].id])
+        #expect(!model.canStepPose)
+    }
+
+    @Test func stepPoseSkipsThePoseOfAnAcceptedShotAndRepeatsNoPose() async {
+        let model = BoothSessionModel(capture: FakeCapture(), sleep: { _ in })
+        await model.startCamera()
+        let ids = model.packCues.map(\.id)
+        model.send(.start)
+        await settle(model)
+        model.send(.accept)
+        #expect(model.currentCue?.id == ids[1])
+
+        // Back from the second pose: the first pose has an accepted shot, so the step wraps to the last pose.
+        model.stepPose(by: -1)
+        #expect(model.currentCue?.id == ids.last)
+        #expect(model.state.slots.map(\.cueID) == [ids[0], ids[3], ids[2], ids[1]])
+    }
+
     @Test func deniedCameraKeepsTheSessionInSetup() async {
         let model = BoothSessionModel(capture: FakeCapture(startError: .permissionDenied), sleep: { _ in })
         await model.startCamera()

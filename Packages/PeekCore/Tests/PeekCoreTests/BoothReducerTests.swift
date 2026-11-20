@@ -125,6 +125,25 @@ struct BoothReducerTests {
         #expect(state.slots.map(\.cueID) == ["z", "b", "c", "d"])
     }
 
+    @Test func swapCueTradesPosesWithTheOpenSlotThatHasThePose() {
+        // A pose shows one time in a session: the slot that had the pose gets the old pose of the current slot.
+        var state = readyState()
+        _ = reducer.reduce(&state, .swapCue("c"))
+        #expect(state.slots.map(\.cueID) == ["c", "b", "a", "d"])
+        #expect(state.currentSlotID == SlotID(0))
+    }
+
+    @Test func swapCueToThePoseOfAnAcceptedShotIsIgnored() throws {
+        // An accepted shot keeps its pose, and the current slot does not take a copy of it.
+        var state = readyState()
+        try shoot(&state)
+        _ = reducer.reduce(&state, .accept)
+        #expect(state.currentSlotID == SlotID(1))
+
+        _ = reducer.reduce(&state, .swapCue("a"))
+        #expect(state.slots.map(\.cueID) == ["a", "b", "c", "d"])
+    }
+
     @Test func assignedPosesGoToTheOpenSlotsInOrder() throws {
         var state = readyState()
         try shoot(&state)

@@ -40,13 +40,16 @@ struct BoothSideRail: View {
                 // The pose name shows one time, on the cue line below the photo (owner decision, 2026-11-15).
                 // The move shows only before the shot. The countdown and the capture then have the full power of the phone.
                 // While the clip plays over the camera picture, the rail shows the still: one player is enough.
-                PoseClipButton(model: model) {
-                    PoseReferenceFrame(
-                        cue: cue,
-                        accent: model.accent,
-                        showsMove: model.state.phase == .ready && model.shownClipLook == .corner
-                    )
-                    .frame(height: thumbnailHeight)
+                // The arrows beside the picture change the pose. With large text, the picture is smaller so they fit.
+                PoseStepper(model: model) {
+                    PoseClipButton(model: model) {
+                        PoseReferenceFrame(
+                            cue: cue,
+                            accent: model.accent,
+                            showsMove: model.state.phase == .ready && model.shownClipLook == .corner
+                        )
+                        .frame(maxHeight: thumbnailHeight)
+                    }
                 }
                 if model.match.canMatch, let score = model.match.meterScore {
                     MatchMeter(score: score)
