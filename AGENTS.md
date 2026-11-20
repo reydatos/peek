@@ -4,21 +4,23 @@ PEEK: Photo Booth is a pure iOS app (SwiftUI) for iPhone and iPhone Duo. The glo
 
 ## Commands
 
-All commands run from the repo root. Each one was run and verified on 2026-11-11 with Xcode 27.2.
+All commands run from the repo root. Each one was run and verified on 2026-11-20 with Xcode 27.2, xcodegen 2.48.0, and swiftformat 0.64.7. The iOS 27.0 command was last verified on 2026-11-11.
+
+Install the tools one time: `brew install xcodegen swiftformat`.
 
 | Task | Command |
 |---|---|
 | Generate the Xcode project | `xcodegen generate` |
 | Fast engine tests (host, no simulator) | `swift test --package-path Packages/PeekCore` |
-| All tests, Duo simulator | `xcodebuild test -scheme Peek -destination 'platform=iOS Simulator,name=PEEK Duo 27.1' -derivedDataPath DerivedData` |
+| All tests, Duo simulator | `xcodebuild test -scheme Peek -destination 'platform=iOS Simulator,name=PEEK Duo 27.2' -derivedDataPath DerivedData` |
 | All tests, iOS 27.0 | `xcodebuild test -scheme Peek -destination 'platform=iOS Simulator,name=PEEK 17 27.0' -derivedDataPath DerivedData` |
 | Format | `swiftformat .` |
 | Lint | `swiftformat --lint .` |
 
-Create the simulators one time:
+Create the simulators one time. The Duo needs the Duo runtime (`iOS-27-2-iPhone19-4`); the plain `iOS-27-2` runtime refuses it. The iOS 27.0 simulator needs the iOS 27.0 runtime: add it in Xcode > Settings > Components. Check the installed runtimes with `xcrun simctl list runtimes`.
 
 ```sh
-xcrun simctl create "PEEK Duo 27.1" com.apple.CoreSimulator.SimDeviceType.iPhone-Duo com.apple.CoreSimulator.SimRuntime.iOS-27-1
+xcrun simctl create "PEEK Duo 27.2" com.apple.CoreSimulator.SimDeviceType.iPhone-Duo com.apple.CoreSimulator.SimRuntime.iOS-27-2-iPhone19-4
 xcrun simctl create "PEEK 17 27.0" com.apple.CoreSimulator.SimDeviceType.iPhone-17 com.apple.CoreSimulator.SimRuntime.iOS-27-0
 ```
 

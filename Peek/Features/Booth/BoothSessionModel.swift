@@ -408,8 +408,7 @@ final class BoothSessionModel {
     /// Changes the zoom. The booth accepts this only while it waits for a shot.
     /// When the change fails, the booth keeps the zoom it has.
     func setZoom(_ factor: Double) async {
-        guard cameraStatus == .running, state.phase == .ready, zoomFactors.contains(factor) else { return }
-        guard await (try? capture.setZoom(factor)) != nil else { return }
+        guard cameraStatus == .running, state.phase == .ready, zoomFactors.contains(factor), await (try? capture.setZoom(factor)) != nil else { return }
         zoom = factor
     }
 

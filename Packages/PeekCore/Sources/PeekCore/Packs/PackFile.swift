@@ -87,8 +87,7 @@ public struct PackFile: Equatable, Sendable {
         guard data.count >= header + 4, data.prefix(header) == Self.magic else { throw Failure.notAPack }
         let length = data[base + header ..< base + header + 4].reduce(0) { $0 << 8 | Int($1) }
         let start = base + header + 4
-        guard length > 0, length <= Self.maximumManifestBytes, end - start >= length else { throw Failure.damaged }
-        guard let manifest = try? JSONDecoder().decode(Manifest.self, from: data[start ..< start + length]) else {
+        guard length > 0, length <= Self.maximumManifestBytes, end - start >= length, let manifest = try? JSONDecoder().decode(Manifest.self, from: data[start ..< start + length]) else {
             throw Failure.damaged
         }
         try Self.check(name: manifest.name, poseNames: manifest.poses.map(\.name), poseCount: manifest.poses.count)
