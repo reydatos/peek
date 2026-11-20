@@ -180,9 +180,22 @@ final class BoothSessionModel {
         send(.swapCue(cueID))
     }
 
+    /// The poses of the pack that the current shot can change to, in pack order. The pose of an accepted shot is
+    /// not one of them: the reducer does not give a pose to two shots.
+    var steppablePoseIDs: [String] {
+        let current = state.currentSlotID
+        let taken = Set(state.slots.filter { $0.id != current && $0.acceptedTake != nil }.map(\.cueID))
+        return packCues.map(\.id).filter { !taken.contains($0) }
+    }
+
+    /// True when the booth waits for a shot and the current shot has a different pose to change to.
+    var canStepPose: Bool {
+        state.phase == .ready && steppablePoseIDs.count > 1
+    }
+
     /// Changes the pose of the current shot to the next or the previous pose of the pack. It wraps at the ends.
     func stepPose(by offset: Int) {
-        let ids = packCues.map(\.id)
+        let ids = steppablePoseIDs
         guard !ids.isEmpty else { return }
         let index = ids.firstIndex(of: state.currentSlot.cueID) ?? 0
         swapPose(to: ids[((index + offset) % ids.count + ids.count) % ids.count])

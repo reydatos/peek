@@ -135,12 +135,14 @@ struct BoothStageView: View {
                 // alone is in the corner.
                 // The zoom choices are in the center, as the other controls of the viewfinder. An invisible copy
                 // of the pose picture at the right keeps them there. With too little width, they go to the right.
+                // The arrows make the pose picture wide, so this row has no fixed space: it then fits a 393-point
+                // display.
                 ViewThatFits(in: .horizontal) {
-                    HStack(alignment: .bottom) {
+                    HStack(alignment: .bottom, spacing: 0) {
                         poseCorner
-                        Spacer(minLength: PeekTheme.tightSpace)
+                        Spacer(minLength: 0)
                         ZoomChips(model: model)
-                        Spacer(minLength: PeekTheme.tightSpace)
+                        Spacer(minLength: 0)
                         poseCorner.hidden()
                     }
                     HStack(alignment: .bottom) {
@@ -152,8 +154,10 @@ struct BoothStageView: View {
                 .padding()
             } else if isSubjectFacing, canStepPose, let cue = model.currentCue {
                 // With one screen, the pose reference moves into the camera view.
-                PoseClipButton(model: model) {
-                    PoseGuide(cue: cue, accent: model.accent, isLarge: true)
+                PoseStepper(model: model) {
+                    PoseClipButton(model: model) {
+                        PoseGuide(cue: cue, accent: model.accent, isLarge: true)
+                    }
                 }
                 .padding()
             }
@@ -171,15 +175,19 @@ struct BoothStageView: View {
                 .clipShape(.rect(cornerRadius: isFullBleed ? 0 : PeekTheme.photoCorner))
             }
         }
-        // A sideways swipe changes the pose.
+        // A sideways swipe changes the pose. A short slide of a thumb does not.
         .gesture(
-            DragGesture().onEnded { drag in
-                guard canStepPose, abs(drag.translation.width) > abs(drag.translation.height) else { return }
-                model.stepPose(by: drag.translation.width < 0 ? 1 : -1)
+            DragGesture(minimumDistance: Self.poseSwipeDistance).onEnded { drag in
+                let width = drag.translation.width
+                guard canStepPose, abs(width) >= Self.poseSwipeDistance, abs(width) > abs(drag.translation.height) else { return }
+                model.stepPose(by: width < 0 ? 1 : -1)
             },
             isEnabled: canStepPose
         )
     }
+
+    /// The sideways slide, in points, that changes the pose. The owner chose this value (2026-11-20).
+    private static let poseSwipeDistance: CGFloat = 60
 
     /// The space between the photo and the line below it.
     private static let cueSpace = PeekTheme.tightSpace
@@ -192,11 +200,13 @@ struct BoothStageView: View {
         model.state.phase == .ready
     }
 
-    /// The pose picture in the corner of the viewfinder.
+    /// The pose picture in the corner of the viewfinder, with the arrows that change the pose.
     @ViewBuilder private var poseCorner: some View {
         if showsPoseCard, let cue = model.currentCue {
-            PoseClipButton(model: model) {
-                PoseGuide(cue: cue, accent: model.accent, isLarge: isSubjectFacing)
+            PoseStepper(model: model) {
+                PoseClipButton(model: model) {
+                    PoseGuide(cue: cue, accent: model.accent, isLarge: isSubjectFacing)
+                }
             }
         }
     }
