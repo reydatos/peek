@@ -44,9 +44,8 @@ nonisolated enum PackMediaCheck {
         guard let isPlayable = try? await asset.load(.isPlayable), isPlayable,
               let duration = try? await asset.load(.duration),
               let video = try? await asset.loadTracks(withMediaType: .video), video.count == 1,
-              let audio = try? await asset.loadTracks(withMediaType: .audio), audio.isEmpty
-        else { return false }
-        guard let track = video.first,
+              let audio = try? await asset.loadTracks(withMediaType: .audio), audio.isEmpty,
+              let track = video.first,
               let size = try? await track.load(.naturalSize),
               let rate = try? await track.load(.nominalFrameRate),
               size.width > 0, size.height > 0, max(size.width, size.height) <= maximumClipSide,
