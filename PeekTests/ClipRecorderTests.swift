@@ -66,16 +66,29 @@ struct ClipRecorderTests {
         #expect(abs(shown.width) == 720)
         #expect(abs(shown.height) == 960)
         #expect(try await asset.loadTracks(withMediaType: .audio).isEmpty)
+        #expect(await ClipShape.aspect(of: url) == 0.75)
     }
 
-    @Test func aClipFromWideFramesWithNoTurnIsTheCenterColumn() async throws {
+    @Test func aClipFromWideFramesWithNoTurnKeepsItsFullWidth() async throws {
         let url = FileManager.default.temporaryDirectory.appending(path: "\(UUID().uuidString).mov")
         let still = try await record(to: url, rotationAngle: 0, duration: 0.5, width: 640, height: 480)
         let picture = try #require(UIImage(data: still))
-        // The 3:4 column of a 640 x 480 frame is 360 x 480.
+        // The still picture is the 3:4 column of a 640 x 480 frame: 360 x 480.
         #expect(picture.size == CGSize(width: 360, height: 480))
+        // The clip is the complete wide picture, so the outer display can show it from edge to edge.
         let track = try #require(try await AVURLAsset(url: url).loadTracks(withMediaType: .video).first)
-        #expect(try await track.load(.naturalSize) == CGSize(width: 720, height: 960))
+        #expect(try await track.load(.naturalSize) == CGSize(width: 960, height: 720))
+        #expect(await ClipShape.aspect(of: url) == 4.0 / 3.0)
+    }
+
+    @Test func theStoredSizeFollowsTheLevelShapeOfTheFrame() {
+        // Upright when level: the upright 3:4 clip, stored wide with a quarter turn.
+        #expect(ClipRecorder.storedSize(frameWidth: 640, frameHeight: 480, quarterTurns: 1) == (960, 720))
+        #expect(ClipRecorder.storedSize(frameWidth: 480, frameHeight: 640, quarterTurns: 0) == (720, 960))
+        // Wide when level: the full width.
+        #expect(ClipRecorder.storedSize(frameWidth: 640, frameHeight: 480, quarterTurns: 0) == (960, 720))
+        #expect(ClipRecorder.storedSize(frameWidth: 480, frameHeight: 640, quarterTurns: 3) == (720, 960))
+        #expect(ClipRecorder.storedSize(frameWidth: 640, frameHeight: 480, quarterTurns: 2) == (960, 720))
     }
 
     @Test func aRecordingThatStopsGivesAFaultAndNoPicture() async throws {

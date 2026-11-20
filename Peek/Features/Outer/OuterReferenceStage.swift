@@ -12,6 +12,9 @@ import SwiftUI
 /// picture has no plain edge, so it has a wide copy (`PoseCue.wideAssetName`) with the person at the right. The
 /// wide copy covers the display. A photo with no wide copy shows complete, with black beside it.
 ///
+/// The clip of a customer pose covers the display when it is wide: the customer recorded it with a wide camera
+/// picture. An upright clip shows complete, with black beside it, as a photo with no wide copy does.
+///
 /// The display is used to its edges: the view does not stop at the safe area, and the placement keeps the
 /// complete picture clear of the occluded areas that the system reports.
 ///
@@ -20,6 +23,9 @@ import SwiftUI
 struct OuterReferenceStage: View {
     let cue: PoseCue
     let accent: Color
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    /// The shape of the clip of a customer pose, after the app has read it.
+    @State private var clipAspect: CGFloat?
 
     var body: some View {
         GeometryReader { proxy in
@@ -29,6 +35,14 @@ struct OuterReferenceStage: View {
                 let frame = StripPlacement.rightPinnedFill(in: proxy.size, aspect: wide.size.width / wide.size.height)
                 Image(uiImage: wide)
                     .resizable()
+                    .frame(width: frame.width, height: frame.height)
+                    .position(x: frame.midX, y: frame.midY)
+                    .accessibilityLabel(cue.name.text)
+            } else if !reduceMotion, let clip = cue.clipURL, let clipAspect, clipAspect > 1 {
+                // A clip from a wide camera picture covers the display, as the live picture does, with its right
+                // edge at the right edge of the display (owner decision, 2026-11-17).
+                let frame = StripPlacement.rightPinnedFill(in: proxy.size, aspect: clipAspect)
+                PoseClipView(url: clip)
                     .frame(width: frame.width, height: frame.height)
                     .position(x: frame.midX, y: frame.midY)
                     .accessibilityLabel(cue.name.text)
@@ -42,6 +56,12 @@ struct OuterReferenceStage: View {
         .clipped()
         .background(PeekTheme.cameraChrome)
         .ignoresSafeArea()
+        .task(id: cue.clipURL) {
+            clipAspect = nil
+            if let clip = cue.clipURL {
+                clipAspect = await ClipShape.aspect(of: clip)
+            }
+        }
     }
 
     /// The complete 3:4 picture, with its background continued to the edges of the display when its edges are plain.

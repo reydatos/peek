@@ -23,12 +23,12 @@ enum PoseClipTuning {
 struct PoseGhost: View {
     let url: URL
     let opacity: Double
-
-    /// The shape of a pose clip: the width divided by the height.
-    static let clipAspect: CGFloat = 3.0 / 4.0
+    /// True shows the complete clip inside the frame. The outer display uses this: its picture is the wide
+    /// camera picture, so an upright clip is its middle column and a wide clip covers it.
+    var showsAll = false
 
     var body: some View {
-        PoseClipView(url: url)
+        PoseClipView(url: url, showsAll: showsAll)
             .opacity(opacity)
             .allowsHitTesting(false)
             .accessibilityHidden(true)
