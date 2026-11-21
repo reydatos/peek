@@ -4,12 +4,36 @@ import Testing
 import UIKit
 
 struct DuetVideoTests {
+    /// A clip of one color with a frame at each 1/30 second from its start. A rotation angle of 90 gives wide
+    /// frames with a quarter turn, as a camera clip has; 0 gives upright frames with no turn.
+    ///
+    /// The writer waits for the encoder, so it stores each frame. `ClipRecorder` drops a frame when its encoder is
+    /// busy, as a live camera must. A drop at the start leaves the clip with no picture there, and the video then
+    /// shows no picture of the people at that time: on a busy test machine, that failed this test at random.
     private func clip(fill: UInt8, duration: Double, rotationAngle: CGFloat = 90) async throws -> URL {
         let url = FileManager.default.temporaryDirectory.appending(path: "\(UUID().uuidString).mov")
         let wide = rotationAngle == 90
-        _ = try await ClipRecorderTests().record(
-            to: url, rotationAngle: rotationAngle, duration: duration, width: wide ? 640 : 480, height: wide ? 480 : 640, fill: fill
-        )
+        let (width, height) = wide ? (640, 480) : (480, 640)
+        let writer = try AVAssetWriter(outputURL: url, fileType: .mov)
+        let input = AVAssetWriterInput(mediaType: .video, outputSettings: [
+            AVVideoCodecKey: AVVideoCodecType.h264, AVVideoWidthKey: width, AVVideoHeightKey: height,
+        ])
+        input.expectsMediaDataInRealTime = false
+        input.transform = wide ? ClipRecorder.transform(quarterTurns: 1, isMirrored: false) : .identity
+        writer.add(input)
+        #expect(writer.startWriting())
+        // The test frames have their times from 100 seconds.
+        writer.startSession(atSourceTime: CMTime(seconds: 100, preferredTimescale: 600))
+        for index in 0 ..< Int((duration * 30).rounded()) {
+            while !input.isReadyForMoreMediaData {
+                try await Task.sleep(for: .milliseconds(1))
+            }
+            #expect(try input.append(ClipRecorderTests().frame(width: width, height: height, at: Double(index) / 30, fill: fill)))
+        }
+        input.markAsFinished()
+        writer.endSession(atSourceTime: CMTime(seconds: 100 + duration, preferredTimescale: 600))
+        await writer.finishWriting()
+        try #require(writer.status == .completed)
         return url
     }
 
