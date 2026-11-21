@@ -2,7 +2,7 @@ import AVFoundation
 import SwiftUI
 import UIKit
 
-/// The player of one pose clip. The clip plays again and again, with no sound.
+/// The player of one pose clip, or of the duet video in its preview. It plays again and again, silent unless asked.
 ///
 /// It is made off the main thread: the main thread makes no media call that can wait (the lesson of the
 /// scene-update watchdog stop of 2026-11-15).
@@ -10,10 +10,10 @@ final nonisolated class ClipLoop: @unchecked Sendable {
     let player: AVQueuePlayer
     private let looper: AVPlayerLooper
 
-    init(url: URL) {
+    init(url: URL, isMuted: Bool = true) {
         player = AVQueuePlayer()
-        // The clip has no sound track. The player stays silent, and it does not keep the display on.
-        player.isMuted = true
+        // A pose clip has no sound track, so its player is silent. No player keeps the display on.
+        player.isMuted = isMuted
         player.preventsDisplaySleepDuringVideoPlayback = false
         player.allowsExternalPlayback = false
         looper = AVPlayerLooper(player: player, templateItem: AVPlayerItem(url: url))
@@ -26,6 +26,8 @@ struct PoseClipView: UIViewRepresentable {
     let url: URL
     /// True shows the complete clip inside the frame. False, the standard, covers the frame.
     var showsAll = false
+    /// False plays the sound of the video: the duet preview.
+    var isMuted = true
 
     func makeUIView(context _: Context) -> ClipUIView {
         ClipUIView()
@@ -33,6 +35,7 @@ struct PoseClipView: UIViewRepresentable {
 
     func updateUIView(_ view: ClipUIView, context _: Context) {
         view.showsAll = showsAll
+        view.isMuted = isMuted
         view.show(url)
     }
 
@@ -75,6 +78,9 @@ final class ClipUIView: UIView {
         didSet { playerLayer?.videoGravity = showsAll ? .resizeAspect : .resizeAspectFill }
     }
 
+    /// Set before `show(_:)`: the player is made with it.
+    var isMuted = true
+
     private var url: URL?
     private var loop: ClipLoop?
     private var activeObserver: (any NSObjectProtocol)?
@@ -90,7 +96,8 @@ final class ClipUIView: UIView {
         playerLayer?.videoGravity = showsAll ? .resizeAspect : .resizeAspectFill
         isUserInteractionEnabled = false
         Task {
-            let loop = await Task.detached { ClipLoop(url: url) }.value
+            let isMuted = isMuted
+            let loop = await Task.detached { ClipLoop(url: url, isMuted: isMuted) }.value
             // The view can have a different clip, or no clip, when the player is ready.
             guard self.url == url else { return }
             self.loop = loop

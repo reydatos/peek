@@ -7,7 +7,7 @@ struct FinishedControls: View {
 
     var body: some View {
         VStack(alignment: .leading) {
-            SaveStatusLabel(status: model.saveStatus)
+            SaveStatusLabel(status: model.saveStatus, duetProgress: model.duetProgress)
             LayoutPicker(model: model)
             FramePicker(model: model)
             MatchStampToggle(model: model)
@@ -26,8 +26,8 @@ struct FinishedControls: View {
             }
             ChallengeShareButton(model: model, style: PeekSecondaryButtonStyle())
             if !model.duetSegments.isEmpty {
-                Button { Task { await model.saveDuet() } } label: {
-                    Label(.saveDuet, systemImage: "rectangle.split.1x2")
+                Button { Task { await model.makeDuet() } } label: {
+                    Label(.makeDuet, systemImage: "rectangle.split.1x2")
                 }
                 .buttonStyle(PeekSecondaryButtonStyle())
             }

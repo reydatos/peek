@@ -110,8 +110,10 @@ struct BoothStageView: View {
                     StageChips(model: model)
                 }
                 BoothBanners(model: model)
-                if model.isRecordingAttempt {
-                    RecordingSign()
+                // The duet chip is at the top, clear of the zoom choices at the bottom of the viewfinder.
+                DuetChip(model: model)
+                if let start = model.attemptStart {
+                    RecordingSign(start: start)
                 }
                 #if DEBUG
                     if model.shownClipLook == .ghost {
