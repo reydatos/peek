@@ -33,12 +33,20 @@ struct ClipRecorderTests {
     }
 
     /// Feeds frames at 30 a second until the recorder ends, and gives the still picture.
-    func record(to url: URL, rotationAngle: CGFloat, duration: Double, width: Int, height: Int, fill: UInt8 = 0x80) async throws -> Data {
+    func record(
+        to url: URL,
+        rotationAngle: CGFloat,
+        duration: Double,
+        width: Int,
+        height: Int,
+        fill: UInt8 = 0x80,
+        isReady: @escaping @Sendable (AVAssetWriterInput) -> Bool = { $0.isReadyForMoreMediaData }
+    ) async throws -> Data {
         let frames = try (0 ... Int(duration * 30) + 5).map { try frame(width: width, height: height, at: Double($0) / 30, fill: fill) }
         nonisolated(unsafe) let unsafeFrames = frames
         return try await withCheckedThrowingContinuation { continuation in
             // H.264 is the codec here: the simulator has no HEVC encoder on each host.
-            let recorder = ClipRecorder(url: url, rotationAngle: rotationAngle, duration: duration, codec: .h264) {
+            let recorder = ClipRecorder(url: url, rotationAngle: rotationAngle, duration: duration, codec: .h264, isReady: isReady) {
                 continuation.resume(with: $0)
             }
             for frame in unsafeFrames {
@@ -67,6 +75,42 @@ struct ClipRecorderTests {
         #expect(abs(shown.height) == 960)
         #expect(try await asset.loadTracks(withMediaType: .audio).isEmpty)
         #expect(await ClipShape.aspect(of: url) == 0.75)
+    }
+
+    @Test func aClipStartsAtTheFirstFrameThatTheEncoderTakes() async throws {
+        // A busy encoder is not ready for the first 3 frames. Before, the clip started at the first frame that
+        // came, and it had no picture until the encoder took one.
+        final nonisolated class Calls: @unchecked Sendable {
+            private let lock = NSLock()
+            private var count = 0
+            func next() -> Int {
+                lock.withLock {
+                    count += 1
+                    return count
+                }
+            }
+        }
+        let calls = Calls()
+        let url = FileManager.default.temporaryDirectory.appending(path: "\(UUID().uuidString).mov")
+        _ = try await record(to: url, rotationAngle: 0, duration: 1, width: 480, height: 640) { input in
+            calls.next() > 3 && input.isReadyForMoreMediaData
+        }
+
+        let asset = AVURLAsset(url: url)
+        let track = try #require(try await asset.loadTracks(withMediaType: .video).first)
+        let (range, segments) = try await track.load(.timeRange, .segments)
+        #expect(segments.first?.isEmpty == false)
+        let reader = try AVAssetReader(asset: asset)
+        let output = AVAssetReaderTrackOutput(track: track, outputSettings: nil)
+        reader.add(output)
+        #expect(reader.startReading())
+        var times: [Double] = []
+        while let sample = output.copyNextSampleBuffer() {
+            times.append(CMSampleBufferGetPresentationTimeStamp(sample).seconds)
+        }
+        // The first picture is at the start of the clip, and the clip still has its full length.
+        #expect(abs((times.min() ?? -1) - range.start.seconds) < 0.001)
+        #expect(abs(range.duration.seconds - 1) < 0.05)
     }
 
     @Test func aClipFromWideFramesWithNoTurnKeepsItsFullWidth() async throws {

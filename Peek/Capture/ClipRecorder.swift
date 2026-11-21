@@ -40,6 +40,8 @@ final nonisolated class ClipRecorder: @unchecked Sendable {
     private var lastFrame: CVPixelBuffer?
     private var isDone = false
     private var completion: (@Sendable (Result<Data, any Error>) -> Void)?
+    /// True when the input takes a frame now. Tests replace it to act as a busy encoder.
+    private let isReady: @Sendable (AVAssetWriterInput) -> Bool
 
     /// - Parameters:
     ///   - rotationAngle: the clockwise angle, in degrees, that makes a frame upright: 0, 90, 180, or 270.
@@ -52,8 +54,10 @@ final nonisolated class ClipRecorder: @unchecked Sendable {
         isMirrored: Bool = false,
         duration: Double = ClipRecorder.duration,
         codec: AVVideoCodecType = .hevc,
+        isReady: @escaping @Sendable (AVAssetWriterInput) -> Bool = { $0.isReadyForMoreMediaData },
         completion: @escaping @Sendable (Result<Data, any Error>) -> Void
     ) {
+        self.isReady = isReady
         self.duration = duration
         self.completion = completion
         self.isMirrored = isMirrored
@@ -108,16 +112,27 @@ final nonisolated class ClipRecorder: @unchecked Sendable {
             finish(.failure(Failure.writer))
             return
         }
-        if start == nil {
+        if input == nil {
             input = makeInput(for: frame, in: writer)
             guard input != nil, writer.startWriting() else {
                 finish(.failure(Failure.writer))
                 return
             }
+        }
+        guard let input else { return }
+        // The clip starts at the first frame that the encoder takes, so it has a picture from its first moment.
+        // A frame before that is dropped, as each live frame is while the encoder is busy.
+        guard let start else {
+            guard isReady(input) else { return }
             writer.startSession(atSourceTime: time)
             start = time
+            if input.append(sampleBuffer) {
+                lastFrame = frame
+            } else {
+                finish(.failure(Failure.writer))
+            }
+            return
         }
-        guard let start, let input else { return }
         if CMTimeGetSeconds(CMTimeSubtract(time, start)) >= duration {
             isDone = true
             input.markAsFinished()
@@ -133,7 +148,7 @@ final nonisolated class ClipRecorder: @unchecked Sendable {
             }
             return
         }
-        if input.isReadyForMoreMediaData {
+        if isReady(input) {
             if input.append(sampleBuffer) {
                 lastFrame = frame
             } else {
