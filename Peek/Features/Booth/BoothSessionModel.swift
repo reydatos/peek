@@ -142,6 +142,7 @@ final class BoothSessionModel {
         countdownTask?.cancel()
         captureTask?.cancel()
         cancelAttempt()
+        closeDuetPreview()
         attempts.values.forEach(Self.remove)
         attempts.removeAll()
         images.removeAll()
@@ -217,8 +218,27 @@ final class BoothSessionModel {
         pack?.cues.contains { $0.clipURL != nil } ?? false
     }
 
-    /// True while the booth records the people. The two displays show a sign then.
-    private(set) var isRecordingAttempt = false
+    /// The time at which the booth started to record the people. Nil while it does not record.
+    /// The two displays show a sign with the seconds since then.
+    private(set) var attemptStart: Date?
+
+    /// True while the booth records the people.
+    var isRecordingAttempt: Bool {
+        attemptStart != nil
+    }
+
+    /// True when the camera screen shows the chip that turns the duet on and off: the pack has clips, and the
+    /// booth waits for a shot. The switch in the More menu is the same setting.
+    var showsDuetChip: Bool {
+        hasPoseClips && state.phase == .ready
+    }
+
+    /// Turns the duet on or off, from the chip on the camera screen.
+    func toggleDuet() {
+        guard hasPoseClips || isDuetOn else { return }
+        isDuetOn.toggle()
+    }
+
     /// The clip of each take, in the temporary folder. A draft does not keep them.
     private var attempts: [Take.ID: URL] = [:]
     /// The recording of this countdown. It gives the clip, or nil after a fault or a cancel.
@@ -235,7 +255,7 @@ final class BoothSessionModel {
         cancelAttempt()
         guard isDuetOn, seconds > 0, currentCue?.clipURL != nil else { return }
         let url = FileManager.default.temporaryDirectory.appending(path: "Attempt-\(UUID().uuidString).mov")
-        isRecordingAttempt = true
+        attemptStart = .now
         attemptTask = Task { [capture] in
             do {
                 _ = try await capture.recordClip(to: url, duration: Double(seconds))
@@ -257,7 +277,10 @@ final class BoothSessionModel {
             attemptTask = nil
             Task {
                 let url = await task.value
-                isRecordingAttempt = attemptTask != nil
+                // A new countdown can record already; its start stays.
+                if attemptTask == nil {
+                    attemptStart = nil
+                }
                 guard let url else { return }
                 // The take can be gone when the clip is ready: a fast retake, or a new set.
                 if images[take.id] != nil {
@@ -274,7 +297,7 @@ final class BoothSessionModel {
     private func cancelAttempt() {
         guard let task = attemptTask else { return }
         attemptTask = nil
-        isRecordingAttempt = false
+        attemptStart = nil
         task.cancel()
         Task {
             if let url = await task.value {
@@ -766,24 +789,60 @@ final class BoothSessionModel {
         return UIGraphicsImageRenderer(size: size, format: format).image { _ in image.draw(in: CGRect(origin: .zero, size: size)) }.cgImage
     }
 
-    /// Makes the duet video and saves it to Photos. The copy in the temporary folder is removed after the save.
-    func saveDuet() async {
-        guard !duetSegments.isEmpty, saveStatus != .saving else { return }
+    /// The part of the duet video that is made, from 0 to 1, while the app makes it. Nil at other times.
+    private(set) var duetProgress: Double?
+
+    /// The finished duet video, while the finished screen shows it with Share and Save. Nil at other times.
+    private(set) var duetPreview: URL?
+
+    /// Makes the duet video and shows it on the finished screen. Nothing goes to Photos until the customer saves it.
+    func makeDuet() async {
+        guard !duetSegments.isEmpty, saveStatus != .saving, duetPreview == nil else { return }
         let segments = duetSegments(withPhotos: true)
         saveStatus = .saving
-        // The app removes a "Share-" folder at its next start, if this function does not get to the end.
+        duetProgress = 0
+        defer { duetProgress = nil }
+        // The app removes a "Share-" folder at its next start, if the preview does not close first.
         let folder = FileManager.default.temporaryDirectory.appending(path: "Share-\(UUID().uuidString)")
-        defer { try? FileManager.default.removeItem(at: folder) }
+        let gate = DuetProgressGate { [weak self] value in
+            Task { @MainActor in
+                guard let self, let current = self.duetProgress else { return }
+                self.duetProgress = max(current, value)
+            }
+        }
         do {
             try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
             let url = folder.appending(path: "PEEK duet.mp4")
-            try await DuetVideo.make(segments, story: duetStory, to: url, style: .standard)
+            try await DuetVideo.make(segments, story: duetStory, to: url, style: .standard) { gate.report($0) }
+            duetPreview = url
+            saveStatus = .idle
+        } catch {
+            try? FileManager.default.removeItem(at: folder)
+            saveStatus = .failed
+        }
+    }
+
+    /// Saves the video of the preview to Photos. The preview stays, so the customer can still share it.
+    func saveDuetPreview() async {
+        guard let url = duetPreview, saveStatus != .saving else { return }
+        saveStatus = .saving
+        do {
             try await saver.saveVideo(at: url)
             saveStatus = .saved
         } catch PhotoSaveError.denied {
             saveStatus = .denied
         } catch {
             saveStatus = .failed
+        }
+    }
+
+    /// Closes the preview and removes its video from the temporary folder.
+    func closeDuetPreview() {
+        guard let url = duetPreview else { return }
+        duetPreview = nil
+        try? FileManager.default.removeItem(at: url.deletingLastPathComponent())
+        if saveStatus != .saving {
+            saveStatus = .idle
         }
     }
 

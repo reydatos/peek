@@ -44,8 +44,8 @@ struct OuterFrameStage: View {
                     PoseGuide(cue: cue, accent: model.accent)
                 }
                 // The people in the photo see that the booth records them.
-                if model.isRecordingAttempt {
-                    RecordingSign()
+                if let start = model.attemptStart {
+                    RecordingSign(start: start)
                 }
                 Spacer()
                 if hasCaption {

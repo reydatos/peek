@@ -32,6 +32,12 @@ struct BoothView: View {
             showPoses: { posePicker = PosePickerRequest() }
         ))
         .background(PeekTheme.page)
+        // The duet preview is a state of the booth, so the outer display stays.
+        .overlay {
+            if let url = model.duetPreview {
+                DuetPreviewView(model: model, url: url)
+            }
+        }
         .toolbar(.hidden, for: .navigationBar)
         // The automatic shutter starts no shot while the pose library or the pack editor covers the booth.
         .onChange(of: posePicker != nil, initial: true) { _, isCovered in model.match.isBlocked = isCovered }

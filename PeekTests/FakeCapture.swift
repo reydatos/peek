@@ -65,13 +65,24 @@ actor FakeCapture: CaptureProviding {
     /// The length that each recording asked for.
     private(set) var clipDurations: [Double] = []
 
+    /// A real video that each recording copies. Nil writes a few bytes that are not video.
+    private var clipSource: URL?
+
+    func setClipSource(_ url: URL) {
+        clipSource = url
+    }
+
     func recordClip(to url: URL, duration: Double) throws -> Data {
         if let clipError {
             throw clipError
         }
         clipCount += 1
         clipDurations.append(duration)
-        try Data("clip \(clipCount)".utf8).write(to: url)
+        if let clipSource {
+            try FileManager.default.copyItem(at: clipSource, to: url)
+        } else {
+            try Data("clip \(clipCount)".utf8).write(to: url)
+        }
         return Self.photoData
     }
 

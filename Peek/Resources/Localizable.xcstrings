@@ -936,6 +936,17 @@
         }
       }
     },
+    "duetChip" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Duet"
+          }
+        }
+      }
+    },
     "duetNeedsPack" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -943,6 +954,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Select a pack that you made"
+          }
+        }
+      }
+    },
+    "duetPreviewTitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your duet"
+          }
+        }
+      }
+    },
+    "duetShareNote" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The video shows the people in the pose clips and in your shots. The person who gets it can keep it and send it to other people."
           }
         }
       }
@@ -1196,6 +1229,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Live camera preview"
+          }
+        }
+      }
+    },
+    "makeDuet" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Make duet video"
+          }
+        }
+      }
+    },
+    "makingDuet" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Making your duet"
           }
         }
       }
@@ -2043,6 +2098,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Share strip and pack"
+          }
+        }
+      }
+    },
+    "shareDuet" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Share"
           }
         }
       }

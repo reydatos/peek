@@ -120,7 +120,7 @@ struct BoothSideRail: View {
     }
 
     @ViewBuilder private var finishedActions: some View {
-        SaveStatusLabel(status: model.saveStatus)
+        SaveStatusLabel(status: model.saveStatus, duetProgress: model.duetProgress)
         Button { Task { await model.saveStrip() } } label: {
             Label(.saveStrip, systemImage: "square.and.arrow.down")
         }
@@ -136,8 +136,8 @@ struct BoothSideRail: View {
         }
         ChallengeShareButton(model: model, style: PeekRailButtonStyle())
         if !model.duetSegments.isEmpty {
-            Button { Task { await model.saveDuet() } } label: {
-                Label(.saveDuet, systemImage: "rectangle.split.1x2")
+            Button { Task { await model.makeDuet() } } label: {
+                Label(.makeDuet, systemImage: "rectangle.split.1x2")
             }
             .buttonStyle(PeekRailButtonStyle())
         }
