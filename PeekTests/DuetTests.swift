@@ -177,7 +177,7 @@ struct DuetTests {
     }
 
     /// A finished set of one pose whose clips are real video.
-    private func finishedSet(saver: FakeSaver) async throws -> BoothSessionModel {
+    private func finishedSet(saver: any PhotoSaving) async throws -> BoothSessionModel {
         let clip = try await Self.realClip()
         await capture.setClipSource(clip)
         let catalog = PoseCatalog(userPacks: [PosePack(id: "user-1", name: "Friday night", cues: [
@@ -214,6 +214,45 @@ struct DuetTests {
         #expect(model.duetPreview == nil)
         #expect(!FileManager.default.fileExists(atPath: url.path))
         #expect(model.saveStatus == .idle)
+    }
+
+    @Test func thePreviewDoesNotCloseWhileTheVideoGoesToPhotos() async throws {
+        // A saver that waits in the middle of the save until the test lets it go, then reads the video.
+        actor GatedSaver: PhotoSaving {
+            private var gate: CheckedContinuation<Void, Never>?
+            private(set) var isWaiting = false
+            private(set) var bytes = 0
+
+            func save(_: [Data]) throws {}
+
+            func saveVideo(at url: URL) async throws {
+                isWaiting = true
+                await withCheckedContinuation { gate = $0 }
+                bytes = try Data(contentsOf: url).count
+            }
+
+            func open() {
+                gate?.resume()
+                gate = nil
+            }
+        }
+        let saver = GatedSaver()
+        let model = try await finishedSet(saver: saver)
+        await model.makeDuet()
+        let url = try #require(model.duetPreview)
+        let save = Task { await model.saveDuetPreview() }
+        while await !saver.isWaiting {
+            await Task.yield()
+        }
+
+        model.closeDuetPreview()
+        #expect(model.duetPreview == url, "the preview stays while the save reads the video")
+        #expect(FileManager.default.fileExists(atPath: url.path))
+
+        await saver.open()
+        await save.value
+        #expect(model.saveStatus == .saved)
+        #expect(await saver.bytes > 0)
     }
 
     @Test func aNewSetClosesThePreviewAndRemovesItsVideo() async throws {

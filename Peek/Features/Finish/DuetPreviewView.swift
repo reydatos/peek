@@ -56,6 +56,8 @@ struct DuetPreviewView: View {
                     Text(.close)
                 }
                 .buttonStyle(PeekSecondaryButtonStyle())
+                // Close removes the video, so it waits for a save to Photos to end.
+                .disabled(model.saveStatus == .saving)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
         }

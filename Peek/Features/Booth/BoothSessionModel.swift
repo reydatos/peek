@@ -837,13 +837,12 @@ final class BoothSessionModel {
     }
 
     /// Closes the preview and removes its video from the temporary folder.
+    /// It waits for a save to Photos to end: the save reads the video.
     func closeDuetPreview() {
-        guard let url = duetPreview else { return }
+        guard let url = duetPreview, saveStatus != .saving else { return }
         duetPreview = nil
         try? FileManager.default.removeItem(at: url.deletingLastPathComponent())
-        if saveStatus != .saving {
-            saveStatus = .idle
-        }
+        saveStatus = .idle
     }
 
     /// Starts a new set with the same pack. The shots of the old set are discarded.
