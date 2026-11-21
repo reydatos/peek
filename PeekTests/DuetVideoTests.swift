@@ -51,39 +51,170 @@ struct DuetVideoTests {
         return (Int(pixel[0]) + Int(pixel[1]) + Int(pixel[2])) / 3
     }
 
-    @Test func theVideoHasThePoseClipAboveTheClipOfThePeople() async throws {
-        // A bright pose clip of 2 seconds and a dark clip of the people of 1 second; then the reverse, with no turn.
+    /// The red, green, and blue of one point of a picture. The origin is at the top left.
+    private func color(of image: CGImage, at point: CGPoint) throws -> (red: Int, green: Int, blue: Int) {
+        var pixel = [UInt8](repeating: 0, count: 4)
+        let context = try #require(CGContext(
+            data: &pixel, width: 1, height: 1, bitsPerComponent: 8, bytesPerRow: 4,
+            space: CGColorSpaceCreateDeviceRGB(), bitmapInfo: CGImageAlphaInfo.noneSkipLast.rawValue
+        ))
+        context.draw(image, in: CGRect(x: -point.x, y: point.y - CGFloat(image.height) + 1, width: CGFloat(image.width), height: CGFloat(image.height)))
+        return (Int(pixel[0]), Int(pixel[1]), Int(pixel[2]))
+    }
+
+    /// The brightest point on a line across the picture, at the height `y`.
+    private func brightest(of image: CGImage, alongY y: CGFloat) throws -> Int {
+        try stride(from: 16, to: CGFloat(image.width) - 16, by: 4).map { try brightness(of: image, at: CGPoint(x: $0, y: y)) }.max() ?? 0
+    }
+
+    /// A picture of one gray value.
+    private func solid(width: Int, height: Int, white: CGFloat) throws -> CGImage {
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = 1
+        let image = UIGraphicsImageRenderer(size: CGSize(width: width, height: height), format: format).image { context in
+            UIColor(white: white, alpha: 1).setFill()
+            context.fill(CGRect(x: 0, y: 0, width: width, height: height))
+        }
+        return try #require(image.cgImage)
+    }
+
+    private let style = DuetVideo.Style(accent: UIColor.red.cgColor, wordmark: nil)
+
+    /// The picture of one frame of a video, in frames from its start.
+    private nonisolated static func picture(of url: URL, atFrame frame: Int) async throws -> CGImage {
+        let generator = AVAssetImageGenerator(asset: AVURLAsset(url: url))
+        generator.requestedTimeToleranceBefore = .zero
+        generator.requestedTimeToleranceAfter = .zero
+        return try await generator.image(at: CMTime(value: CMTimeValue(frame), timescale: CMTimeScale(DuetVideo.framesPerSecond))).image
+    }
+
+    // The frames of one pose: the title card, the clip part, then the flash and the freeze.
+    private let titleFrames = Int((DuetVideo.Timing.title * 30).rounded())
+    private let freezeFrames = Int(((DuetVideo.Timing.flash + DuetVideo.Timing.freeze) * 30).rounded())
+    private let flashFrames = Int((DuetVideo.Timing.flash * 30).rounded())
+
+    @Test func theVideoIsASplitScreenWithThePoseAboveThePeopleFromEdgeToEdge() async throws {
+        // A bright pose clip of 2 seconds and a dark clip of the people of 1 second, both turned; then the reverse,
+        // upright with no turn.
         let segments = try await [
-            DuetVideo.Segment(pose: clip(fill: 0xE0, duration: 2), attempt: clip(fill: 0x20, duration: 1), label: "Pose 1"),
-            DuetVideo.Segment(pose: clip(fill: 0x20, duration: 1, rotationAngle: 0), attempt: clip(fill: 0xE0, duration: 1, rotationAngle: 0), label: "Pose 2"),
+            DuetVideo.Segment(pose: clip(fill: 0xE0, duration: 2), attempt: clip(fill: 0x20, duration: 1), title: "POSE 1"),
+            DuetVideo.Segment(pose: clip(fill: 0x20, duration: 1, rotationAngle: 0), attempt: clip(fill: 0xE0, duration: 1, rotationAngle: 0), title: "POSE 2"),
         ]
         let url = FileManager.default.temporaryDirectory.appending(path: "\(UUID().uuidString).mp4")
-        let paper = UIColor(white: 0.5, alpha: 1).cgColor
-        try await DuetVideo.make(segments, to: url, style: .init(paper: paper, ink: UIColor.black.cgColor, wordmark: nil))
+        try await DuetVideo.make(segments, to: url, style: style)
 
         let asset = AVURLAsset(url: url)
-        // Each pose has the length of the clip of its people.
-        #expect(try await abs(asset.load(.duration).seconds - 2) < 0.3)
+        // Each pose: its title card, the length of the clip of its people, then the flash and the freeze.
+        let perPose = titleFrames + 30 + freezeFrames
+        #expect(try await abs(asset.load(.duration).seconds - Double(perPose * 2) / 30) < 0.05)
         #expect(try await asset.loadTracks(withMediaType: .audio).isEmpty)
         let track = try #require(try await asset.loadTracks(withMediaType: .video).first)
         #expect(try await track.load(.naturalSize) == DuetVideo.size)
+        let first = try await Self.picture(of: url, atFrame: titleFrames + 15)
+        // The pose fills the top half to its corners; the people fill the bottom half; a white line is between them.
+        #expect(try brightness(of: first, at: CGPoint(x: 8, y: 8)) > 180)
+        #expect(try brightness(of: first, at: CGPoint(x: 1072, y: 940)) > 180)
+        #expect(try brightness(of: first, at: CGPoint(x: 8, y: 980)) < 80)
+        #expect(try brightness(of: first, at: CGPoint(x: 1072, y: 1912)) < 80)
+        #expect(try brightness(of: first, at: CGPoint(x: 540, y: DuetVideo.attemptFrame.minY)) > 230)
+        let second = try await Self.picture(of: url, atFrame: perPose + titleFrames + 15)
+        #expect(try brightness(of: second, at: CGPoint(x: 1072, y: 8)) < 80)
+        #expect(try brightness(of: second, at: CGPoint(x: 8, y: 980)) > 180)
+        #expect(try brightness(of: second, at: CGPoint(x: 1072, y: 1912)) > 180)
+    }
 
-        let generator = AVAssetImageGenerator(asset: asset)
-        generator.requestedTimeToleranceBefore = .zero
-        generator.requestedTimeToleranceAfter = .zero
-        let pose = CGPoint(x: DuetVideo.poseFrame.midX, y: DuetVideo.poseFrame.midY)
-        let attempt = CGPoint(x: DuetVideo.attemptFrame.midX, y: DuetVideo.attemptFrame.midY)
-        let first = try await generator.image(at: CMTime(seconds: 0.5, preferredTimescale: 600)).image
-        #expect(try brightness(of: first, at: pose) > 180)
-        #expect(try brightness(of: first, at: attempt) < 80)
-        // The clips cover their frames to the corners, and the paper is beside them.
-        #expect(try brightness(of: first, at: CGPoint(x: DuetVideo.poseFrame.minX + 8, y: DuetVideo.poseFrame.minY + 8)) > 180)
-        #expect(try brightness(of: first, at: CGPoint(x: DuetVideo.poseFrame.maxX - 8, y: DuetVideo.poseFrame.maxY - 8)) > 180)
-        #expect(try abs(brightness(of: first, at: CGPoint(x: 40, y: 400)) - 128) < 30)
-        let second = try await generator.image(at: CMTime(seconds: 1.5, preferredTimescale: 600)).image
-        #expect(try brightness(of: second, at: pose) < 80)
-        #expect(try brightness(of: second, at: attempt) > 180)
-        #expect(try brightness(of: second, at: CGPoint(x: DuetVideo.attemptFrame.maxX - 8, y: DuetVideo.attemptFrame.maxY - 8)) > 180)
+    @Test func eachPoseStartsWithATitleCardAndEndsWithAFlashAndThePhoto() async throws {
+        let photo = try solid(width: 1080, height: 1440, white: 0.5)
+        let segment = try await DuetVideo.Segment(
+            pose: clip(fill: 0xE0, duration: 1), attempt: clip(fill: 0x20, duration: 1), title: "POSE 1", photo: photo
+        )
+        let url = FileManager.default.temporaryDirectory.appending(path: "\(UUID().uuidString).mp4")
+        try await DuetVideo.make([segment], to: url, style: style)
+
+        // The title card: white words on black.
+        let card = try await Self.picture(of: url, atFrame: titleFrames / 2)
+        #expect(try brightness(of: card, at: CGPoint(x: 8, y: 8)) < 20)
+        #expect(try brightest(of: card, alongY: DuetVideo.size.height / 2) > 200)
+
+        // The flash: the first frame after the clips is white.
+        let flash = try await Self.picture(of: url, atFrame: titleFrames + 30)
+        #expect(try brightness(of: flash, at: CGPoint(x: 540, y: 480)) > 230)
+        #expect(try brightness(of: flash, at: CGPoint(x: 540, y: 1440)) > 230)
+
+        // The freeze: the last picture of the pose stays above, and the photo of the shot is below.
+        let freeze = try await Self.picture(of: url, atFrame: titleFrames + 30 + flashFrames + 5)
+        #expect(try brightness(of: freeze, at: CGPoint(x: 1072, y: 480)) > 180)
+        #expect(try abs(brightness(of: freeze, at: CGPoint(x: 540, y: 1440)) - 128) < 20)
+    }
+
+    @Test func theScoreShowsInAPillOnlyWhenThePoseHasAScore() async throws {
+        let pose = try await clip(fill: 0x20, duration: 0.5)
+        let attempt = try await clip(fill: 0x20, duration: 0.5)
+        let pillPoint = CGPoint(x: DuetVideo.size.width - DuetVideo.inset - 30, y: DuetVideo.attemptFrame.minY + DuetVideo.inset + 30)
+        let lastFrame = titleFrames + 15 + freezeFrames - 1
+        for percent in [92, nil] as [Int?] {
+            let url = FileManager.default.temporaryDirectory.appending(path: "\(UUID().uuidString).mp4")
+            try await DuetVideo.make([DuetVideo.Segment(pose: pose, attempt: attempt, title: "POSE 1", percent: percent)], to: url, style: style)
+            let end = try await Self.picture(of: url, atFrame: lastFrame)
+            let (red, green, _) = try color(of: end, at: pillPoint)
+            #expect((red > 180 && green < 80) == (percent != nil), "score \(String(describing: percent))")
+        }
+    }
+
+    @Test func theScoreCountsUpThenPops() {
+        #expect(DuetVideo.countUp(percent: 92, at: 0) == 0)
+        #expect(DuetVideo.countUp(percent: 92, at: DuetVideo.Timing.countUp / 2) == 46)
+        #expect(DuetVideo.countUp(percent: 92, at: DuetVideo.Timing.countUp) == 92)
+        #expect(DuetVideo.countUp(percent: 92, at: DuetVideo.Timing.freeze) == 92)
+        #expect(DuetVideo.badgeScale(at: DuetVideo.Timing.countUp / 2) == 1)
+        let middleOfPop = (DuetVideo.Timing.countUp + DuetVideo.Timing.freeze) / 2
+        #expect(DuetVideo.badgeScale(at: middleOfPop) > 1.15)
+        #expect(abs(DuetVideo.badgeScale(at: DuetVideo.Timing.freeze) - 1) < 0.01)
+    }
+
+    @Test func theStoryAddsAnIntroCardAndTheStripAsTheLastShot() async throws {
+        let strip = try solid(width: 400, height: 1200, white: 1)
+        let segment = try await DuetVideo.Segment(pose: clip(fill: 0x20, duration: 0.5), attempt: clip(fill: 0x20, duration: 0.5), title: "POSE 1")
+        let url = FileManager.default.temporaryDirectory.appending(path: "\(UUID().uuidString).mp4")
+        try await DuetVideo.make([segment], story: .init(title: "Test pack", subtitle: "DUET", strip: strip), to: url, style: style)
+
+        let intro = Int((DuetVideo.Timing.intro * 30).rounded())
+        let outro = Int((DuetVideo.Timing.outro * 30).rounded())
+        let total = intro + titleFrames + 15 + freezeFrames + outro
+        let asset = AVURLAsset(url: url)
+        #expect(try await abs(asset.load(.duration).seconds - Double(total) / 30) < 0.05)
+        let first = try await Self.picture(of: url, atFrame: intro / 2)
+        #expect(try brightness(of: first, at: CGPoint(x: 8, y: 8)) < 20)
+        // The subtitle pill is in the accent color, below the title, in the middle.
+        let reds = try stride(from: DuetVideo.size.height / 2, to: DuetVideo.size.height * 0.75, by: 8).map {
+            try color(of: first, at: CGPoint(x: DuetVideo.size.width / 2, y: $0))
+        }
+        #expect(reds.contains { $0.red > 180 && $0.green < 80 })
+        let last = try await Self.picture(of: url, atFrame: total - 5)
+        #expect(try brightness(of: last, at: CGPoint(x: DuetVideo.size.width / 2, y: DuetVideo.size.height / 2)) > 230)
+        #expect(try brightness(of: last, at: CGPoint(x: 8, y: 8)) < 20)
+    }
+
+    @Test func theProgressGrowsToTheEnd() async throws {
+        final nonisolated class Values: @unchecked Sendable {
+            private let lock = NSLock()
+            private var all: [Double] = []
+            func add(_ value: Double) {
+                lock.withLock { all.append(value) }
+            }
+
+            var list: [Double] {
+                lock.withLock { all }
+            }
+        }
+        let values = Values()
+        let segment = try await DuetVideo.Segment(pose: clip(fill: 0x20, duration: 0.5), attempt: clip(fill: 0xE0, duration: 0.5), title: "POSE 1")
+        let url = FileManager.default.temporaryDirectory.appending(path: "\(UUID().uuidString).mp4")
+        try await DuetVideo.make([segment], to: url, style: style) { values.add($0) }
+        let list = values.list
+        #expect(!list.isEmpty)
+        #expect(zip(list, list.dropFirst()).allSatisfy { $0 <= $1 })
+        #expect(abs((list.last ?? 0) - 1) < 0.001)
     }
 
     @Test func aClipWithNoPictureAtItsStartLeavesNoPanelEmpty() async throws {
@@ -91,28 +222,24 @@ struct DuetVideoTests {
         let segment = try await DuetVideo.Segment(
             pose: clip(fill: 0x20, duration: 1, rotationAngle: 0),
             attempt: clip(fill: 0xE0, duration: 1, rotationAngle: 0, firstFrame: 0.6),
-            label: "Pose 1"
+            title: "POSE 1"
         )
         let url = FileManager.default.temporaryDirectory.appending(path: "\(UUID().uuidString).mp4")
-        try await DuetVideo.make([segment], to: url, style: .init(paper: UIColor.white.cgColor, ink: UIColor.black.cgColor, wordmark: nil))
+        try await DuetVideo.make([segment], to: url, style: style)
 
         // The pose has the length of the part of the clip that has a picture, and the panel shows the people at once.
         let asset = AVURLAsset(url: url)
-        #expect(try await abs(asset.load(.duration).seconds - 0.4) < 0.1)
-        let generator = AVAssetImageGenerator(asset: asset)
-        generator.requestedTimeToleranceBefore = .zero
-        generator.requestedTimeToleranceAfter = .zero
-        let start = try await generator.image(at: CMTime(seconds: 0.05, preferredTimescale: 600)).image
+        #expect(try await abs(asset.load(.duration).seconds - Double(titleFrames + 12 + freezeFrames) / 30) < 0.1)
+        let start = try await Self.picture(of: url, atFrame: titleFrames + 1)
         #expect(try brightness(of: start, at: CGPoint(x: DuetVideo.attemptFrame.midX, y: DuetVideo.attemptFrame.midY)) > 180)
     }
 
     @Test func aVideoThatTakesTooLongStopsWithAFaultAndLeavesNoFile() async throws {
         let segments = try await [
-            DuetVideo.Segment(pose: clip(fill: 0x20, duration: 1), attempt: clip(fill: 0xE0, duration: 1), label: "Pose 1"),
-            DuetVideo.Segment(pose: clip(fill: 0xE0, duration: 1), attempt: clip(fill: 0x20, duration: 1), label: "Pose 2"),
+            DuetVideo.Segment(pose: clip(fill: 0x20, duration: 1), attempt: clip(fill: 0xE0, duration: 1), title: "POSE 1"),
+            DuetVideo.Segment(pose: clip(fill: 0xE0, duration: 1), attempt: clip(fill: 0x20, duration: 1), title: "POSE 2"),
         ]
         let url = FileManager.default.temporaryDirectory.appending(path: "\(UUID().uuidString).mp4")
-        let style = DuetVideo.Style(paper: UIColor.white.cgColor, ink: UIColor.black.cgColor, wordmark: nil)
         await #expect(throws: DuetVideo.Failure.timeout) {
             try await DuetVideo.make(segments, to: url, style: style, timeout: .zero)
         }
@@ -123,29 +250,24 @@ struct DuetVideoTests {
         #expect(FileManager.default.fileExists(atPath: url.path))
     }
 
-    @Test func theCoverHasOpeningsForTheTwoClipsAndPaperBesideThem() throws {
-        let cover = try #require(DuetVideo.cover(label: "Pose 1", style: .init(paper: UIColor.white.cgColor, ink: UIColor.black.cgColor, wordmark: nil)))
-        #expect(CGSize(width: cover.width, height: cover.height) == DuetVideo.size)
-        // An opening has no color, so the context keeps its black. The paper is white.
-        #expect(try brightness(of: cover, at: CGPoint(x: DuetVideo.poseFrame.midX, y: DuetVideo.poseFrame.midY)) == 0)
-        #expect(try brightness(of: cover, at: CGPoint(x: DuetVideo.attemptFrame.midX, y: DuetVideo.attemptFrame.midY)) == 0)
-        #expect(try brightness(of: cover, at: CGPoint(x: 40, y: 400)) == 255)
-    }
-
     @Test func aVideoWithNoPoseIsAFault() async {
         let url = FileManager.default.temporaryDirectory.appending(path: "\(UUID().uuidString).mp4")
-        let style = DuetVideo.Style(paper: UIColor.white.cgColor, ink: UIColor.black.cgColor, wordmark: nil)
         await #expect(throws: DuetVideo.Failure.self) { try await DuetVideo.make([], to: url, style: style) }
     }
 
-    @Test func thePlacementPutsATurnedClipAndAMirrorClipInTheFrame() {
+    @Test func thePlacementCoversTheHalfAndKeepsTheTopOfAnUprightClip() {
         let frame = DuetVideo.attemptFrame
         let stored = CGSize(width: 960, height: 720)
-        // A quarter turn, and the mirror of a selfie clip.
+        // A quarter turn, and the mirror of a selfie clip: an upright picture, 720 x 960 as shown.
         for transform in [ClipRecorder.transform(quarterTurns: 1, isMirrored: false), ClipRecorder.transform(quarterTurns: 1, isMirrored: true)] {
             let placed = CGRect(origin: .zero, size: stored).applying(DuetVideo.placement(naturalSize: stored, transform: transform, in: frame))
-            #expect(abs(placed.minX - frame.minX) < 0.5 && abs(placed.minY - frame.minY) < 0.5)
-            #expect(abs(placed.width - frame.width) < 0.5 && abs(placed.height - frame.height) < 0.5)
+            // It covers the width; its top is at the top of the half; the part below the half is cut.
+            #expect(abs(placed.minX - frame.minX) < 0.5 && abs(placed.width - frame.width) < 0.5)
+            #expect(abs(placed.minY - frame.minY) < 0.5 && placed.height > frame.height)
         }
+        // A wide picture with no turn covers the height and is centered from side to side.
+        let wide = CGRect(origin: .zero, size: stored).applying(DuetVideo.placement(naturalSize: stored, transform: .identity, in: frame))
+        #expect(abs(wide.minY - frame.minY) < 0.5 && abs(wide.height - frame.height) < 0.5)
+        #expect(abs(wide.midX - frame.midX) < 0.5 && wide.width > frame.width)
     }
 }

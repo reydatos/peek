@@ -731,23 +731,45 @@ final class BoothSessionModel {
     }
 
     /// The poses of the finished set that have the two clips of a duet: the clip of the pose and the clip of the people.
+    /// The views read this to show the save button, so it makes no photo.
     var duetSegments: [DuetVideo.Segment] {
+        duetSegments(withPhotos: false)
+    }
+
+    private func duetSegments(withPhotos: Bool) -> [DuetVideo.Segment] {
         guard isComplete else { return [] }
         return state.slots.enumerated().compactMap { index, slot in
             guard let pose = catalog.cue(for: slot.cueID)?.clipURL, let attempt = attemptClip(for: slot) else { return nil }
-            var label = String(localized: .poseNumber(index + 1))
-            // The video shows the score only when the picture shows it.
-            if showsMatchStamp, let percent = shotPercents[slot.cueID] {
-                label += " · " + Self.stampText(percent: percent)
-            }
-            return DuetVideo.Segment(pose: pose, attempt: attempt, label: label)
+            return DuetVideo.Segment(
+                pose: pose,
+                attempt: attempt,
+                title: String(localized: .poseNumber(index + 1)).localizedUppercase,
+                photo: withPhotos ? image(for: slot).flatMap(Self.duetPhoto) : nil,
+                // The video shows the score only when the picture shows it.
+                percent: showsMatchStamp ? shotPercents[slot.cueID] : nil
+            )
         }
+    }
+
+    /// The pack name, the subtitle, and the finished strip, for the cards of the duet video.
+    private var duetStory: DuetVideo.Story {
+        DuetVideo.Story(title: pack?.name.string ?? "", subtitle: String(localized: .duetCardTitle), strip: strip?.cgImage)
+    }
+
+    /// A photo of a shot, upright and as wide as the video, for the freeze of the duet video.
+    private static func duetPhoto(_ image: UIImage) -> CGImage? {
+        guard image.size.width > 0 else { return nil }
+        let width = DuetVideo.size.width
+        let size = CGSize(width: width, height: width * image.size.height / image.size.width)
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = 1
+        return UIGraphicsImageRenderer(size: size, format: format).image { _ in image.draw(in: CGRect(origin: .zero, size: size)) }.cgImage
     }
 
     /// Makes the duet video and saves it to Photos. The copy in the temporary folder is removed after the save.
     func saveDuet() async {
-        let segments = duetSegments
-        guard !segments.isEmpty, saveStatus != .saving else { return }
+        guard !duetSegments.isEmpty, saveStatus != .saving else { return }
+        let segments = duetSegments(withPhotos: true)
         saveStatus = .saving
         // The app removes a "Share-" folder at its next start, if this function does not get to the end.
         let folder = FileManager.default.temporaryDirectory.appending(path: "Share-\(UUID().uuidString)")
@@ -755,7 +777,7 @@ final class BoothSessionModel {
         do {
             try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
             let url = folder.appending(path: "PEEK duet.mp4")
-            try await DuetVideo.make(segments, to: url, style: .paper)
+            try await DuetVideo.make(segments, story: duetStory, to: url, style: .standard)
             try await saver.saveVideo(at: url)
             saveStatus = .saved
         } catch PhotoSaveError.denied {

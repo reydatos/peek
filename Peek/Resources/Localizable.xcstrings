@@ -925,6 +925,17 @@
         }
       }
     },
+    "duetCardTitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DUET"
+          }
+        }
+      }
+    },
     "duetNeedsPack" : {
       "extractionState" : "manual",
       "localizations" : {
