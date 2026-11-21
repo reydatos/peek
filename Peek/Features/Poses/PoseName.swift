@@ -12,4 +12,12 @@ enum PoseName {
         case let .custom(string): Text(verbatim: string)
         }
     }
+
+    /// The name as plain words, for a picture or a video that the app draws.
+    var string: String {
+        switch self {
+        case let .builtIn(resource): String(localized: resource)
+        case let .custom(string): string
+        }
+    }
 }

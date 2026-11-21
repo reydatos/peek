@@ -128,7 +128,7 @@ struct DuetTests {
         model.send(.accept)
         #expect(model.isComplete)
         #expect(model.duetSegments.count == 1)
-        #expect(model.duetSegments[0].label.contains("1"))
+        #expect(model.duetSegments[0].title.contains("1"))
     }
 
     @Test func aDuetThatTheAppCanNotMakeGivesAFaultAndSavesNothing() async {
