@@ -5,7 +5,8 @@ import UIKit
 ///
 /// The video tells a short story: an intro card with the pack name, then for each pose a title card, the two clips,
 /// a shutter flash, and the photo that the booth took, frozen while the match score counts up. The finished strip
-/// is the last shot. The video is upright, silent, and H.264, so each share target can play it.
+/// is the last shot. Original sounds mark the countdown, the shutter, and the score (`DuetSound.swift`). The video is
+/// upright, H.264 with AAC sound, so each share target can play it.
 ///
 /// The sizes and the times are design values that the owner confirmed (2026-11-21). Pose reference clips of a
 /// pack show the people who made that pack.
@@ -148,10 +149,14 @@ nonisolated enum DuetVideo {
         if let strip = story?.strip {
             scenes.append(.still(art.outroCard(strip), frames: frames(Timing.outro)))
         }
-        try await write(scenes, art: art, to: url, timeout: timeout, progress: progress)
+        // The sounds use the same frame counts as the scenes, so a click is on its flash.
+        let cues = cues(intro: story != nil, clipFrames: clips.map { frames($0.duration.seconds) }, percents: segments.map(\.percent))
+        let seconds = Double(scenes.reduce(0) { $0 + $1.frameCount }) / Double(framesPerSecond)
+        let sound = Sound.track(cues: cues, seconds: seconds)
+        try await write(scenes, sound: sound, art: art, to: url, timeout: timeout, progress: progress)
     }
 
-    private static func frames(_ seconds: Double) -> Int {
+    static func frames(_ seconds: Double) -> Int {
         Int((seconds * Double(framesPerSecond)).rounded())
     }
 
@@ -231,6 +236,7 @@ nonisolated enum DuetVideo {
 
     private static func write(
         _ scenes: [Scene],
+        sound: [Int16],
         art: Art,
         to url: URL,
         timeout: Duration,
@@ -254,6 +260,18 @@ nonisolated enum DuetVideo {
         ])
         guard writer.canAdd(input) else { throw Failure.export }
         writer.add(input)
+        let pieces = SoundPieces(samples: sound)
+        let soundInput = AVAssetWriterInput(mediaType: .audio, outputSettings: [
+            AVFormatIDKey: kAudioFormatMPEG4AAC,
+            AVSampleRateKey: Sound.sampleRate,
+            AVNumberOfChannelsKey: 1,
+            AVEncoderBitRateKey: soundBitRate,
+        ])
+        soundInput.expectsMediaDataInRealTime = false
+        if pieces != nil {
+            guard writer.canAdd(soundInput) else { throw Failure.export }
+            writer.add(soundInput)
+        }
         guard writer.startWriting() else { throw Failure.export }
         writer.startSession(atSourceTime: .zero)
 
@@ -261,10 +279,38 @@ nonisolated enum DuetVideo {
         // Each call to the writer is on this queue.
         let queue = DispatchQueue(label: "com.a8media.peek.duet")
         let frames = Frames(scenes: scenes, art: art)
-        nonisolated(unsafe) let job = (writer: writer, input: input, adaptor: adaptor)
+        nonisolated(unsafe) let job = (writer: writer, input: input, adaptor: adaptor, sound: soundInput)
+        // The file is finished when the picture and the sound are both complete. Only the queue changes these.
+        nonisolated(unsafe) var isPictureDone = false
+        nonisolated(unsafe) var isSoundDone = pieces == nil
         var timer: Task<Void, Never>?
         let outcome: Outcome = await withCheckedContinuation { continuation in
             let result = OneResult(continuation)
+            let finishIfComplete = {
+                guard isPictureDone, isSoundDone, result.isOpen else { return }
+                job.writer.finishWriting {
+                    result.give(job.writer.status == .completed ? .written : .failed)
+                }
+            }
+            if let pieces {
+                // The writer takes the picture and the sound together: a writer that gets only one can stop taking it.
+                job.sound.requestMediaDataWhenReady(on: queue) {
+                    while result.isOpen, job.sound.isReadyForMoreMediaData {
+                        guard let piece = pieces.next() else {
+                            job.sound.markAsFinished()
+                            isSoundDone = true
+                            finishIfComplete()
+                            return
+                        }
+                        guard job.sound.append(piece) else {
+                            frames.cancel()
+                            job.writer.cancelWriting()
+                            result.give(.failed)
+                            return
+                        }
+                    }
+                }
+            }
             job.input.requestMediaDataWhenReady(on: queue) {
                 while result.isOpen, job.input.isReadyForMoreMediaData {
                     let next: (CVPixelBuffer, CMTime)?
@@ -278,9 +324,8 @@ nonisolated enum DuetVideo {
                     }
                     guard let (frame, time) = next else {
                         job.input.markAsFinished()
-                        job.writer.finishWriting {
-                            result.give(job.writer.status == .completed ? .written : .failed)
-                        }
+                        isPictureDone = true
+                        finishIfComplete()
                         return
                     }
                     guard job.adaptor.append(frame, withPresentationTime: time) else {
@@ -324,6 +369,8 @@ nonisolated enum DuetVideo {
 
     /// The average bit rate of the video, in bits per second. This is a design value.
     static let bitRate = 6_000_000
+    /// The bit rate of the sound, in bits per second. The sounds are short and simple. This is a design value.
+    static let soundBitRate = 96000
 
     /// Gives the frames of the scenes one after the other, at `framesPerSecond`. It runs on the queue of the video.
     private final class Frames: @unchecked Sendable {

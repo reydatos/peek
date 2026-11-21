@@ -107,7 +107,12 @@ struct DuetVideoTests {
         // Each pose: its title card, the length of the clip of its people, then the flash and the freeze.
         let perPose = titleFrames + 30 + freezeFrames
         #expect(try await abs(asset.load(.duration).seconds - Double(perPose * 2) / 30) < 0.05)
-        #expect(try await asset.loadTracks(withMediaType: .audio).isEmpty)
+        // One sound track, as long as the picture.
+        let sound = try await asset.loadTracks(withMediaType: .audio)
+        #expect(sound.count == 1)
+        if let soundTrack = sound.first {
+            #expect(try await abs(soundTrack.load(.timeRange).duration.seconds - Double(perPose * 2) / 30) < 0.1)
+        }
         let track = try #require(try await asset.loadTracks(withMediaType: .video).first)
         #expect(try await track.load(.naturalSize) == DuetVideo.size)
         let first = try await Self.picture(of: url, atFrame: titleFrames + 15)
@@ -215,6 +220,71 @@ struct DuetVideoTests {
         #expect(!list.isEmpty)
         #expect(zip(list, list.dropFirst()).allSatisfy { $0 <= $1 })
         #expect(abs((list.last ?? 0) - 1) < 0.001)
+    }
+
+    @Test func theSoundsMarkEachCountdownSecondTheShutterAndTheScore() {
+        // An intro, then a pose with a clip of 3 s and a score, then a pose with a clip of 2.5 s and no score.
+        let cues = DuetVideo.cues(intro: true, clipFrames: [90, 75], percents: [92, nil])
+        // The video counts in whole frames, so the expected times do too.
+        let intro = Double(DuetVideo.frames(DuetVideo.Timing.intro)) / 30
+        let title = Double(DuetVideo.frames(DuetVideo.Timing.title)) / 30
+        let freeze = Double(DuetVideo.frames(DuetVideo.Timing.flash + DuetVideo.Timing.freeze)) / 30
+        let firstEnd = intro + title + 3
+        let secondEnd = firstEnd + freeze + title + 2.5
+        let expected: [DuetVideo.Cue] = [
+            .init(kind: .beep, time: firstEnd - 3), .init(kind: .beep, time: firstEnd - 2), .init(kind: .beep, time: firstEnd - 1),
+            .init(kind: .shutter, time: firstEnd),
+            .init(kind: .pop, time: firstEnd + DuetVideo.Timing.flash + DuetVideo.Timing.countUp),
+            // A clip of 2.5 s counts "3, 2, 1" too, but its first beep would be before the clip: it lost its start.
+            .init(kind: .beep, time: secondEnd - 2), .init(kind: .beep, time: secondEnd - 1),
+            .init(kind: .shutter, time: secondEnd),
+        ]
+        #expect(cues.count == expected.count)
+        for (cue, want) in zip(cues, expected) {
+            #expect(cue.kind == want.kind && abs(cue.time - want.time) < 0.001, "\(cue) is not \(want)")
+        }
+    }
+
+    @Test func eachSoundIsShortAndQuiet() {
+        for kind in [DuetVideo.Cue.Kind.beep, .shutter, .pop] {
+            let samples = DuetVideo.Sound.sound(kind)
+            #expect(!samples.isEmpty && samples.count < DuetVideo.Sound.sampleRate / 5, "\(kind)")
+            #expect(samples.allSatisfy { abs($0) <= 0.5 }, "\(kind)")
+        }
+    }
+
+    @Test func theShutterSoundsAtTheFlashAndTheTitleCardIsSilent() async throws {
+        let segment = try await DuetVideo.Segment(pose: clip(fill: 0x20, duration: 1), attempt: clip(fill: 0xE0, duration: 1), title: "POSE 1")
+        let url = FileManager.default.temporaryDirectory.appending(path: "\(UUID().uuidString).mp4")
+        try await DuetVideo.make([segment], to: url, style: style)
+
+        // Read the sound back as numbers, one channel.
+        let asset = AVURLAsset(url: url)
+        let track = try #require(try await asset.loadTracks(withMediaType: .audio).first)
+        let reader = try AVAssetReader(asset: asset)
+        let output = AVAssetReaderTrackOutput(track: track, outputSettings: [
+            AVFormatIDKey: kAudioFormatLinearPCM, AVLinearPCMBitDepthKey: 16, AVLinearPCMIsFloatKey: false,
+            AVLinearPCMIsBigEndianKey: false, AVLinearPCMIsNonInterleaved: false, AVNumberOfChannelsKey: 1,
+        ])
+        reader.add(output)
+        #expect(reader.startReading())
+        var samples: [Int16] = []
+        while let buffer = output.copyNextSampleBuffer(), let block = CMSampleBufferGetDataBuffer(buffer) {
+            var length = 0
+            var pointer: UnsafeMutablePointer<CChar>?
+            CMBlockBufferGetDataPointer(block, atOffset: 0, lengthAtOffsetOut: nil, totalLengthOut: &length, dataPointerOut: &pointer)
+            if let pointer {
+                pointer.withMemoryRebound(to: Int16.self, capacity: length / 2) { samples.append(contentsOf: UnsafeBufferPointer(start: $0, count: length / 2)) }
+            }
+        }
+        func loudest(from start: Double, to end: Double) -> Int {
+            let rate = Double(DuetVideo.Sound.sampleRate)
+            let range = max(0, Int(start * rate)) ..< min(samples.count, Int(end * rate))
+            return range.isEmpty ? 0 : samples[range].map { abs(Int($0)) }.max() ?? 0
+        }
+        let flash = DuetVideo.Timing.title + 1
+        #expect(loudest(from: flash, to: flash + 0.1) > 3000)
+        #expect(loudest(from: 0.1, to: DuetVideo.Timing.title - 0.1) < 300)
     }
 
     @Test func aClipWithNoPictureAtItsStartLeavesNoPanelEmpty() async throws {
