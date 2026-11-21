@@ -4,12 +4,38 @@ import Testing
 import UIKit
 
 struct DuetVideoTests {
-    private func clip(fill: UInt8, duration: Double, rotationAngle: CGFloat = 90) async throws -> URL {
+    /// A clip of one color with a frame at each 1/30 second from its start. A rotation angle of 90 gives wide
+    /// frames with a quarter turn, as a camera clip has; 0 gives upright frames with no turn.
+    ///
+    /// The writer waits for the encoder, so it stores each frame. `ClipRecorder` drops a frame when its encoder is
+    /// busy, as a live camera must. A drop at the start leaves the clip with no picture there, and the video then
+    /// shows no picture of the people at that time: on a busy test machine, that failed this test at random.
+    ///
+    /// - Parameter firstFrame: the time of the first picture. A later time gives a clip with no picture at its start.
+    private func clip(fill: UInt8, duration: Double, rotationAngle: CGFloat = 90, firstFrame: Double = 0) async throws -> URL {
         let url = FileManager.default.temporaryDirectory.appending(path: "\(UUID().uuidString).mov")
         let wide = rotationAngle == 90
-        _ = try await ClipRecorderTests().record(
-            to: url, rotationAngle: rotationAngle, duration: duration, width: wide ? 640 : 480, height: wide ? 480 : 640, fill: fill
-        )
+        let (width, height) = wide ? (640, 480) : (480, 640)
+        let writer = try AVAssetWriter(outputURL: url, fileType: .mov)
+        let input = AVAssetWriterInput(mediaType: .video, outputSettings: [
+            AVVideoCodecKey: AVVideoCodecType.h264, AVVideoWidthKey: width, AVVideoHeightKey: height,
+        ])
+        input.expectsMediaDataInRealTime = false
+        input.transform = wide ? ClipRecorder.transform(quarterTurns: 1, isMirrored: false) : .identity
+        writer.add(input)
+        #expect(writer.startWriting())
+        // The test frames have their times from 100 seconds.
+        writer.startSession(atSourceTime: CMTime(seconds: 100, preferredTimescale: 600))
+        for index in Int((firstFrame * 30).rounded()) ..< Int((duration * 30).rounded()) {
+            while !input.isReadyForMoreMediaData {
+                try await Task.sleep(for: .milliseconds(1))
+            }
+            #expect(try input.append(ClipRecorderTests().frame(width: width, height: height, at: Double(index) / 30, fill: fill)))
+        }
+        input.markAsFinished()
+        writer.endSession(atSourceTime: CMTime(seconds: 100 + duration, preferredTimescale: 600))
+        await writer.finishWriting()
+        try #require(writer.status == .completed)
         return url
     }
 
@@ -58,6 +84,43 @@ struct DuetVideoTests {
         #expect(try brightness(of: second, at: pose) < 80)
         #expect(try brightness(of: second, at: attempt) > 180)
         #expect(try brightness(of: second, at: CGPoint(x: DuetVideo.attemptFrame.maxX - 8, y: DuetVideo.attemptFrame.maxY - 8)) > 180)
+    }
+
+    @Test func aClipWithNoPictureAtItsStartLeavesNoPanelEmpty() async throws {
+        // A recorder that dropped its first frames: the bright clip of the people has its first picture at 0.6 s.
+        let segment = try await DuetVideo.Segment(
+            pose: clip(fill: 0x20, duration: 1, rotationAngle: 0),
+            attempt: clip(fill: 0xE0, duration: 1, rotationAngle: 0, firstFrame: 0.6),
+            label: "Pose 1"
+        )
+        let url = FileManager.default.temporaryDirectory.appending(path: "\(UUID().uuidString).mp4")
+        try await DuetVideo.make([segment], to: url, style: .init(paper: UIColor.white.cgColor, ink: UIColor.black.cgColor, wordmark: nil))
+
+        // The pose has the length of the part of the clip that has a picture, and the panel shows the people at once.
+        let asset = AVURLAsset(url: url)
+        #expect(try await abs(asset.load(.duration).seconds - 0.4) < 0.1)
+        let generator = AVAssetImageGenerator(asset: asset)
+        generator.requestedTimeToleranceBefore = .zero
+        generator.requestedTimeToleranceAfter = .zero
+        let start = try await generator.image(at: CMTime(seconds: 0.05, preferredTimescale: 600)).image
+        #expect(try brightness(of: start, at: CGPoint(x: DuetVideo.attemptFrame.midX, y: DuetVideo.attemptFrame.midY)) > 180)
+    }
+
+    @Test func aVideoThatTakesTooLongStopsWithAFaultAndLeavesNoFile() async throws {
+        let segments = try await [
+            DuetVideo.Segment(pose: clip(fill: 0x20, duration: 1), attempt: clip(fill: 0xE0, duration: 1), label: "Pose 1"),
+            DuetVideo.Segment(pose: clip(fill: 0xE0, duration: 1), attempt: clip(fill: 0x20, duration: 1), label: "Pose 2"),
+        ]
+        let url = FileManager.default.temporaryDirectory.appending(path: "\(UUID().uuidString).mp4")
+        let style = DuetVideo.Style(paper: UIColor.white.cgColor, ink: UIColor.black.cgColor, wordmark: nil)
+        await #expect(throws: DuetVideo.Failure.timeout) {
+            try await DuetVideo.make(segments, to: url, style: style, timeout: .zero)
+        }
+        #expect(!FileManager.default.fileExists(atPath: url.path))
+
+        // A video after the one that stopped is made as usual.
+        try await DuetVideo.make(segments, to: url, style: style)
+        #expect(FileManager.default.fileExists(atPath: url.path))
     }
 
     @Test func theCoverHasOpeningsForTheTwoClipsAndPaperBesideThem() throws {
