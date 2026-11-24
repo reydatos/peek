@@ -11,6 +11,7 @@ struct BoothLeadingPanel: View {
                 .font(.title2)
                 .bold()
             LayoutPicker(model: model)
+            DuetShotPicker(model: model)
             FramePicker(model: model)
             MatchStampToggle(model: model)
             Spacer()

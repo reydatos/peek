@@ -25,9 +25,13 @@ final class BoothSessionModel {
     var isOuterPreviewMirrored = false
 
     /// The layout of the finished picture. A change draws the picture again.
+    /// The duet prints are made to laugh at the score, so a change to one of them turns the score on.
     var layout: PeekCore.Layout = .verticalStrip {
         didSet {
             if layout != oldValue {
+                if layout.showsPoses, !oldValue.showsPoses {
+                    showsMatchStamp = true
+                }
                 redrawStrip()
             }
         }
@@ -37,6 +41,16 @@ final class BoothSessionModel {
     var frame: FrameColor = .cream {
         didSet {
             if frame != oldValue {
+                redrawStrip()
+            }
+        }
+    }
+
+    /// The slot of the shot in the single duet print, by its index. Nil gives the best match.
+    /// It is in memory only, as the match scores are.
+    var duetSlot: Int? {
+        didSet {
+            if duetSlot != oldValue, layout == .duetSingle, isComplete {
                 redrawStrip()
             }
         }
@@ -154,6 +168,8 @@ final class BoothSessionModel {
         let pack = catalog.packOrClassic(id: packID)
         self.packID = pack.id
         state = BoothState(cueIDs: pack.cues.map(\.id), countdown: state.countdown)
+        // A new set has new shots, so the single duet print goes back to the best match.
+        duetSlot = nil
         if cameraStatus == .running {
             send(.finishSetup)
         }
@@ -659,15 +675,49 @@ final class BoothSessionModel {
                 startScore()
             }
             guard strip == nil, stripTask == nil else { return }
-            let shots = state.slots.compactMap { image(for: $0) }
-            stripTask = Task { [layout, frame, showsMatchStamp, scoreTask] in
+            let slots = state.slots.filter { image(for: $0) != nil }
+            var shots = slots.compactMap { image(for: $0) }
+            // The pose pictures are read here, on the main actor; only the duet prints draw them.
+            var poses: [StripRenderer.DuetPose] = []
+            if layout.showsPoses {
+                poses = slots.map { slot in
+                    let cue = catalog.cue(for: slot.cueID)
+                    return StripRenderer.DuetPose(picture: cue?.picture, name: cue?.name.string ?? "")
+                }
+            }
+            let cueIDs = slots.map(\.cueID)
+            stripTask = Task { [layout, frame, showsMatchStamp, scoreTask, duetSlot] in
                 // A picture with the stamp waits for the score, so no save gets a picture without it.
                 var stamp: String?
-                if showsMatchStamp, let percent = await scoreTask?.value {
+                if layout.showsPoses, !shots.isEmpty {
+                    // A duet print waits for the score in all cases: the scores go on the shots, and the best
+                    // match picks the shot of the single print.
+                    let percent = await scoreTask?.value
+                    for index in poses.indices {
+                        poses[index].percent = shotPercents[cueIDs[index]]
+                    }
+                    var printPercent = percent
+                    if layout == .duetSingle {
+                        let index = Self.duetIndex(chosen: duetSlot, cueIDs: cueIDs, percents: shotPercents)
+                        shots = [shots[index]]
+                        poses = poses.indices.contains(index) ? [poses[index]] : []
+                        printPercent = poses.first?.percent
+                    }
+                    if showsMatchStamp, let printPercent {
+                        stamp = Self.verdictStampText(percent: printPercent)
+                    }
+                } else if showsMatchStamp, let percent = await scoreTask?.value {
                     stamp = Self.stampText(percent: percent)
                 }
                 guard !Task.isCancelled else { return }
-                let picture = await StripRenderer.renderInBackground(shots, layout: layout, style: .paper(frame), stamp: stamp)
+                let picture = await StripRenderer.renderInBackground(
+                    shots,
+                    layout: layout,
+                    style: .paper(frame),
+                    stamp: stamp,
+                    poses: poses,
+                    scores: showsMatchStamp
+                )
                 // A retake, a new layout, or a new set cancels this draw.
                 guard !Task.isCancelled else { return }
                 strip = picture
@@ -710,10 +760,45 @@ final class BoothSessionModel {
         }
     }
 
-    /// The stamp of the finished picture now: nil with the switch off, or while the score is not known.
-    var stripStamp: String? {
-        guard showsMatchStamp, let matchPercent else { return nil }
-        return Self.stampText(percent: matchPercent)
+    /// The poses of the accepted shots, in the order of `finishedShots`.
+    var finishedCueIDs: [String] {
+        state.slots.filter { image(for: $0) != nil }.map(\.cueID)
+    }
+
+    /// The match of each accepted shot, in percent, in the order of `finishedShots`. Nil for a shot with no score.
+    var finishedShotPercents: [Int?] {
+        finishedCueIDs.map { shotPercents[$0] }
+    }
+
+    /// The index of the shot in the Match print now.
+    var duetShotIndex: Int {
+        Self.duetIndex(chosen: duetSlot, cueIDs: finishedCueIDs, percents: shotPercents)
+    }
+
+    /// The shot of the single duet print, by its index: the chosen one, else the best match, else the first.
+    static func duetIndex(chosen: Int?, cueIDs: [String], percents: [String: Int]) -> Int {
+        if let chosen, cueIDs.indices.contains(chosen) {
+            return chosen
+        }
+        let scored = cueIDs.indices.compactMap { index in percents[cueIDs[index]].map { (index, $0) } }
+        // The first of equal scores wins, so the choice does not change between draws.
+        return scored.max { $0.1 < $1.1 || ($0.1 == $1.1 && $0.0 > $1.0) }?.0 ?? 0
+    }
+
+    /// The verdict of a score, to laugh at on a duet print. The bands are owner decisions (2026-11-23).
+    static func verdict(percent: Int) -> LocalizedStringResource {
+        switch percent {
+        case 90...: .verdictTwins
+        case 75 ..< 90: .verdictCopycat
+        case 50 ..< 75: .verdictClose
+        case 25 ..< 50: .verdictCreative
+        default: .verdictLook
+        }
+    }
+
+    /// The stamp of a duet print: the score and its verdict, for example "92% match · Basically twins".
+    static func verdictStampText(percent: Int) -> String {
+        String(localized: .stampWithVerdict(stampText(percent: percent), String(localized: verdict(percent: percent))))
     }
 
     /// The words of the stamp, for example "92% match".

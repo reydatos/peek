@@ -78,6 +78,18 @@
         }
       }
     },
+    "bestCopy" : {
+      "comment" : "Tag on the shot with the highest match score in a duet print.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Best copy"
+          }
+        }
+      }
+    },
     "boothKind" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1178,6 +1190,18 @@
         }
       }
     },
+    "layoutDuet" : {
+      "comment" : "Layout choice: the poses in a row above the shots that copy them.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Duet"
+          }
+        }
+      }
+    },
     "layoutGrid" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1196,6 +1220,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Layout"
+          }
+        }
+      }
+    },
+    "layoutMatch" : {
+      "comment" : "Layout choice: one pose above the one shot that copies it, with its match score.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Match"
           }
         }
       }
@@ -1295,6 +1331,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "No person in view"
+          }
+        }
+      }
+    },
+    "matchShotLabel" : {
+      "comment" : "Accessibility label of the row of shots; the photographer picks the shot for the Match print.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Shot for Match"
           }
         }
       }
@@ -2223,6 +2271,18 @@
         }
       }
     },
+    "stampWithVerdict" : {
+      "comment" : "Footer of a duet print: the match stamp, then the verdict. Example: 92% match · Basically twins",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ · %2$@"
+          }
+        }
+      }
+    },
     "startAfterSeconds" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2296,6 +2356,66 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Use this pose"
+          }
+        }
+      }
+    },
+    "verdictClose" : {
+      "comment" : "Verdict for a match score from 50% to 74%. Playful.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Close enough"
+          }
+        }
+      }
+    },
+    "verdictCopycat" : {
+      "comment" : "Verdict for a match score from 75% to 89%. Playful.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Certified copycat"
+          }
+        }
+      }
+    },
+    "verdictCreative" : {
+      "comment" : "Verdict for a match score from 25% to 49%. Playful teasing.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Creative interpretation"
+          }
+        }
+      }
+    },
+    "verdictLook" : {
+      "comment" : "Verdict for a match score under 25%. Playful teasing, not mean.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Did you even look?"
+          }
+        }
+      }
+    },
+    "verdictTwins" : {
+      "comment" : "Verdict for a match score of 90% or more, printed on a duet print. Playful.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Basically twins"
           }
         }
       }

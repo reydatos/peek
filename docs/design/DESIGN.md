@@ -100,11 +100,13 @@ No serif and no italic lettering anywhere in the app.
 - Rail button: 122 wide, min height 54, icon above label.
 - Disabled: `fill` background, `inkSecondary` label.
 
-**Segmented choice.** Pill container in `fill`; selected segment in `strong` with `onStrong` text and a check icon. Used for Classic / Copycat and Strip / 2×2.
+**Segmented choice.** Pill container in `fill`; selected segment in `strong` with `onStrong` text and a check icon. Used for Classic / Copycat and Strip / 2×2 / Duet / Match.
 
 **Pack card.** A card in the pose library grid: the poses of the pack as a block of small pictures (two in each row), the name, a one-line description, and a 2 border in the pack accent. A tap selects the pack. The grid replaces the long list of pack rows (owner decision, 2026-11-15); the packs show together with little scroll.
 
-**Instant strip.** `photoPaper` border, radius 4. Vertical (four stacked) and 2×2. Optional caption line with the wordmark and date.
+**Instant strip.** `photoPaper` border, radius 4. Vertical (four stacked) and 2×2. Optional caption line with the wordmark and date. Each shot has a thin line, as a photo booth print: black on cream and on white paper, white on black paper (owner decision, 2026-11-23). A pose picture in a duet print keeps its cyan line.
+
+**Duet prints** (owner decision, 2026-11-23). Two more layouts put the pose pictures above the shots, so friends can laugh at the match. **Duet**: the poses in a row at the top, the shots in a row below. **Match**: one pose above one shot; the best match is the default, and a row of the shots with their scores picks another. A pose is drawn whole in a 3:4 cell with a cyan line. With the score on, each shot has a white score pill, the best copy of a Duet has a red "Best copy" tag with a crown, and the caption line has the score and a verdict: 90–100% Basically twins, 75–89% Certified copycat, 50–74% Close enough, 25–49% Creative interpretation, 0–24% Did you even look? A change to a duet print turns the score on. These prints work for every pack; the duet video needs a pack with clips.
 
 **Status banner.** `surface` card over the photo with a warning icon and one sentence.
 
@@ -147,7 +149,7 @@ Three states in order. The live crop does not change between the second and thir
 ### 6. Finish the strip
 - State: four shots accepted.
 - Primary action: **Save Strip**. Then **Share** and **Save Originals**, all on the trailing rail.
-- Photographer: Strip / 2×2 choice, vertical strip on the leading half, 2×2 on the trailing half.
+- Photographer: the leading panel has the Strip / 2×2 / Duet / Match choice (with the shot row for Match), the frame color, and the score switch. The photo area shows the selected print, as large as it fits (2026-11-23; before, it showed the strip and the 2×2 side by side).
 - Subject: the finished strip.
 - The exported image is the strip alone: paper border, four shots, wordmark and date. No device and no UI.
 
@@ -164,7 +166,7 @@ From the "Light style" screens.
 - Customer packs (owner decision, 2026-11-15): the first card of the pose library is "New pack". It opens the pack editor: a pack name, and four poses, each with a name and a Record button. The record screen shows the live camera, a 3-2-1 countdown, a 5-second silent clip with a progress bar, then "Use this pose" (red) and "Record again". "Save pack" is the one red action of the editor, and it is available when the pack has a name and four clips. A customer pack is in the group "Mine". A long press on its card gives "Delete pack", with a confirmation. The clip size (720 x 960), its bit rate (1.5 Mbit/s), and the 3-second start allowance are design values.
 - Pose tray: removed (owner decision, 2026-11-15). The poses button opens the pose library at once.
 - Pose library: a grid of pack cards in the order of their groups (Classic, Kids, Street, Trends), with a filter All / Kids / Street / Trends. A tap on a card selects the pack. There is no Saved tab and no star; the choice of a pose for one shot is the sideways swipe on the photo (60 points or more), or the ‹ › buttons beside the pose picture, with a dot for each pose of the pack below it. A pose shows one time in a session: the change trades poses with the open shot that had the pose, and it skips the pose of an accepted shot (owner decisions, 2026-11-20).
-- Strip builder: choose four, frame colour chips (Cream, White, Black), layout chips (2×2, Strip), Retake and Save Strip.
+- Strip builder: choose four, frame colour chips (Cream, White, Black), layout chips (Strip, 2×2, Duet, Match), Retake and Save Strip.
 
 ## Layout rules for iPhone Duo
 
