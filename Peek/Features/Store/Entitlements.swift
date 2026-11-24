@@ -77,6 +77,15 @@ final class Entitlements {
         }
     }
 
+    /// True when the prices loaded but the App Store did not return this product, as a product that is not
+    /// set up in App Store Connect yet. The sheet then shows the failed state, not a spinner that never stops.
+    func isMissing(_ productID: String) -> Bool {
+        if case let .loaded(prices) = prices {
+            return prices[productID] == nil
+        }
+        return false
+    }
+
     func price(of productID: String) -> String? {
         if case let .loaded(prices) = prices {
             return prices[productID]

@@ -5,6 +5,8 @@ import SwiftUI
 /// A store with no App Store. Each test sets the answer of each call.
 final class FakeStoreClient: StoreClient {
     var itemsError: (any Error)?
+    /// Products that the App Store does not return, as products not set up in App Store Connect.
+    var missing: Set<String> = []
     var purchaseResult: Result<PurchaseOutcome, any Error> = .success(.purchased)
     var owned: Set<String> = []
     var syncError: (any Error)?
@@ -18,7 +20,7 @@ final class FakeStoreClient: StoreClient {
         if let itemsError {
             throw itemsError
         }
-        return ids.map { StoreItem(id: $0, displayPrice: $0 == StoreProducts.allPacks ? "$19.99" : "$1.99") }
+        return ids.filter { !missing.contains($0) }.map { StoreItem(id: $0, displayPrice: $0 == StoreProducts.allPacks ? "$19.99" : "$1.99") }
     }
 
     func purchase(_ id: String, with _: PurchaseAction?) async throws -> PurchaseOutcome {

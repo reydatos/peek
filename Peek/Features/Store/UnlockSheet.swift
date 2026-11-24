@@ -71,7 +71,8 @@ struct UnlockSheet: View {
         }
         .task(id: flow.phase == .succeeded) {
             guard flow.phase == .succeeded else { return }
-            try? await Task.sleep(for: Self.successPause)
+            // Close during the pause cancels the task, and then the pack is not chosen.
+            do { try await Task.sleep(for: Self.successPause) } catch { return }
             onUnlocked()
         }
     }
@@ -120,7 +121,7 @@ struct UnlockSheet: View {
     }
 
     @ViewBuilder private var offers: some View {
-        if entitlements.prices == .failed {
+        if entitlements.prices == .failed || pack.productID.map(entitlements.isMissing) == true {
             VStack(alignment: .leading) {
                 Text(.unlockPricesFailed)
                     .foregroundStyle(PeekTheme.ink)
@@ -134,10 +135,13 @@ struct UnlockSheet: View {
                         price.map { Text(.unlockForPrice($0)) } ?? Text(.unlockPack)
                     }
                 }
-                offerButton(StoreProducts.allPacks, isPrimary: false) { price in
-                    price.map { Text(.allPacksForPrice($0)) } ?? Text(.allPacks)
+                // All Packs shows only when the App Store returned it.
+                if !entitlements.isMissing(StoreProducts.allPacks) {
+                    offerButton(StoreProducts.allPacks, isPrimary: false) { price in
+                        price.map { Text(.allPacksForPrice($0)) } ?? Text(.allPacks)
+                    }
+                    subscriptionTerms
                 }
-                subscriptionTerms
                 Button { Task { await flow.restore() } } label: {
                     HStack {
                         Text(.restorePurchases)

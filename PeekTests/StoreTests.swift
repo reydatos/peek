@@ -107,6 +107,16 @@ struct StoreTests {
         #expect(entitlements.price(of: StoreProducts.allPacks) == "$19.99")
     }
 
+    @Test func aProductThatTheStoreDidNotReturnIsMissingNotLoading() async {
+        client.missing = [StoreProducts.pack("kidsPoses")]
+        let entitlements = await started()
+        #expect(!entitlements.isMissing(StoreProducts.pack("kidsPoses")))
+        await entitlements.loadPrices()
+        #expect(entitlements.isMissing(StoreProducts.pack("kidsPoses")))
+        #expect(!entitlements.isMissing(StoreProducts.allPacks))
+        #expect(entitlements.price(of: StoreProducts.allPacks) == "$19.99")
+    }
+
     @Test func cancelledChangesNothing() async throws {
         client.purchaseResult = .success(.cancelled)
         let flow = await UnlockFlow(pack: kids, entitlements: started())
@@ -228,6 +238,15 @@ struct StoreTests {
         await second.startCamera()
         #expect(second.packID == "kidsPoses")
         #expect(second.hasShots)
+
+        // The set goes on with the locked pack: one more shot is accepted.
+        second.continueIfWaiting()
+        second.send(.start)
+        await second.countdownTask?.value
+        await second.captureTask?.value
+        second.send(.accept)
+        #expect(second.state.slots.count { $0.acceptedTake != nil } == 2)
+        #expect(second.packID == "kidsPoses")
 
         // New set is the next check point: it asks for the unlock and keeps the set.
         second.startNewSet()
