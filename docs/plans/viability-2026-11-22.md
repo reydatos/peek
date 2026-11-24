@@ -18,7 +18,7 @@ The owner decided each gap below on 2026-11-21 and 2026-11-22. With these decisi
 | # | Area | Decision |
 |---|---|---|
 | 1 | Memories entry | **1A.** A 44 pt round thumbnail of the last saved strip opens the Memories sheet. It is on the leading side of the black camera bar (tall booth) and at the bottom of the side rail (wide booth). With no saves, it is hidden and the bar keeps its current layout. |
-| 2 | Business model | **2A.** The Classic pack is free. Every other pack is a one-time unlock. An all-access subscription ("All Packs") includes every pack and every future pack. The owner sets the prices and any trial in App Store Connect. |
+| 2 | Business model | **Superseded 2026-11-24:** Street Style is the free pack; $1.99 per pack, 3 for $4.99, All Packs $19.99 a year (see "Owner decisions after the reviews"). Original **2A.** The Classic pack is free. Every other pack is a one-time unlock. An all-access subscription ("All Packs") includes every pack and every future pack. The owner sets the prices and any trial in App Store Connect. |
 | 3 | Locked packs | **3A.** A locked pack card shows a chip with a lock icon and the word "LOCKED" (never color alone). A tap opens the unlock sheet, so the user sees the poses before paying. |
 | 4 | Settings | **4A.** The last item of the More menu opens a Settings sheet: Purchases (Restore Purchases, Manage subscription, "All Packs" state), Replay tips, Privacy, Terms, About. |
 | 5 | Purchase states | **5A.** The state table below. |
@@ -32,7 +32,7 @@ The owner decided each gap below on 2026-11-21 and 2026-11-22. With these decisi
 | 13 | Tokens | **13A.** The token map below. Existing tokens win over the mockup sizes, and nothing new goes in `PeekTheme`. |
 | 14 | Wide display and accessibility | **14A.** The table below. |
 | 15 | App Store category | **15A.** Photo & Video, age rating 4+, not the Kids category. Ask to Buy covers children. No parent gate. |
-| 16 | Custom packs | **16A.** Anyone can make and share one custom pack for free. More custom packs come with All Packs. The "New pack" card shows a pack-limit state (lock chip plus "1 free pack used"). A tap opens the All Packs sheet. |
+| 16 | Custom packs | **Superseded 2026-11-24: unlimited and free (T10 dropped).** Original **16A.** Anyone can make and share one custom pack for free. More custom packs come with All Packs. The "New pack" card shows a pack-limit state (lock chip plus "1 free pack used"). A tap opens the All Packs sheet. |
 | 17 | Languages | **17A.** English at launch. Strings stay in the catalog. Languages are added later from App Store data (see TODOS.md). |
 | 18 | Duet failure | **18A.** "Couldn't make your duet." with a warning icon and Try again. The shots and clips stay, and Save Strip still works. This replaces the generic `SaveStatus.failed` label for the duet. |
 
@@ -186,7 +186,7 @@ The effort estimates use the default ratios: features about 30x, tests about 50x
 - [ ] **T9 (P2, human: ~1.5d / CC: ~1.5h)**: Strip looks (Natural, B&W, Film, Flash) on the strip and the duet (11A).
   - Files: `StripRenderer.swift`, `FramePicker.swift`, `DuetVideo.swift`
   - Verify: snapshot tests for each look; the duet render time stays under the 30 s timeout
-- [ ] **T10 (P2, human: ~3h / CC: ~15min)**: Custom pack limit: 1 free, more with All Packs (16A).
+- [x] ~~**T10 (P2, human: ~3h / CC: ~15min)**: Custom pack limit: 1 free, more with All Packs (16A).~~ **Dropped 2026-11-24:** making custom packs is unlimited and free.
   - Files: `NewPackCard.swift`, `UserPacks.swift`
   - Verify: a test that the second pack opens the All Packs sheet
 - [ ] **T11 (P2, human: ~2h / CC: ~10min)**: Duet failure message and Try again (18A).
@@ -226,7 +226,7 @@ Every rated pass is now 8/10 or higher. The two open items below are owner decis
 
 ### Unresolved decisions
 
-- The prices and any trial or introductory offer for each pack and for All Packs, and which looks (11A) are free. If these are deferred, the store cannot go live.
+- **Resolved 2026-11-24:** $1.99 per PEEK Pack, 3 for $4.99, All Packs $19.99 a year, one free photo pack (see "Owner decisions after the reviews"). Store details decided the same day: Street Style is free, fixed themed bundles, no trial, unlimited free custom packs (T10 dropped). Still open: which looks are free, and the bundle names and contents. Earlier text: the prices and any trial or introductory offer for each pack and for All Packs, and which looks (11A) are free. If these are deferred, the store cannot go live.
 - **Resolved 2026-11-23:** `peek.therevolv.com` on a new Vercel project (see "Owner decisions after the reviews"). Earlier text: the domain and host for the static site (D2 = A), and how a web page fits the "pure iOS" rule in `AGENTS.md`. This blocks T1 and T3 (guideline 3.1.2 needs Terms and Privacy links in the subscription flow), the App Store Connect privacy policy URL, and T8. (This bullet was corrected by the eng review: it first said only T8 was affected.)
 
 ## Eng review (2026-11-22, /plan-eng-review of this file)
@@ -841,8 +841,24 @@ These came after the design and eng reviews. They outrank earlier text in this f
 - A shot framed too close has no score instead of 0%, and the meter says "Step back so your arms show".
 - Confirmed on a physical Duo: plush and illustrated poses give no body, so those packs have no score.
 
-**Still open**
-- Prices, any trial or introductory offer, and which looks are free (owner).
+**Business model and prices (2026-11-24, after pricing research)**
+- The app is free. Making a pack and sharing it with friends stays free; this is the viral loop. A pack from a friend is free (D8).
+- **PEEK Pack** (a pack designed by PEEK, 4 poses): **$1.99** each, or a **3-pack bundle for $4.99**.
+- **All Packs:** **yearly only, $19.99**, and it unlocks every PEEK Pack. There is no monthly plan.
+- **Free at launch:** **one free photo pack**, so the match score, the verdicts, and the duet work in the first minute. This replaces 2A ("the Classic pack is free"). Plush and illustrated poses give no score, so Classic is not the free pack.
+- **Creator packs:** featured creators first. PEEK signs a few creators and sells their packs as featured PEEK Packs, with a revenue split by contract, through the same in-app purchase. An open marketplace for packs made by anyone is version 2. It needs accounts, uploads, moderation (guideline 1.2: filter, report, block, contact), an age limit on content (1.2.1), payouts, and an 18+ creator rule, and it would end the no-upload privacy promise.
+- Apple's commission is 15% under the Small Business Program: about $1.69 kept per $1.99 pack, $4.24 per bundle, and $16.99 per year of All Packs.
+- Research notes: impulse extras in consumer photo apps cost about $0.99–$2.99; $5 and higher prices in this category are for event photo booth businesses. Yearly plans keep the most subscribers. Plan to A/B test $1.99 against $2.99 per pack after launch.
+
+**Store details (2026-11-24)**
+- The free pack is **Street Style**: full-body poses that scored 98–99% in the Duo tests.
+- The 3-for-$4.99 bundles are **fixed themed bundles**, one store product each (for example Seoul + Hong Kong, or a kids bundle). There is no "any 3" choice, so no unlock credits.
+- All Packs has **no free trial**. The free Street Style pack is the trial.
+- Making custom packs is **unlimited and free**. This supersedes 16A, and **T10 (the custom pack limit) is dropped**.
+
+**Still open (owner)**
+- Which looks (11A) are free.
+- The names and contents of the themed bundles.
 
 ## GSTACK REVIEW REPORT
 
@@ -858,8 +874,8 @@ These came after the design and eng reviews. They outrank earlier text in this f
   - **Design phase:** Codex unavailable. A native Claude subagent completed.
   - **Plan-review phase:** Codex unavailable (to repair, run `npm install -g @openai/codex`). A native Claude Plan subagent finished inside the 5-minute limit with 11 findings and VERDICT: FINDINGS. All 11 have a disposition: 5 recorded without a question, and D7-D11 answered.
   - Native fallbacks do not count as outside coverage.
-- **VERDICT:** No review is CLEAR. The eng review has issues open: prices block the store work. The host is decided (2026-11-23); its setup details are open (see "Owner decisions after the reviews"). The other 10 tasks can start with W0 and W1.
+- **VERDICT:** No review is CLEAR. The eng review has issues open. Prices and store details are decided (2026-11-24); T10 is dropped. Which looks are free and the bundle contents are open, but they do not block the start of T1. The host is decided (2026-11-23); its setup details are open (see "Owner decisions after the reviews"). The other 10 tasks can start with W0 and W1.
 
 **UNRESOLVED DECISIONS:**
-- Prices, any trial or introductory offer, and which looks are free (owner)
+- Which looks (11A) are free, and the names and contents of the fixed themed bundles (owner)
 - Site setup for `peek.therevolv.com`: the email service for the waitlist function, the address that gets signups, who manages the therevolv.com DNS, and where the site code lives (a separate repo is recommended, so this app repo stays pure iOS) (owner)
