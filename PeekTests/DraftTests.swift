@@ -130,7 +130,7 @@ struct DraftTests {
         #expect(model.cameraStatus == .denied)
     }
 
-    @Test func aDraftOfARemovedCustomerPackComesBackWithTheClassicPoses() async {
+    @Test func aDraftOfARemovedCustomerPackComesBackWithTheFreePoses() async {
         let still = URL(filePath: "/dev/null/still.jpg")
         let catalog = PoseCatalog(userPacks: [PosePack(id: "user-1", name: "Friday night", cues: [
             PoseCue(id: "user-1-a", name: "One", still: still),
@@ -144,8 +144,8 @@ struct DraftTests {
         let second = model()
         await second.restoreDraft()
         await second.startCamera()
-        #expect(second.packID == PoseLibrary.classicID)
-        #expect(second.state.slots.map(\.cueID) == ["smile", "lookAtEachOther"])
+        #expect(second.packID == PoseLibrary.freeID)
+        #expect(second.state.slots.map(\.cueID) == ["walk", "lookBack"])
         #expect(second.state.slots.first.flatMap { second.image(for: $0) } != nil)
         #expect(second.currentCue != nil)
     }

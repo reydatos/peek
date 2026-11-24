@@ -54,9 +54,9 @@ import UIKit
         let catalog = PoseCatalog(userPacks: [PosePack(id: "empty", name: "Empty", cues: [])])
         #expect(catalog.pack(id: "empty") == nil)
         #expect(catalog.packs(for: .only(.mine)).isEmpty)
-        // A booth that asks for it gets the classic booth, not a session with no slot.
+        // A booth that asks for it gets the free pack, not a session with no slot.
         let model = BoothSessionModel(capture: FakeCapture(), packID: "empty", catalog: catalog, saver: FakeSaver())
-        #expect(model.packID == PoseLibrary.classicID)
+        #expect(model.packID == PoseLibrary.freeID)
         model.loadPack("empty")
         #expect(model.state.slots.count == 4)
     }
@@ -71,14 +71,14 @@ import UIKit
         #expect(model.onAccent == PeekTheme.onStrong)
     }
 
-    @Test func aPackThatTheCatalogDoesNotHaveGivesTheClassicBooth() async {
+    @Test func aPackThatTheCatalogDoesNotHaveGivesTheFreePack() async {
         let model = BoothSessionModel(capture: FakeCapture(), packID: "removed-pack", saver: FakeSaver())
         await model.startCamera()
-        #expect(model.packID == PoseLibrary.classicID)
-        #expect(model.currentCue?.id == "smile")
+        #expect(model.packID == PoseLibrary.freeID)
+        #expect(model.currentCue?.id == "walk")
 
         model.loadPack("removed-pack")
-        #expect(model.packID == PoseLibrary.classicID)
+        #expect(model.packID == PoseLibrary.freeID)
         #expect(model.pack != nil)
     }
 }

@@ -136,8 +136,8 @@ final class BoothSessionModel {
         self.drafts = drafts
         self.sleep = sleep
         self.catalog = catalog
-        // A pack that the catalog does not have gives the classic booth.
-        let pack = catalog.packOrClassic(id: packID)
+        // A pack that the catalog does not have gives the free pack.
+        let pack = catalog.packOrFree(id: packID)
         self.packID = pack.id
         state = BoothState(cueIDs: cueIDs ?? pack.cues.map(\.id))
         // The default finds no body shape, so tests stay isolated. The app passes the Vision analyzer.
@@ -169,7 +169,7 @@ final class BoothSessionModel {
         saveStatus = .idle
         deleteDraft()
         isOnOneScreen = false
-        let pack = catalog.packOrClassic(id: packID)
+        let pack = catalog.packOrFree(id: packID)
         self.packID = pack.id
         state = BoothState(cueIDs: pack.cues.map(\.id), countdown: state.countdown)
         // A new set has new shots, so the single duet print goes back to the best match.
@@ -560,13 +560,13 @@ final class BoothSessionModel {
                 loaded[take.id] = data
             }
         }
-        // A customer can remove a pack or a pose that the draft still names. Such a slot gets the classic pose
+        // A customer can remove a pack or a pose that the draft still names. Such a slot gets the free pose
         // of its position, so each slot has a pose that the catalog knows.
-        let classicIDs = catalog.classicPack.cues.map(\.id)
+        let freeIDs = catalog.freePack.cues.map(\.id)
         let slots = record.slots.enumerated().map { index, slot in
             Slot(
                 id: slot.id,
-                cueID: catalog.cue(for: slot.cueID) == nil ? classicIDs[index % classicIDs.count] : slot.cueID,
+                cueID: catalog.cue(for: slot.cueID) == nil ? freeIDs[index % freeIDs.count] : slot.cueID,
                 acceptedTake: slot.acceptedTake.flatMap { loaded[$0.id] == nil ? nil : $0 },
                 previousTake: slot.previousTake.flatMap { loaded[$0.id] == nil ? nil : $0 }
             )
@@ -577,7 +577,7 @@ final class BoothSessionModel {
         stored = Set(loaded.keys)
         draftID = record.id
         hasDraft = true
-        packID = catalog.packOrClassic(id: record.templateID).id
+        packID = catalog.packOrFree(id: record.templateID).id
         var restored = record
         restored.slots = slots
         state = BoothState(restoring: restored)
@@ -943,8 +943,19 @@ final class BoothSessionModel {
         saveStatus = .idle
     }
 
+    /// Says whether the customer can use a pack. The default unlocks every pack, so tests stay isolated.
+    /// The booth passes the store of owned products.
+    @ObservationIgnored var isUnlocked: (PosePack) -> Bool = { _ in true }
+    /// A paid pack that a New set must unlock first (D5). The booth shows the unlock sheet for it.
+    var unlockRequest: PosePack?
+
     /// Starts a new set with the same pack. The shots of the old set are discarded.
+    /// A pack that is locked now (an expiry or a refund during the set) asks for the unlock first; the set stays.
     func startNewSet() {
+        if let pack, !isUnlocked(pack) {
+            unlockRequest = pack
+            return
+        }
         loadPack(packID)
     }
 

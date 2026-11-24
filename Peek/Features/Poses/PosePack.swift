@@ -10,7 +10,8 @@ struct PosePack: Identifiable {
     let accent: Color
     /// The group of the pack. The pose library sorts and filters the packs by it.
     let category: PackCategory
-    let isFree: Bool
+    /// The store product that unlocks the pack, from the table of `StoreProducts`. A free pack has none.
+    let productID: String?
     let cues: [PoseCue]
 
     /// A built-in pack.
@@ -20,7 +21,7 @@ struct PosePack: Identifiable {
         subtitle: LocalizedStringResource,
         accent: Color,
         category: PackCategory,
-        isFree: Bool,
+        isPaid: Bool,
         cues: [PoseCue]
     ) {
         self.id = id
@@ -28,18 +29,19 @@ struct PosePack: Identifiable {
         self.subtitle = .builtIn(subtitle)
         self.accent = accent
         self.category = category
-        self.isFree = isFree
+        productID = isPaid ? StoreProducts.pack(id) : nil
         self.cues = cues
     }
 
     /// A customer pack. It is in the group `mine`, and it has the strong color, as the classic booth has.
+    /// It is free: making and sharing a pack stays free (owner decision, 2026-11-24).
     init(id: String, name: String, cues: [PoseCue]) {
         self.id = id
         self.name = .custom(name)
         subtitle = .builtIn(.packMineSubtitle)
         accent = PeekTheme.strong
         category = .mine
-        isFree = true
+        productID = nil
         self.cues = cues
     }
 }

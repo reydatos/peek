@@ -34,6 +34,42 @@
         }
       }
     },
+    "allPacks" : {
+      "comment" : "The yearly subscription that unlocks every pack",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "All Packs"
+          }
+        }
+      }
+    },
+    "allPacksForPrice" : {
+      "comment" : "Second button of the unlock sheet. %@ is the yearly price. Example: All Packs · $19.99 a year",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "All Packs · %@ a year"
+          }
+        }
+      }
+    },
+    "allPacksTerms" : {
+      "comment" : "Subscription terms under the All Packs offer. %@ is the yearly price.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "All Packs is %@ a year and renews every year until you cancel. Cancel at least 24 hours before it renews, in Settings > Apple Account > Subscriptions."
+          }
+        }
+      }
+    },
     "animated" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1700,6 +1736,18 @@
         }
       }
     },
+    "packLocked" : {
+      "comment" : "Chip on a pack card that the customer has not unlocked. Shown in capitals.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Locked"
+          }
+        }
+      }
+    },
     "packMineSubtitle" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1762,6 +1810,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Trend poses"
+          }
+        }
+      }
+    },
+    "packUnlocked" : {
+      "comment" : "Accessibility label of the check on a paid pack that the customer owns",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unlocked"
           }
         }
       }
@@ -1876,6 +1936,30 @@
         }
       }
     },
+    "privacyPolicy" : {
+      "comment" : "Link to the privacy policy",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Privacy Policy"
+          }
+        }
+      }
+    },
+    "purchaseFailed" : {
+      "comment" : "Banner of the unlock sheet after a failed purchase",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Purchase didn't go through."
+          }
+        }
+      }
+    },
     "recordAgain" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1960,6 +2044,54 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Remove from Saved"
+          }
+        }
+      }
+    },
+    "restoreDone" : {
+      "comment" : "Banner after Restore Purchases found purchases",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Restored."
+          }
+        }
+      }
+    },
+    "restoreFailed" : {
+      "comment" : "Banner after Restore Purchases failed",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't restore purchases."
+          }
+        }
+      }
+    },
+    "restoreNothingFound" : {
+      "comment" : "Banner after Restore Purchases found nothing",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No purchases to restore on this Apple Account."
+          }
+        }
+      }
+    },
+    "restorePurchases" : {
+      "comment" : "Button that restores purchases from the App Store",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Restore Purchases"
           }
         }
       }
@@ -2346,6 +2478,102 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Take shot"
+          }
+        }
+      }
+    },
+    "termsOfUse" : {
+      "comment" : "Link to the terms of use",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Terms of Use"
+          }
+        }
+      }
+    },
+    "tryAgain" : {
+      "comment" : "Button that repeats a failed action",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Try again"
+          }
+        }
+      }
+    },
+    "unlockForPrice" : {
+      "comment" : "Main button of the unlock sheet. %@ is the price of the pack. Example: Unlock for $1.99",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unlock for %@"
+          }
+        }
+      }
+    },
+    "unlockIncludedInAllPacks" : {
+      "comment" : "A line of the unlock sheet",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Included in All Packs"
+          }
+        }
+      }
+    },
+    "unlockPack" : {
+      "comment" : "Main button of the unlock sheet while the price loads",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unlock"
+          }
+        }
+      }
+    },
+    "unlockPricesFailed" : {
+      "comment" : "Unlock sheet: the prices did not load",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Can't load prices. Check your connection."
+          }
+        }
+      }
+    },
+    "unlockVideoGuide" : {
+      "comment" : "A line of the unlock sheet, only for a pack with a clip for each pose",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Video guide for every pose"
+          }
+        }
+      }
+    },
+    "unlockWaitingForParent" : {
+      "comment" : "Unlock sheet: an Ask to Buy request waits for a parent",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Waiting for a parent"
           }
         }
       }

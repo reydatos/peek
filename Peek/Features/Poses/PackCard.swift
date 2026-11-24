@@ -4,6 +4,8 @@ import SwiftUI
 /// A tap on the card selects the pack. The cards are in a grid, so the packs show together with little scroll.
 struct PackCard: View {
     let pack: PosePack
+    /// The lock state of a paid pack (3A). A free pack has no chip.
+    var lock = PackLock.none
 
     var body: some View {
         VStack(alignment: .leading) {
@@ -13,6 +15,10 @@ struct PackCard: View {
                     PoseArt(cue: cue, cornerRadius: PeekTheme.slotCorner)
                         .accessibilityHidden(true)
                 }
+            }
+            .overlay(alignment: .topLeading) {
+                lockMark
+                    .padding(PeekTheme.tightSpace)
             }
             pack.name.text
                 .font(.headline)
@@ -33,12 +39,36 @@ struct PackCard: View {
         .accessibilityElement(children: .combine)
         .accessibilityAddTraits(.isButton)
     }
+
+    /// A locked pack shows a lock and the word "LOCKED", never color alone (3A). An owned pack shows a check.
+    @ViewBuilder private var lockMark: some View {
+        switch lock {
+        case .none:
+            EmptyView()
+        case .locked:
+            PeekChip(text: .packLocked, systemImage: "lock.fill")
+        case .unlocked:
+            Image(systemName: "checkmark.circle.fill")
+                .font(.title3)
+                .symbolRenderingMode(.palette)
+                .foregroundStyle(PeekTheme.ink, PeekTheme.surface)
+                .accessibilityLabel(Text(.packUnlocked))
+        }
+    }
+}
+
+/// The lock state of a pack card.
+enum PackLock {
+    /// A free pack, or a paid pack before the owned products are read.
+    case none
+    case locked
+    case unlocked
 }
 
 #Preview {
     HStack {
-        PackCard(pack: PoseLibrary.packs[0])
-        PackCard(pack: PoseLibrary.packs[2])
+        PackCard(pack: PoseLibrary.packs[0], lock: .locked)
+        PackCard(pack: PoseLibrary.packs[2], lock: .unlocked)
     }
     .padding()
     .background(PeekTheme.page)

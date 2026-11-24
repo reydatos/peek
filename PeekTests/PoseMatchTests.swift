@@ -23,7 +23,7 @@ struct PoseMatchTests {
 
     private let capture = FakeCapture()
     private let clock = Clock()
-    private let cue = PoseCatalog().classicPack.cues[0]
+    private let cue = PoseCatalog().pack(id: PoseLibrary.classicID)!.cues[0]
 
     private func match(reference: PoseSignature? = signature()) -> PoseMatch {
         PoseMatch(capture: capture, analyze: { _ in reference }, now: { [clock] in clock.time })

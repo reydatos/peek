@@ -16,9 +16,9 @@ final class PoseCatalog {
         PoseLibrary.packs + userPacks.filter { !$0.cues.isEmpty }
     }
 
-    /// The classic pack. It stands in for a pack that the catalog does not have.
-    var classicPack: PosePack {
-        PoseLibrary.packs[0]
+    /// The free pack. It stands in for a pack that the catalog does not have.
+    var freePack: PosePack {
+        PoseLibrary.packs.first { $0.id == PoseLibrary.freeID }!
     }
 
     /// The packs in the order of the pose library: by group, and inside a group in the order of `packs`.
@@ -33,10 +33,10 @@ final class PoseCatalog {
         packs.first { $0.id == id }
     }
 
-    /// The pack with the ID, or the classic pack when the catalog has no such pack: a customer can remove a pack
+    /// The pack with the ID, or the free pack when the catalog has no such pack: a customer can remove a pack
     /// that a stored session still names.
-    func packOrClassic(id: String) -> PosePack {
-        pack(id: id) ?? classicPack
+    func packOrFree(id: String) -> PosePack {
+        pack(id: id) ?? freePack
     }
 
     func cue(for id: String) -> PoseCue? {

@@ -158,7 +158,7 @@ The image tool's tallest size is 2:3, so no mockup has the full height of an iPh
 
 The effort estimates use the default ratios: features about 30x, tests about 50x, scaffolding about 100x.
 
-- [ ] **T1 (P1, human: ~3d / CC: ~3h)**: Purchases: StoreKit products for each pack plus All Packs. Gate on `PosePack.isFree`, add the unlock sheet with every 5A state, and add Ask to Buy.
+- [x] **T1 (P1, human: ~3d / CC: ~3h)**: Purchases: StoreKit products for each pack plus All Packs. Gate on `PosePack.isFree`, add the unlock sheet with every 5A state, and add Ask to Buy. **Built 2026-11-24** (branch `feat/store-t1`): `PosePack.productID` replaces `isFree`; `StoreProducts` is the one product table (product → packs, with an empty bundle table until the owner names the bundles); `Entitlements` behind a `StoreClient` seam; the unlock sheet; the D5 gates; `Config/Products.storekit` for tests and Xcode runs. The lock and check chip of T2 is in the same change, because the 5A "Approved later" state needs it.
   - Surfaced by: Pass 1, issue 2 (2A); Pass 2, issue 5 (5A); Pass 4, issue 12 (12A)
   - Files: `Peek/Features/Poses/PosePack.swift`, `PoseLibraryView.swift`, `PackCard.swift`, a new `Peek/Features/Store/`
   - Verify: StoreKit configuration file tests for each state; render pictures of the sheet, light and dark, tall and wide, at AX5
@@ -855,6 +855,9 @@ These came after the design and eng reviews. They outrank earlier text in this f
 - The 3-for-$4.99 bundles are **fixed themed bundles**, one store product each (for example Seoul + Hong Kong, or a kids bundle). There is no "any 3" choice, so no unlock credits.
 - All Packs has **no free trial**. The free Street Style pack is the trial.
 - Making custom packs is **unlimited and free**. This supersedes 16A, and **T10 (the custom pack limit) is dropped**.
+
+**Classic and the opening pack (2026-11-24)**
+- Classic is a paid pack ($1.99). The app opens on Street Style, and Street Style replaces Classic as the fallback for a pack that is gone. This replaces "a draft whose pack is missing restores to Classic" (outside voice #8).
 
 **Still open (owner)**
 - Which looks (11A) are free.

@@ -42,7 +42,11 @@ targets:
   PeekTests:
     type: bundle.unit-test
     platform: iOS
-    sources: [PeekTests]
+    sources:
+      - PeekTests
+      # The local store for the StoreKit tests. The app bundle does not ship it.
+      - path: Config/Products.storekit
+        buildPhase: resources
     dependencies:
       - target: Peek
     settings:
@@ -54,6 +58,9 @@ schemes:
       targets:
         Peek: all
         PeekTests: [test]
+    run:
+      # Xcode runs use the local store: the products and prices of Config/Products.storekit.
+      storeKitConfiguration: Config/Products.storekit
     test:
       targets:
         - PeekTests

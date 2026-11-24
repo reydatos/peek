@@ -18,6 +18,8 @@ struct PoseLibraryView: View {
     @State private var isImporting = false
     @Environment(PackImport.self) private var packImport: PackImport?
     @Environment(PoseCatalog.self) private var catalog
+    /// The store of owned products. With none, as in previews, no card shows a lock.
+    @Environment(Entitlements.self) private var entitlements: Entitlements?
     @State private var filter = PackFilter.all
     /// The least width of a pack card: two small pose pictures side by side. This is a design value.
     @ScaledMetric(relativeTo: .body) private var packWidth = 150
@@ -36,7 +38,7 @@ struct PoseLibraryView: View {
                         }
                         ForEach(catalog.packs(for: filter)) { pack in
                             Button { onSelect(pack) } label: {
-                                PackCard(pack: pack)
+                                PackCard(pack: pack, lock: lock(of: pack))
                             }
                             .buttonStyle(.plain)
                             .contextMenu {
@@ -101,6 +103,11 @@ struct PoseLibraryView: View {
                 Text(pack.id == packWithShotsID ? .deletePackInUseMessage : .deletePackMessage)
             }
         }
+    }
+
+    private func lock(of pack: PosePack) -> PackLock {
+        guard pack.productID != nil, let entitlements, entitlements.isLoaded else { return .none }
+        return entitlements.isUnlocked(pack) ? .unlocked : .locked
     }
 
     /// The choices of the filter. "Mine" shows only when the customer has a pack.
