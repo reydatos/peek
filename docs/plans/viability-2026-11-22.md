@@ -180,7 +180,7 @@ The effort estimates use the default ratios: features about 30x, tests about 50x
 - [ ] **T7 (P2, human: ~2d / CC: ~2h)**: Downloadable packs through Apple-hosted Background Assets, with the download states and the "New" badge (10A).
   - Files: `PoseCatalog.swift`, `PoseLibrary.swift`, `PackCard.swift`
   - Verify: look up the API on sosumi first; a test for each download state
-- [ ] **T8 (P2, human: ~1d / CC: ~1h)**: Share message with a link (9A), and the landing page with universal links (9B). This task waits on the domain and host decision.
+- [ ] **T8 (P2, human: ~1d / CC: ~1h)**: Share message with a link (9A), and the landing page with universal links (9B). The host is decided (`peek.therevolv.com`, 2026-11-23); see "Owner decisions after the reviews".
   - Files: `FinishedControls.swift`, `ChallengeShare.swift`, `DuetPreviewView.swift`, `PackShareView.swift`, an associated-domains entitlement
   - Verify: the link opens the App Store from Messages; a universal link opens the app
 - [ ] **T9 (P2, human: ~1.5d / CC: ~1.5h)**: Strip looks (Natural, B&W, Film, Flash) on the strip and the duet (11A).
@@ -227,7 +227,7 @@ Every rated pass is now 8/10 or higher. The two open items below are owner decis
 ### Unresolved decisions
 
 - The prices and any trial or introductory offer for each pack and for All Packs, and which looks (11A) are free. If these are deferred, the store cannot go live.
-- The domain and host for the static site (D2 = A), and how a web page fits the "pure iOS" rule in `AGENTS.md`. This blocks T1 and T3 (guideline 3.1.2 needs Terms and Privacy links in the subscription flow), the App Store Connect privacy policy URL, and T8. (This bullet was corrected by the eng review: it first said only T8 was affected.)
+- **Resolved 2026-11-23:** `peek.therevolv.com` on a new Vercel project (see "Owner decisions after the reviews"). Earlier text: the domain and host for the static site (D2 = A), and how a web page fits the "pure iOS" rule in `AGENTS.md`. This blocks T1 and T3 (guideline 3.1.2 needs Terms and Privacy links in the subscription flow), the App Store Connect privacy policy URL, and T8. (This bullet was corrected by the eng review: it first said only T8 was affected.)
 
 ## Eng review (2026-11-22, /plan-eng-review of this file)
 
@@ -823,6 +823,27 @@ No new TODO proposals. Every finding was decided in this review or is in the tas
 - Parallelization: 4 lanes, 4 parallel / 2 sequential waves (W0, W1)
 - Lake Score: 0/1 (D2 = A scored 9/10; the 10/10 option did not exist)
 
+## Owner decisions after the reviews (2026-11-23 and 2026-11-24)
+
+These came after the design and eng reviews. They outrank earlier text in this file.
+
+**The website (resolves the domain and host decision)**
+- Address: `peek.therevolv.com`, on a new, separately named Vercel project with one DNS record. It does not use a path on www.therevolv.com, because that host already serves the Revolv app's `apple-app-site-association` file; PEEK gets its own.
+- The landing page is a short "dare" page: the hook "Can you copy this pose?", a duet with a score, the make-your-own-pack loop, sample sessions, and an email waitlist. The share page is a dare page, with the first name and score in the link, no photos, and no upload. Prototype: https://claude.ai/artifact/5RuLiAxc8ppug5P7prPmHn
+- Waitlist: a Vercel function in that project emails the owner each signup. There is no database. The website Privacy page says that the site collects an email only for the waitlist; the app still collects nothing.
+- Still open (owner): the email service (a new dependency), the address that gets signups, who manages the therevolv.com DNS, and where the site code lives. A separate repo is recommended, so this repo stays pure iOS.
+
+**Shipped in PR #72 (merged 2026-11-24)**
+- Duet and Match prints: the pose above the shot, with poses drawn whole and a cyan line.
+- Score fun: a score pill on each shot, a "Best copy" crown, and verdicts (90 Basically twins, 75 Certified copycat, 50 Close enough, 25 Creative interpretation, else Did you even look?).
+- Photo lines: black on cream and white paper, white on black paper.
+- The crop follows the people: the eye line in the upper third, and with no person the upper part of the shot.
+- A shot framed too close has no score instead of 0%, and the meter says "Step back so your arms show".
+- Confirmed on a physical Duo: plush and illustrated poses give no body, so those packs have no score.
+
+**Still open**
+- Prices, any trial or introductory offer, and which looks are free (owner).
+
 ## GSTACK REVIEW REPORT
 
 | Review | Trigger | Why | Runs | Status | Findings |
@@ -837,8 +858,8 @@ No new TODO proposals. Every finding was decided in this review or is in the tas
   - **Design phase:** Codex unavailable. A native Claude subagent completed.
   - **Plan-review phase:** Codex unavailable (to repair, run `npm install -g @openai/codex`). A native Claude Plan subagent finished inside the 5-minute limit with 11 findings and VERDICT: FINDINGS. All 11 have a disposition: 5 recorded without a question, and D7-D11 answered.
   - Native fallbacks do not count as outside coverage.
-- **VERDICT:** No review is CLEAR. The eng review has issues open: 2 owner decisions block parts of the build (prices for the store; the domain and host for T1, T3, T8, and submission). The other 10 tasks can start with W0 and W1.
+- **VERDICT:** No review is CLEAR. The eng review has issues open: prices block the store work. The host is decided (2026-11-23); its setup details are open (see "Owner decisions after the reviews"). The other 10 tasks can start with W0 and W1.
 
 **UNRESOLVED DECISIONS:**
 - Prices, any trial or introductory offer, and which looks are free (owner)
-- Domain and host for the static site, and how it fits the "pure iOS" rule. This blocks T1 and T3 (Terms and Privacy links), the App Store privacy policy URL, and T8 (owner).
+- Site setup for `peek.therevolv.com`: the email service for the waitlist function, the address that gets signups, who manages the therevolv.com DNS, and where the site code lives (a separate repo is recommended, so this app repo stays pure iOS) (owner)
