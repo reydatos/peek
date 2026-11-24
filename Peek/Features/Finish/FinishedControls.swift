@@ -9,6 +9,7 @@ struct FinishedControls: View {
         VStack(alignment: .leading) {
             SaveStatusLabel(status: model.saveStatus, duetProgress: model.duetProgress)
             LayoutPicker(model: model)
+            DuetShotPicker(model: model)
             FramePicker(model: model)
             MatchStampToggle(model: model)
             Button { Task { await model.saveStrip() } } label: {

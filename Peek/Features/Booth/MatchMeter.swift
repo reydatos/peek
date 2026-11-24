@@ -4,6 +4,8 @@ import SwiftUI
 /// It is on the side of the photographer only.
 struct MatchMeter: View {
     let score: Double?
+    /// True when a person is in view with too little of the body to compare. The meter asks them to step back.
+    var isTooClose = false
 
     private var level: MatchLevel {
         MatchLevel(score: score)
@@ -36,7 +38,7 @@ struct MatchMeter: View {
 
     private var label: LocalizedStringResource {
         switch level {
-        case .none: .matchNoPerson
+        case .none: isTooClose ? .matchStepBack : .matchNoPerson
         case .different: .matchDifferent
         case .near: .matchNear
         case .matched: .matchDone
@@ -45,7 +47,7 @@ struct MatchMeter: View {
 
     private var symbol: String {
         switch level {
-        case .none: "person.slash"
+        case .none: isTooClose ? "arrow.up.backward.and.arrow.down.forward" : "person.slash"
         case .different: "exclamationmark.triangle"
         case .near: "figure.arms.open"
         case .matched: "checkmark.circle.fill"

@@ -1,15 +1,21 @@
 import Foundation
 
-/// A joint of a body that the pose match compares.
+/// A joint of a body. The pose match compares the limbs between the body joints; the head points place the head
+/// when the app crops a shot.
 public enum PoseJoint: String, Codable, CaseIterable, Sendable {
     case neck, root
     case leftShoulder, rightShoulder, leftElbow, rightElbow, leftWrist, rightWrist
     case leftHip, rightHip, leftKnee, rightKnee, leftAnkle, rightAnkle
+    case nose, leftEye, rightEye, leftEar, rightEar
 
     /// The same joint on the other side of the body.
     var mirrored: PoseJoint {
         switch self {
-        case .neck, .root: self
+        case .neck, .root, .nose: self
+        case .leftEye: .rightEye
+        case .rightEye: .leftEye
+        case .leftEar: .rightEar
+        case .rightEar: .leftEar
         case .leftShoulder: .rightShoulder
         case .rightShoulder: .leftShoulder
         case .leftElbow: .rightElbow

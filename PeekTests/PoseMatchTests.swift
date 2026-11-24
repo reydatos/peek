@@ -61,6 +61,49 @@ struct PoseMatchTests {
         #expect(match.score == nil)
     }
 
+    /// A chest-up person: the neck and the shoulders only, too few limbs to compare.
+    private nonisolated static let chestUp = PoseSignature(bodies: [PoseSignature.Body(joints: [
+        .neck: PosePoint(x: 0, y: 0.72),
+        .leftShoulder: PosePoint(x: -0.1, y: 0.7), .rightShoulder: PosePoint(x: 0.1, y: 0.7),
+    ])])
+
+    /// Owner decision (2026-11-24): a person too close to compare has no score, and the meter says to step back.
+    @Test func aPersonTooCloseGetsTheStepBackTipNotAScore() async {
+        let match = match()
+        await ready(match)
+
+        match.receive(Self.chestUp)
+        #expect(match.score == nil)
+        #expect(match.isLiveTooClose)
+        #expect(match.meterTooClose)
+
+        // No person at all is not "too close".
+        match.receive(PoseSignature(bodies: []))
+        #expect(!match.isLiveTooClose)
+
+        match.receive(Self.signature())
+        #expect(match.score == 1)
+        #expect(!match.meterTooClose)
+    }
+
+    @Test func aFinishedShotTooCloseHasNoScoreButItsBodyStaysForTheCrop() async {
+        // The pose picture has a full body. The shot, a 7 x 9 picture, is chest-up.
+        let match = PoseMatch(capture: capture, analyze: { image in
+            image.size == CGSize(width: 7, height: 9) ? Self.chestUp : Self.signature()
+        })
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = 1
+        let shot = UIGraphicsImageRenderer(size: CGSize(width: 7, height: 9), format: format).image { _ in }
+        #expect(cue.picture != nil)
+
+        let result = await match.finalResult(of: shot, cue: cue)
+
+        #expect(result.score == nil)
+        #expect(result.body == Self.chestUp)
+        let full = UIGraphicsImageRenderer(size: CGSize(width: 8, height: 9), format: format).image { _ in }
+        #expect(await match.finalResult(of: full, cue: cue).score == 1)
+    }
+
     @Test func aPosePictureWithNoPersonHasNoMatch() async {
         let match = match(reference: PoseSignature(bodies: []))
         await ready(match)

@@ -11,8 +11,6 @@ struct BoothStageView: View {
     let model: BoothSessionModel
     /// True when no outer display shows the cue. The people in the photo then read this display.
     let isSubjectFacing: Bool
-    /// False in the wide booth: the side rail shows the pose reference there, also with one screen.
-    var showsPoseArt = true
     /// True on a tall display: the photo is a viewfinder at the full width, with the pose picture in its corner.
     var isFullBleed = false
     var body: some View {
@@ -54,11 +52,7 @@ struct BoothStageView: View {
     private var photo: some View {
         ZStack {
             PeekTheme.fill
-            if model.isComplete, !showsPoseArt {
-                // The wide booth shows the two layouts side by side.
-                FinishedPairView(model: model)
-                    .padding()
-            } else if model.isComplete, let strip = model.strip {
+            if model.isComplete, let strip = model.strip {
                 // The finished strip stays inside the safe area, so the camera housing hides no shot.
                 FinishedStripView(strip: strip)
                     .padding()

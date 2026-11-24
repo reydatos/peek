@@ -19,7 +19,6 @@ struct BoothStatusView: View {
                 // The wide booth has one layout for each camera and each number of screens (owner decision,
                 // 2026-11-15): the pose reference is on the side rail, and the cue line has its usual size.
                 isSubjectFacing: showsPoseArt && !model.isOuterDisplayPresenting,
-                showsPoseArt: showsPoseArt,
                 isFullBleed: isFullBleed
             )
         case .denied:

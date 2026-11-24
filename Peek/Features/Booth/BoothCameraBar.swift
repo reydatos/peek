@@ -12,7 +12,7 @@ struct BoothCameraBar: View {
             ShotProgressBars(model: model)
             if model.match.canMatch {
                 // The meter keeps its space in each state, so the photo does not change size between states.
-                MatchMeter(score: model.match.meterScore ?? nil)
+                MatchMeter(score: model.match.meterScore ?? nil, isTooClose: model.match.meterTooClose)
                     .opacity(model.match.meterScore == nil ? 0 : 1)
                     .accessibilityHidden(model.match.meterScore == nil)
             }

@@ -38,6 +38,10 @@ final class PoseMatch {
     private(set) var score: Double?
     /// The match of the shot in review.
     private(set) var reviewScore: Double?
+    /// True when the camera sees a person but too little of the body to compare, as in a chest-up shot.
+    /// The meter then asks the people to step back.
+    private(set) var isLiveTooClose = false
+    private(set) var isReviewTooClose = false
     /// The body shape of the current pose picture. Nil when the picture has no person that the detector finds.
     private(set) var reference: PoseSignature?
     /// The photographer sets this. When the match holds, the booth starts the shot.
@@ -95,6 +99,15 @@ final class PoseMatch {
         }
     }
 
+    /// True when the meter asks the people to step back: a person is in view, with too little of the body.
+    var meterTooClose: Bool {
+        switch phase {
+        case .ready: isLiveTooClose
+        case .review: isReviewTooClose
+        default: false
+        }
+    }
+
     /// The booth calls this after each change of its state.
     /// - Parameter reviewImage: the shot in review.
     func update(cue: PoseCue?, phase: BoothPhase, isCameraRunning: Bool, reviewImage: UIImage?) {
@@ -113,9 +126,11 @@ final class PoseMatch {
         syncReview(image: reviewImage)
     }
 
-    /// The match of a finished shot to its pose, from 0 to 1. Nil when the pose picture has no person that the
-    /// detector finds, so the pose has no score. A shot with no person in it scores 0.
-    func finalScore(of shot: UIImage, cue: PoseCue) async -> Double? {
+    /// The match of a finished shot to its pose, from 0 to 1, and the body shape of the shot.
+    /// The score is nil when there is nothing to compare: the pose picture has no person that the detector finds,
+    /// or the shot shows no person or too little of the body (owner decision, 2026-11-24: no score, not 0%).
+    /// The body is examined for each shot, also with no score, because the crop of the shot uses it.
+    func finalResult(of shot: UIImage, cue: PoseCue) async -> (score: Double?, body: PoseSignature?) {
         var reference: PoseSignature?
         if let known = references[cue.id] {
             reference = known
@@ -123,9 +138,14 @@ final class PoseMatch {
             reference = await Self.reference(in: analyze(picture))
             references[cue.id] = .some(reference)
         }
-        guard let reference else { return nil }
         let signature = await analyze(shot)
-        return signature.flatMap { PoseMatcher.score(reference: reference, live: $0) } ?? 0
+        guard let reference, let signature else { return (nil, signature) }
+        return (PoseMatcher.score(reference: reference, live: signature), signature)
+    }
+
+    /// True for a signature with a person in it.
+    private static func hasPerson(_ signature: PoseSignature?) -> Bool {
+        signature?.bodies.contains { !$0.joints.isEmpty } ?? false
     }
 
     /// The body shape of a pose picture, or nil when it has no person.
@@ -160,6 +180,7 @@ final class PoseMatch {
         }
         if !wantsLive {
             score = nil
+            isLiveTooClose = false
             hold.reset()
         }
     }
@@ -168,16 +189,19 @@ final class PoseMatch {
         guard case let .review(take) = phase else {
             reviewedTake = nil
             reviewScore = nil
+            isReviewTooClose = false
             return
         }
         guard reviewedTake != take.id else { return }
         reviewedTake = take.id
         reviewScore = nil
+        isReviewTooClose = false
         guard let reference, let image else { return }
         enqueue { [analyze] in
             let signature = await analyze(image)
             guard self.reviewedTake == take.id else { return }
             self.reviewScore = signature.flatMap { PoseMatcher.score(reference: reference, live: $0) }
+            self.isReviewTooClose = self.reviewScore == nil && Self.hasPerson(signature)
         }
     }
 
@@ -185,6 +209,7 @@ final class PoseMatch {
     func receive(_ live: PoseSignature) {
         guard isLive, let reference else { return }
         score = PoseMatcher.score(reference: reference, live: live)
+        isLiveTooClose = score == nil && Self.hasPerson(live)
         guard isAutoShutterOn, !isBlocked else { return }
         if hold.update(score: score, at: now()) {
             hold.reset()

@@ -52,7 +52,7 @@ struct BoothSideRail: View {
                     }
                 }
                 if model.match.canMatch, let score = model.match.meterScore {
-                    MatchMeter(score: score)
+                    MatchMeter(score: score, isTooClose: model.match.meterTooClose)
                 }
             }
             SlotRail(model: model, axis: .horizontal)

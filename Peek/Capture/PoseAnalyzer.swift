@@ -18,6 +18,8 @@ nonisolated enum PoseAnalyzer {
         .leftHip: .leftHip, .rightHip: .rightHip,
         .leftKnee: .leftKnee, .rightKnee: .rightKnee,
         .leftAnkle: .leftAnkle, .rightAnkle: .rightAnkle,
+        // The head points place the head when the app crops a shot. The match does not compare them.
+        .nose: .nose, .leftEye: .leftEye, .rightEye: .rightEye, .leftEar: .leftEar, .rightEar: .rightEar,
     ]
 
     /// The orientation that makes a frame upright.
