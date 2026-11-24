@@ -1369,6 +1369,18 @@
         }
       }
     },
+    "matchStepBack" : {
+      "comment" : "Match meter: a person is in view, but too little of the body shows to compare with the pose.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Step back so your arms show"
+          }
+        }
+      }
+    },
     "mirrorOuterPreview" : {
       "extractionState" : "manual",
       "localizations" : {

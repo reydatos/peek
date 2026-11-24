@@ -65,13 +65,17 @@ final class BoothSessionModel {
         }
     }
 
-    /// The match of the finished set to its poses, in percent: the mean of the shots whose pose picture has a
-    /// person. A shot with no person counts as 0. Nil while the app calculates it, and for a set with no such pose.
+    /// The match of the finished set to its poses, in percent: the mean of the shots that have a score. A shot
+    /// that can not be compared (its pose picture has no person, or the shot shows no person or too little of the
+    /// body) has no score and is left out (owner decision, 2026-11-24). Nil while the app calculates it, and for a
+    /// set with no score.
     /// It is in memory only: a draft that comes back gets a new calculation.
     private(set) var matchPercent: Int?
     private(set) var scoreTask: Task<Int?, Never>?
     /// The match of each shot of the finished set, in percent, by the pose of the shot.
     private(set) var shotPercents: [String: Int] = [:]
+    /// Where the heads are in each shot of the finished set, by the pose of the shot, for the crop of the shot.
+    private(set) var shotFocus: [String: ShotFocus] = [:]
 
     private func redrawStrip() {
         stripTask?.cancel()
@@ -687,12 +691,12 @@ final class BoothSessionModel {
             }
             let cueIDs = slots.map(\.cueID)
             stripTask = Task { [layout, frame, showsMatchStamp, scoreTask, duetSlot] in
-                // A picture with the stamp waits for the score, so no save gets a picture without it.
+                // Each picture waits for the examination of the shots: the crop of each shot follows the people,
+                // a stamp needs the score, and the best match picks the shot of the single print.
+                let percent = await scoreTask?.value
+                var focuses = cueIDs.map { shotFocus[$0] }
                 var stamp: String?
                 if layout.showsPoses, !shots.isEmpty {
-                    // A duet print waits for the score in all cases: the scores go on the shots, and the best
-                    // match picks the shot of the single print.
-                    let percent = await scoreTask?.value
                     for index in poses.indices {
                         poses[index].percent = shotPercents[cueIDs[index]]
                     }
@@ -700,13 +704,14 @@ final class BoothSessionModel {
                     if layout == .duetSingle {
                         let index = Self.duetIndex(chosen: duetSlot, cueIDs: cueIDs, percents: shotPercents)
                         shots = [shots[index]]
+                        focuses = [focuses[index]]
                         poses = poses.indices.contains(index) ? [poses[index]] : []
                         printPercent = poses.first?.percent
                     }
                     if showsMatchStamp, let printPercent {
                         stamp = Self.verdictStampText(percent: printPercent)
                     }
-                } else if showsMatchStamp, let percent = await scoreTask?.value {
+                } else if showsMatchStamp, let percent {
                     stamp = Self.stampText(percent: percent)
                 }
                 guard !Task.isCancelled else { return }
@@ -716,7 +721,8 @@ final class BoothSessionModel {
                     style: .paper(frame),
                     stamp: stamp,
                     poses: poses,
-                    scores: showsMatchStamp
+                    scores: showsMatchStamp,
+                    focuses: focuses
                 )
                 // A retake, a new layout, or a new set cancels this draw.
                 guard !Task.isCancelled else { return }
@@ -730,6 +736,7 @@ final class BoothSessionModel {
             scoreTask = nil
             matchPercent = nil
             shotPercents = [:]
+            shotFocus = [:]
             if strip != nil {
                 strip = nil
                 saveStatus = .idle
@@ -737,7 +744,7 @@ final class BoothSessionModel {
         }
     }
 
-    /// Calculates the match of each accepted shot to its pose, one time for a finished set.
+    /// Examines each accepted shot one time for a finished set: its match to its pose, and where its heads are.
     private func startScore() {
         let pairs = state.slots.compactMap { slot -> (UIImage, PoseCue)? in
             guard let shot = image(for: slot), let cue = catalog.cue(for: slot.cueID) else { return nil }
@@ -746,13 +753,19 @@ final class BoothSessionModel {
         scoreTask = Task { [match] in
             var scores: [Double] = []
             var byCue: [String: Int] = [:]
+            var focus: [String: ShotFocus] = [:]
             for (shot, cue) in pairs {
-                if let score = await match.finalScore(of: shot, cue: cue) {
+                let result = await match.finalResult(of: shot, cue: cue)
+                if let score = result.score {
                     scores.append(score)
                     byCue[cue.id] = Int((score * 100).rounded())
                 }
+                let aspect = shot.size.height > 0 ? shot.size.width / shot.size.height : 1
+                focus[cue.id] = result.body?.focus(aspect: aspect)
             }
-            guard !Task.isCancelled, !scores.isEmpty else { return nil }
+            guard !Task.isCancelled else { return nil }
+            shotFocus = focus
+            guard !scores.isEmpty else { return nil }
             shotPercents = byCue
             let percent = Int((scores.reduce(0, +) / Double(scores.count) * 100).rounded())
             matchPercent = percent

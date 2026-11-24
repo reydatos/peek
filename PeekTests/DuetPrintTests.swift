@@ -310,4 +310,86 @@ struct DuetPrintTests {
         #expect(shotEdge.0 < 30 && shotEdge.1 < 30 && shotEdge.2 < 30)
         #expect(poseEdge.1 > 180 && poseEdge.2 > 180 && poseEdge.0 < 80)
     }
+
+    // MARK: The crop follows the people (owner decision, 2026-11-24)
+
+    /// A portrait shot: a red band at the top tenth, blue below.
+    func headBand() -> UIImage {
+        let size = CGSize(width: 300, height: 400)
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = 1
+        return UIGraphicsImageRenderer(size: size, format: format).image { context in
+            UIColor.blue.setFill()
+            context.fill(CGRect(origin: .zero, size: size))
+            UIColor.red.setFill()
+            context.fill(CGRect(x: 0, y: 0, width: 300, height: 48))
+        }
+    }
+
+    @Test func withNoPersonTheStripKeepsTheUpperPartOfTheShot() {
+        let strip = StripRenderer.render([headBand()], layout: .verticalStrip)
+        // Just inside the photo line, at the top of the cell.
+        let top = pixel(strip, CGPoint(x: StripRenderer.margin + StripRenderer.cell.width / 2, y: StripRenderer.margin + StripRenderer.shotBorder + 4))
+
+        // The middle crop started below the red band; the upper crop keeps a little of it.
+        #expect(top.0 > 200 && top.2 < 60)
+    }
+
+    @Test func aFocusLowInTheShotMovesTheCropDown() {
+        let low = ShotFocus(eyeY: 0.9, headTopY: 0.85, centerX: 0.5)
+        let strip = StripRenderer.render([headBand()], layout: .verticalStrip, focuses: [low])
+        let top = pixel(strip, CGPoint(x: StripRenderer.margin + StripRenderer.cell.width / 2, y: StripRenderer.margin + StripRenderer.shotBorder + 4))
+
+        #expect(top.2 > 200 && top.0 < 60)
+    }
+
+    /// A shot with no score gets a dash on a print where another shot has a score.
+    @Test func anUnscoredShotGetsADashNextToAScoredShot() {
+        let poses = [
+            StripRenderer.DuetPose(picture: picture(.red, CGSize(width: 300, height: 400)), name: "A", percent: 80),
+            StripRenderer.DuetPose(picture: picture(.red, CGSize(width: 300, height: 400)), name: "B", percent: nil),
+        ]
+        let shot = picture(.blue, CGSize(width: 300, height: 400))
+        let print = StripRenderer.render([shot, shot], layout: .duetRow, poses: poses, scores: true)
+        let cell = StripRenderer.duetCell
+        let margin = StripRenderer.margin
+        let size = cell.width * 0.085
+        // The right padding of the pill of the second shot.
+        let point = CGPoint(
+            x: margin + 2 * (cell.width + margin) - margin - cell.width * 0.05 - size * 0.25,
+            y: 2 * margin + 2 * cell.height - cell.width * 0.05 - size * 0.8
+        )
+        let pill = pixel(print, point)
+        #expect(pill.0 > 230 && pill.1 > 230 && pill.2 > 230)
+
+        // With no score on the whole print, there are no dashes.
+        let none = poses.map { StripRenderer.DuetPose(picture: $0.picture, name: $0.name, percent: nil) }
+        let plain = StripRenderer.render([shot, shot], layout: .duetRow, poses: none, scores: true)
+        let empty = pixel(plain, point)
+        #expect(empty.2 > 200 && empty.0 < 60)
+    }
+
+    /// A set framed too close has no score, not 0% (owner decision, 2026-11-24).
+    @Test func aSetFramedTooCloseHasNoScore() async {
+        let chestUp = PoseSignature(bodies: [PoseSignature.Body(joints: [
+            .neck: PosePoint(x: 0, y: 0.72),
+            .leftShoulder: PosePoint(x: -0.1, y: 0.7), .rightShoulder: PosePoint(x: 0.1, y: 0.7),
+        ])])
+        let model = BoothSessionModel(capture: FakeCapture(), saver: FakeSaver(), analyzePose: { _ in chestUp }, sleep: { _ in })
+        model.layout = .duetRow
+        await model.startCamera()
+        for _ in model.state.slots {
+            model.send(.start)
+            await model.countdownTask?.value
+            await model.captureTask?.value
+            model.send(.accept)
+        }
+        _ = await model.scoreTask?.value
+        await model.stripTask?.value
+
+        #expect(model.matchPercent == nil)
+        #expect(model.finishedShotPercents.allSatisfy { $0 == nil })
+        // The body is still found, so each shot has a focus for its crop.
+        #expect(model.shotFocus.count == 4)
+    }
 }

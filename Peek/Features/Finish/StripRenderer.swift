@@ -136,15 +136,17 @@ nonisolated enum StripRenderer {
         date: Date = .now,
         stamp: String? = nil,
         poses: [DuetPose] = [],
-        scores: Bool = false
+        scores: Bool = false,
+        focuses: [ShotFocus?] = []
     ) -> UIImage {
-        draw(shots, poses: poses, layout: layout, date: date, style: .paper(frame), stamp: stamp, scores: scores)
+        draw(shots, poses: poses, layout: layout, date: date, style: .paper(frame), stamp: stamp, scores: scores, focuses: focuses)
     }
 
     /// Draws the picture off the main actor, so the decode of the full-size shots does not stop the interface.
     /// - Parameter stamp: the match score in words, for the center of the footer. Nil gives a footer with no stamp.
     /// - Parameter poses: the pose of each shot, in the same order. Only the duet prints use them.
     /// - Parameter scores: true puts the score of each shot on a duet print, and marks the best copy.
+    /// - Parameter focuses: where the heads are in each shot, in the same order, for its crop. Nil for no person.
     @concurrent static func renderInBackground(
         _ shots: [UIImage],
         layout: PeekCore.Layout,
@@ -152,9 +154,10 @@ nonisolated enum StripRenderer {
         style: Style,
         stamp: String? = nil,
         poses: [DuetPose] = [],
-        scores: Bool = false
+        scores: Bool = false,
+        focuses: [ShotFocus?] = []
     ) async -> UIImage {
-        draw(shots, poses: poses, layout: layout, date: date, style: style, stamp: stamp, scores: scores)
+        draw(shots, poses: poses, layout: layout, date: date, style: style, stamp: stamp, scores: scores, focuses: focuses)
     }
 
     private static func draw(
@@ -164,7 +167,8 @@ nonisolated enum StripRenderer {
         date: Date,
         style: Style,
         stamp: String?,
-        scores: Bool
+        scores: Bool,
+        focuses: [ShotFocus?]
     ) -> UIImage {
         let format = UIGraphicsImageRendererFormat()
         format.scale = 1
@@ -182,24 +186,31 @@ nonisolated enum StripRenderer {
             style.paper.setFill()
             context.fill(CGRect(origin: .zero, size: size))
             let best = scores && layout == .duetRow ? bestIndex(poses.map(\.percent)) : nil
+            // An unscored shot gets a dash, but only on a print where some shot has a score.
+            let anyScore = poses.contains { $0.percent != nil }
             for (index, shot) in shots.enumerated() {
+                let focus = index < focuses.count ? focuses[index] : nil
                 if layout.showsPoses {
                     // The pose in the top row, the shot of that pose under it.
                     let shotFrame = frame(column: index, row: 1)
                     if index < poses.count {
                         draw(poses[index], in: frame(column: index, row: 0), style: style, context: context.cgContext)
                     }
-                    draw(shot, filling: shotFrame, in: context.cgContext)
+                    draw(shot, filling: shotFrame, focus: focus, in: context.cgContext)
                     drawShotLine(around: shotFrame, style: style, in: context.cgContext)
-                    if scores, index < poses.count, let percent = poses[index].percent {
-                        drawScore(percent, on: shotFrame, style: style)
+                    if scores, index < poses.count {
+                        if let percent = poses[index].percent {
+                            drawScore((Double(percent) / 100).formatted(.percent), on: shotFrame, style: style)
+                        } else if anyScore {
+                            drawScore("–", on: shotFrame, style: style)
+                        }
                     }
                     if index == best {
                         drawBestCopy(on: shotFrame, style: style)
                     }
                 } else {
                     let shotFrame = frame(column: index % columns, row: index / columns)
-                    draw(shot, filling: shotFrame, in: context.cgContext)
+                    draw(shot, filling: shotFrame, focus: focus, in: context.cgContext)
                     drawShotLine(around: shotFrame, style: style, in: context.cgContext)
                 }
             }
@@ -256,10 +267,10 @@ nonisolated enum StripRenderer {
     }
 
     /// Draws the score of a shot in a white pill at the bottom right of the shot. The sizes are design values.
-    private static func drawScore(_ percent: Int, on frame: CGRect, style: Style) {
+    private static func drawScore(_ text: String, on frame: CGRect, style: Style) {
         let size = frame.width * 0.085
         let words = NSAttributedString(
-            string: (Double(percent) / 100).formatted(.percent),
+            string: text,
             attributes: [.font: UIFont.systemFont(ofSize: size, weight: .heavy), .foregroundColor: style.pillInk]
         )
         let text = words.size()
@@ -305,18 +316,19 @@ nonisolated enum StripRenderer {
         context.restoreGState()
     }
 
-    /// Draws the image to cover the frame, centered, with the overflow clipped.
-    private static func draw(_ image: UIImage, filling frame: CGRect, in context: CGContext) {
-        guard image.size.width > 0, image.size.height > 0 else { return }
-        let scale = max(frame.width / image.size.width, frame.height / image.size.height)
-        let drawn = CGSize(width: image.size.width * scale, height: image.size.height * scale)
+    /// Draws the image to cover the frame, with the overflow clipped. The crop follows the people
+    /// (`ShotCrop`): the eyes in the upper third, or the upper part of the shot when no person was found.
+    private static func draw(_ image: UIImage, filling frame: CGRect, focus: ShotFocus?, in context: CGContext) {
+        guard image.size.width > 0, image.size.height > 0, frame.width > 0, frame.height > 0 else { return }
+        let crop = ShotCrop.rect(imageSize: image.size, cellAspect: frame.width / frame.height, focus: focus)
+        let scale = frame.width / crop.width
         context.saveGState()
         context.clip(to: frame)
         image.draw(in: CGRect(
-            x: frame.midX - drawn.width / 2,
-            y: frame.midY - drawn.height / 2,
-            width: drawn.width,
-            height: drawn.height
+            x: frame.minX - crop.minX * scale,
+            y: frame.minY - crop.minY * scale,
+            width: image.size.width * scale,
+            height: image.size.height * scale
         ))
         context.restoreGState()
     }
