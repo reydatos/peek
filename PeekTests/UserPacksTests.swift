@@ -117,9 +117,9 @@ import Testing
         #expect(model.currentCue?.clipURL != nil)
 
         // The booth leaves the pack first, as `BoothView` does, then the pack goes away.
-        model.loadPack(PoseLibrary.classicID)
+        model.loadPack(PoseLibrary.freeID)
         await packs.delete(packID: id)
-        #expect(model.currentCue?.id == "smile")
+        #expect(model.currentCue?.id == "walk")
     }
 
     @Test func aRecordingCountsDownThenGivesAClipAndAPicture() async throws {

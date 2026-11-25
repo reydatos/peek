@@ -16,13 +16,13 @@ struct PoseClipTests {
         #expect(!PoseCue(id: "user-a", name: "Jump", still: still).hasMove)
     }
 
-    @Test func builtInPoseHasMoveOnlyWithStartPicture() {
+    @Test func builtInPoseHasMoveOnlyWithStartPicture() throws {
         let catalog = PoseCatalog()
         for cue in catalog.packs.flatMap(\.cues) {
             #expect(cue.hasMove == (cue.startPicture != nil), "\(cue.id)")
         }
         // The classic pack has still pictures only.
-        #expect(catalog.classicPack.cues.allSatisfy { !$0.hasMove })
+        #expect(try #require(catalog.pack(id: PoseLibrary.classicID)?.cues.allSatisfy { !$0.hasMove }))
     }
 
     @Test func clipLoopIsSilentAndDoesNotKeepTheDisplayOn() {

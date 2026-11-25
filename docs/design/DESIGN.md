@@ -104,6 +104,17 @@ No serif and no italic lettering anywhere in the app.
 
 **Pack card.** A card in the pose library grid: the poses of the pack as a block of small pictures (two in each row), the name, a one-line description, and a 2 border in the pack accent. A tap selects the pack. The grid replaces the long list of pack rows (owner decision, 2026-11-15); the packs show together with little scroll.
 
+**Lock on a pack card** (3A, 2026-11-24). A paid pack that the customer does not own has a chip in the top-leading corner of its pictures: a lock icon and "LOCKED", never color alone. A paid pack that the customer owns shows a check there. A free pack has no mark, and no card shows a mark before the owned products are read. A tap on a locked card opens the unlock sheet.
+
+**Unlock sheet** (5A, 12A, 2026-11-24). A sheet on the photographer's side only; no store prompt goes on the outer display. It shows the four pose pictures, the pack name, one line for each pose name, "Video guide for every pose" only for a pack with a clip for each pose, and "Included in All Packs". Then "Unlock for $1.99" (the one red action), "All Packs · $19.99 a year" (secondary), the subscription terms with Terms of Use and Privacy Policy links (App Review guideline 3.1.2), and Restore Purchases. The prices come from the App Store in the customer's currency. On a wide sheet the pictures (260 wide) sit beside the offer (280 wide or more); on a narrow sheet they stack. These widths and the 0.8 s pause before the sheet closes after a purchase are design values. States:
+- Prices loading: the buttons show a spinner and are disabled.
+- Prices failed: "Can't load prices. Check your connection." and Try again (secondary).
+- Cancelled: nothing changes, and the sheet stays.
+- Ask to Buy: the button turns grey with a clock and "Waiting for a parent". An approval arrives through the transaction listener that starts at launch; the card lock turns into a check.
+- Failed: a banner "Purchase didn't go through." with Try again.
+- Success: a check on the button (it does not bounce with Reduce Motion on), then the sheet closes and the pack loads. A set with shots still asks before it discards them.
+- Restore: "Restored." or "No purchases to restore on this Apple Account." A closed sign-in shows nothing.
+
 **Instant strip.** `photoPaper` border, radius 4. Vertical (four stacked) and 2×2. Optional caption line with the wordmark and date. Each shot has a thin line, as a photo booth print: black on cream and on white paper, white on black paper (owner decision, 2026-11-23). A pose picture in a duet print keeps its cyan line. The crop of each shot follows the people (owner decision, 2026-11-24): the body detector places the heads, the eye line sits in the upper third of the cell with the top of the head inside, and with no person found the crop keeps the upper part of the shot (a quarter of the way down the part that does not fit), not the middle.
 
 **Duet prints** (owner decision, 2026-11-23). Two more layouts put the pose pictures above the shots, so friends can laugh at the match. **Duet**: the poses in a row at the top, the shots in a row below. **Match**: one pose above one shot; the best match is the default, and a row of the shots with their scores picks another. A pose is drawn whole in a 3:4 cell with a cyan line. With the score on, each shot has a white score pill, the best copy of a Duet has a red "Best copy" tag with a crown, and the caption line has the score and a verdict: 90–100% Basically twins, 75–89% Certified copycat, 50–74% Close enough, 25–49% Creative interpretation, 0–24% Did you even look? A change to a duet print turns the score on. These prints work for every pack; the duet video needs a pack with clips. A shot that can not be compared (no person, or too little of the body, as chest-up against a full-body pose) has no score: it shows a dash, and the average and the crown leave it out. The match meter then says "Step back so your arms show" (owner decision, 2026-11-24).
@@ -115,7 +126,7 @@ No serif and no italic lettering anywhere in the app.
 Each entry gives the state, the primary action and the layout rule.
 
 ### 1. Home (removed)
-- The app has no Home screen (owner decision, 2026-11-15). It opens on the viewfinder with the classic booth. The system asks for camera access at the first launch.
+- The app has no Home screen (owner decision, 2026-11-15). It opens on the viewfinder with Street Style, the free pack (owner decision, 2026-11-24; before, the classic booth). A pack that is gone, as a deleted customer pack in a restored set, falls back to Street Style. The system asks for camera access at the first launch.
 - There is no Classic / Copycat choice and no Start a Booth. The poses button of the booth changes the pack.
 - A set that is not complete comes back at launch and continues at "ready" with no Resume step. A finished set that was saved to Photos does not come back.
 - The booth has no close button. "New set" in the More menu starts again during a set, after a confirmation.

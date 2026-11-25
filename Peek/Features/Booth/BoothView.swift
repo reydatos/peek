@@ -9,6 +9,11 @@ struct BoothView: View {
     @State private var model: BoothSessionModel
     @State private var posePicker: PosePickerRequest?
     @State private var packToConfirm: PosePack?
+    /// A locked pack that the photographer chose. The unlock sheet shows over the pose library.
+    @State private var packToUnlock: PosePack?
+    /// The pack that the unlock sheet unlocked. It is chosen when the sheet has closed.
+    @State private var unlockedPack: PosePack?
+    @Environment(Entitlements.self) private var entitlements: Entitlements?
     @Environment(\.scenePhase) private var scenePhase
     @Environment(UserPacks.self) private var userPacks
     @State private var isEditingPack = false
@@ -39,25 +44,38 @@ struct BoothView: View {
             }
         }
         .toolbar(.hidden, for: .navigationBar)
-        // The automatic shutter starts no shot while the pose library or the pack editor covers the booth.
-        .onChange(of: posePicker != nil, initial: true) { _, isCovered in model.match.isBlocked = isCovered }
+        // The automatic shutter starts no shot while the pose library, the pack editor, or the unlock sheet
+        // covers the booth.
+        .onChange(of: posePicker != nil || model.unlockRequest != nil, initial: true) { _, isCovered in
+            model.match.isBlocked = isCovered
+        }
         .sheet(item: $posePicker) { _ in
             // The warning shows on the sheet, so the photographer decides before the sheet closes.
             PoseLibraryView(packWithShotsID: model.hasShots ? model.packID : nil) { pack in
-                if model.hasShots {
-                    packToConfirm = pack
-                } else {
-                    load(pack)
-                }
+                choose(pack)
             } onNewPack: {
                 isEditingPack = true
             } onDelete: { pack in
                 // The dialog of the library told the photographer that the shots of this pack go away.
                 // The booth leaves a pack before the pack goes away, so each slot keeps a pose that exists.
                 if model.packID == pack.id {
-                    model.loadPack(PoseLibrary.classicID)
+                    model.loadPack(PoseLibrary.freeID)
                 }
                 Task { await userPacks.delete(packID: pack.id) }
+            }
+            .sheet(item: $packToUnlock, onDismiss: {
+                // After a purchase the pack goes the usual way: a set with shots still asks first.
+                if let pack = unlockedPack {
+                    unlockedPack = nil
+                    choose(pack)
+                }
+            }) { pack in
+                if let entitlements {
+                    UnlockSheet(pack: pack, entitlements: entitlements) {
+                        unlockedPack = pack
+                        packToUnlock = nil
+                    }
+                }
             }
             .sheet(isPresented: $isEditingPack) {
                 PackEditorView(model: model) { draft in
@@ -87,8 +105,18 @@ struct BoothView: View {
                 Text(.discardShotsMessage)
             }
         }
+        // New set with a pack that is locked now (D5). Buying it starts the new set; Close keeps the set.
+        .sheet(item: $model.unlockRequest) { pack in
+            if let entitlements {
+                UnlockSheet(pack: pack, entitlements: entitlements) {
+                    model.unlockRequest = nil
+                    model.loadPack(pack.id)
+                }
+            }
+        }
         .modifier(OuterDisplayAccessory(model: model))
         .task {
+            model.isUnlocked = { [entitlements] pack in entitlements?.isUnlocked(pack) ?? true }
             if resumesDraft {
                 await model.restoreDraft()
             } else {
@@ -109,6 +137,15 @@ struct BoothView: View {
             } else {
                 model.send(.pause(.interruption))
             }
+        }
+    }
+
+    /// A locked pack opens the unlock sheet; a set with shots asks before it discards them (3A, D5).
+    private func choose(_ pack: PosePack) {
+        switch PackChoice(isUnlocked: entitlements?.isUnlocked(pack) ?? true, hasShots: model.hasShots) {
+        case .unlock: packToUnlock = pack
+        case .confirmDiscard: packToConfirm = pack
+        case .load: load(pack)
         }
     }
 
