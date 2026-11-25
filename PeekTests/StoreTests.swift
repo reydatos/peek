@@ -19,6 +19,10 @@ struct StoreTests {
 
     // MARK: The product table
 
+    @Test func theAppSellsOnlyAllPacks() {
+        #expect(StoreProducts.all == [StoreProducts.allPacks])
+    }
+
     @Test func theProductTableMatchesTheStoreKitFile() throws {
         let file = try StoreKitFile.load()
         #expect(Set(StoreProducts.all) == file.productIDs)
@@ -27,31 +31,28 @@ struct StoreTests {
 
     @Test func theStoreKitFileHasTheOwnerPrices() throws {
         let file = try StoreKitFile.load()
-        for id in StoreProducts.all where id != StoreProducts.allPacks {
-            #expect(file.prices[id] == "1.99", "\(id)")
-        }
         #expect(file.prices[StoreProducts.allPacks] == "19.99")
         #expect(file.allPacksPeriod == "P1Y")
         #expect(file.allPacksHasTrial == false)
     }
 
     @Test func streetStyleIsTheOneFreeBuiltInPackAndClassicIsPaid() {
-        let free = PoseLibrary.packs.filter { $0.productID == nil }.map(\.id)
+        let free = PoseLibrary.packs.filter { !$0.isPaid }.map(\.id)
         #expect(free == [PoseLibrary.freeID])
-        #expect(classic.productID == "com.a8media.peek.pack.classic")
+        #expect(classic.isPaid)
         #expect(PoseCatalog().freePack.id == PoseLibrary.freeID)
     }
 
     @Test func aCustomerPackIsFree() {
         let pack = PosePack(id: "user-1", name: "Mine", cues: [])
-        #expect(pack.productID == nil)
+        #expect(!pack.isPaid)
         #expect(StoreProducts.unlocks(pack, owned: []))
     }
 
-    @Test func aPackProductUnlocksOnlyItsPackAndAllPacksUnlocksEveryPack() {
-        let owned: Set = [StoreProducts.pack("kidsPoses")]
-        #expect(StoreProducts.unlocks(kids, owned: owned))
-        #expect(!StoreProducts.unlocks(classic, owned: owned))
+    @Test func onlyAllPacksUnlocksAPaidPackAndItUnlocksEveryPack() {
+        #expect(!StoreProducts.unlocks(kids, owned: []))
+        // The app never sold single packs, so an old pack ID unlocks nothing.
+        #expect(!StoreProducts.unlocks(kids, owned: ["com.a8media.peek.pack.kidsPoses"]))
         for pack in PoseLibrary.packs {
             #expect(StoreProducts.unlocks(pack, owned: [StoreProducts.allPacks]))
         }
@@ -60,14 +61,13 @@ struct StoreTests {
     // MARK: Entitlements
 
     @Test func aPaidPackIsLockedUntilTheFirstReadEnds() async {
-        client.owned = [StoreProducts.pack("kidsPoses")]
+        client.owned = [StoreProducts.allPacks]
         let entitlements = Entitlements(client: client)
         #expect(!entitlements.isLoaded)
         #expect(!entitlements.isUnlocked(kids))
         #expect(entitlements.isUnlocked(PoseCatalog().freePack))
         await entitlements.start()
         #expect(entitlements.isUnlocked(kids))
-        #expect(!entitlements.isUnlocked(classic))
     }
 
     @Test func subscribedUnlocksEveryPack() async {
@@ -91,9 +91,8 @@ struct StoreTests {
         let entitlements = await started()
         // Before the prices load, the buttons have no price and are disabled.
         #expect(entitlements.prices == .loading)
-        #expect(entitlements.price(of: StoreProducts.pack("kidsPoses")) == nil)
+        #expect(entitlements.price(of: StoreProducts.allPacks) == nil)
         await entitlements.loadPrices()
-        #expect(entitlements.price(of: StoreProducts.pack("kidsPoses")) == "$1.99")
         #expect(entitlements.price(of: StoreProducts.allPacks) == "$19.99")
     }
 
@@ -107,38 +106,37 @@ struct StoreTests {
         #expect(entitlements.price(of: StoreProducts.allPacks) == "$19.99")
     }
 
-    @Test func aProductThatTheStoreDidNotReturnIsMissingNotLoading() async {
-        client.missing = [StoreProducts.pack("kidsPoses")]
+    @Test func allPacksThatTheStoreDidNotReturnIsTheFailedStateNotLoading() async {
+        // Before the products exist in App Store Connect, the store returns nothing.
+        client.missing = [StoreProducts.allPacks]
         let entitlements = await started()
-        #expect(!entitlements.isMissing(StoreProducts.pack("kidsPoses")))
         await entitlements.loadPrices()
-        #expect(entitlements.isMissing(StoreProducts.pack("kidsPoses")))
-        #expect(!entitlements.isMissing(StoreProducts.allPacks))
-        #expect(entitlements.price(of: StoreProducts.allPacks) == "$19.99")
+        #expect(entitlements.prices == .failed)
+        #expect(entitlements.price(of: StoreProducts.allPacks) == nil)
     }
 
-    @Test func cancelledChangesNothing() async throws {
+    @Test func cancelledChangesNothing() async {
         client.purchaseResult = .success(.cancelled)
         let flow = await UnlockFlow(pack: kids, entitlements: started())
-        try await flow.buy(#require(kids.productID))
+        await flow.buy(StoreProducts.allPacks)
         #expect(flow.phase == .idle)
         #expect(flow.notice == nil)
         #expect(!flow.isUnlocked)
     }
 
-    @Test func askToBuyWaitsThenAnApprovalUnlocks() async throws {
+    @Test func askToBuyWaitsThenAnApprovalUnlocks() async {
         client.purchaseResult = .success(.pending)
         let entitlements = await started()
         let flow = UnlockFlow(pack: kids, entitlements: entitlements)
-        try await flow.buy(#require(kids.productID))
-        #expect(try flow.isWaiting(#require(kids.productID)))
+        await flow.buy(StoreProducts.allPacks)
+        #expect(flow.isWaiting(StoreProducts.allPacks))
         #expect(flow.phase == .idle)
         #expect(!flow.isUnlocked)
 
         // Approved later: the approval arrives through the transaction listener.
-        try client.sendUpdate(owned: [#require(kids.productID)])
+        client.sendUpdate(owned: [StoreProducts.allPacks])
         #expect(await eventually { flow.isUnlocked })
-        #expect(try !flow.isWaiting(#require(kids.productID)))
+        #expect(!flow.isWaiting(StoreProducts.allPacks))
         flow.noteUnlock()
         #expect(flow.phase == .succeeded)
     }
@@ -146,28 +144,22 @@ struct StoreTests {
     @Test func failedShowsTheBannerAndTryAgainBuysTheSameProduct() async throws {
         client.purchaseResult = .failure(FakeStoreError())
         let flow = await UnlockFlow(pack: kids, entitlements: started())
-        try await flow.buy(#require(kids.productID))
+        await flow.buy(StoreProducts.allPacks)
         #expect(flow.notice == .purchaseFailed)
         #expect(flow.phase == .idle)
 
         client.purchaseResult = .success(.purchased)
         try await flow.buy(#require(flow.lastProductID))
-        #expect(try client.purchases == [#require(kids.productID), #require(kids.productID)])
+        #expect(client.purchases == [StoreProducts.allPacks, StoreProducts.allPacks])
         #expect(flow.notice == nil)
         #expect(flow.phase == .succeeded)
     }
 
-    @Test func successUnlocksThePack() async throws {
-        let flow = await UnlockFlow(pack: kids, entitlements: started())
-        try await flow.buy(#require(kids.productID))
-        #expect(flow.phase == .succeeded)
-        #expect(flow.isUnlocked)
-    }
-
-    @Test func allPacksFromTheSheetUnlocksThePack() async {
+    @Test func successUnlocksThePack() async {
         let flow = await UnlockFlow(pack: kids, entitlements: started())
         await flow.buy(StoreProducts.allPacks)
         #expect(flow.phase == .succeeded)
+        #expect(flow.isUnlocked)
         #expect(flow.entitlements.hasAllPacks)
     }
 
@@ -179,17 +171,8 @@ struct StoreTests {
         #expect(flow.phase == .idle)
     }
 
-    @Test func restoreFoundAnotherPackKeepsTheSheet() async throws {
-        client.syncFinds = try [#require(classic.productID)]
-        let flow = await UnlockFlow(pack: kids, entitlements: started())
-        await flow.restore()
-        #expect(flow.notice == .restored)
-        #expect(flow.phase == .idle)
-        #expect(flow.entitlements.isUnlocked(classic))
-    }
-
-    @Test func restoreFoundThisPackSucceeds() async throws {
-        client.syncFinds = try [#require(kids.productID)]
+    @Test func restoreFoundThisPackSucceeds() async {
+        client.syncFinds = [StoreProducts.allPacks]
         let flow = await UnlockFlow(pack: kids, entitlements: started())
         await flow.restore()
         #expect(flow.notice == .restored)
@@ -233,7 +216,7 @@ struct StoreTests {
 
         // All Packs ended while the app was closed. The draft keeps its pack, so the set can finish.
         let second = BoothSessionModel(capture: FakeCapture(), saver: FakeSaver(), drafts: store, sleep: { _ in })
-        second.isUnlocked = { $0.productID == nil }
+        second.isUnlocked = { !$0.isPaid }
         await second.restoreDraft()
         await second.startCamera()
         #expect(second.packID == "kidsPoses")

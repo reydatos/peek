@@ -2506,42 +2506,6 @@
         }
       }
     },
-    "unlockForPrice" : {
-      "comment" : "Main button of the unlock sheet. %@ is the price of the pack. Example: Unlock for $1.99",
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Unlock for %@"
-          }
-        }
-      }
-    },
-    "unlockIncludedInAllPacks" : {
-      "comment" : "A line of the unlock sheet",
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Included in All Packs"
-          }
-        }
-      }
-    },
-    "unlockPack" : {
-      "comment" : "Main button of the unlock sheet while the price loads",
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Unlock"
-          }
-        }
-      }
-    },
     "unlockPricesFailed" : {
       "comment" : "Unlock sheet: the prices did not load",
       "extractionState" : "manual",

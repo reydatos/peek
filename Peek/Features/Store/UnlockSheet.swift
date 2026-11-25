@@ -104,7 +104,7 @@ struct UnlockSheet: View {
         }
     }
 
-    /// Lines from the pack itself: the pose names and "Included in All Packs" (12A).
+    /// Lines from the pack itself: the pose names (12A).
     private var lines: some View {
         VStack(alignment: .leading, spacing: PeekTheme.tightSpace) {
             ForEach(pack.cues) { cue in
@@ -114,14 +114,13 @@ struct UnlockSheet: View {
             if pack.cues.allSatisfy(\.hasMove) {
                 Label(.unlockVideoGuide, systemImage: "play.rectangle")
             }
-            Label(.unlockIncludedInAllPacks, systemImage: "square.stack")
         }
         .font(.body)
         .foregroundStyle(PeekTheme.ink)
     }
 
     @ViewBuilder private var offers: some View {
-        if entitlements.prices == .failed || pack.productID.map(entitlements.isMissing) == true {
+        if entitlements.isMissing(StoreProducts.allPacks) || entitlements.prices == .failed {
             VStack(alignment: .leading) {
                 Text(.unlockPricesFailed)
                     .foregroundStyle(PeekTheme.ink)
@@ -130,18 +129,8 @@ struct UnlockSheet: View {
             }
         } else {
             VStack(alignment: .leading, spacing: PeekTheme.tightSpace * 2) {
-                if let productID = pack.productID {
-                    offerButton(productID, isPrimary: true) { price in
-                        price.map { Text(.unlockForPrice($0)) } ?? Text(.unlockPack)
-                    }
-                }
-                // All Packs shows only when the App Store returned it.
-                if !entitlements.isMissing(StoreProducts.allPacks) {
-                    offerButton(StoreProducts.allPacks, isPrimary: false) { price in
-                        price.map { Text(.allPacksForPrice($0)) } ?? Text(.allPacks)
-                    }
-                    subscriptionTerms
-                }
+                offerButton
+                subscriptionTerms
                 Button { Task { await flow.restore() } } label: {
                     HStack {
                         Text(.restorePurchases)
@@ -157,13 +146,9 @@ struct UnlockSheet: View {
         }
     }
 
-    /// The offer of one product. The pack is the red main action; All Packs is secondary.
-    @ViewBuilder
-    private func offerButton(
-        _ productID: String,
-        isPrimary: Bool,
-        label: @escaping (String?) -> Text
-    ) -> some View {
+    /// The one offer: All Packs, the red main action. The app sells no single pack (owner decision, 2026-11-24).
+    @ViewBuilder private var offerButton: some View {
+        let productID = StoreProducts.allPacks
         let price = entitlements.price(of: productID)
         if flow.isWaiting(productID) {
             // Ask to Buy: the button turns grey until a parent answers. The lock stays on the card.
@@ -171,13 +156,13 @@ struct UnlockSheet: View {
                 .buttonStyle(PeekPrimaryButtonStyle())
                 .disabled(true)
         } else {
-            let button = Button {
+            Button {
                 Task { await flow.buy(productID, with: purchase) }
             } label: {
                 HStack {
-                    label(price)
+                    price.map { Text(.allPacksForPrice($0)) } ?? Text(.allPacks)
                     Spacer(minLength: 0)
-                    if flow.phase == .succeeded, flow.lastProductID == productID {
+                    if flow.phase == .succeeded {
                         Image(systemName: "checkmark")
                             .symbolEffect(.bounce, options: .nonRepeating, isActive: !reduceMotion)
                             .accessibilityLabel(Text(.packUnlocked))
@@ -186,12 +171,8 @@ struct UnlockSheet: View {
                     }
                 }
             }
+            .buttonStyle(PeekPrimaryButtonStyle())
             .disabled(price == nil || flow.isBusy)
-            if isPrimary {
-                button.buttonStyle(PeekPrimaryButtonStyle())
-            } else {
-                button.buttonStyle(PeekSecondaryButtonStyle())
-            }
         }
     }
 

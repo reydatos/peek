@@ -106,7 +106,7 @@ struct PoseLibraryView: View {
     }
 
     private func lock(of pack: PosePack) -> PackLock {
-        guard pack.productID != nil, let entitlements, entitlements.isLoaded else { return .none }
+        guard pack.isPaid, let entitlements, entitlements.isLoaded else { return .none }
         return entitlements.isUnlocked(pack) ? .unlocked : .locked
     }
 

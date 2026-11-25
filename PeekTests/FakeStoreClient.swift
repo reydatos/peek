@@ -20,7 +20,7 @@ final class FakeStoreClient: StoreClient {
         if let itemsError {
             throw itemsError
         }
-        return ids.filter { !missing.contains($0) }.map { StoreItem(id: $0, displayPrice: $0 == StoreProducts.allPacks ? "$19.99" : "$1.99") }
+        return ids.filter { !missing.contains($0) }.map { StoreItem(id: $0, displayPrice: "$19.99") }
     }
 
     func purchase(_ id: String, with _: PurchaseAction?) async throws -> PurchaseOutcome {

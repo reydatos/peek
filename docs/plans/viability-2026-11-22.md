@@ -18,7 +18,7 @@ The owner decided each gap below on 2026-11-21 and 2026-11-22. With these decisi
 | # | Area | Decision |
 |---|---|---|
 | 1 | Memories entry | **1A.** A 44 pt round thumbnail of the last saved strip opens the Memories sheet. It is on the leading side of the black camera bar (tall booth) and at the bottom of the side rail (wide booth). With no saves, it is hidden and the bar keeps its current layout. |
-| 2 | Business model | **Superseded 2026-11-24:** Street Style is the free pack; $1.99 per pack, 3 for $4.99, All Packs $19.99 a year (see "Owner decisions after the reviews"). Original **2A.** The Classic pack is free. Every other pack is a one-time unlock. An all-access subscription ("All Packs") includes every pack and every future pack. The owner sets the prices and any trial in App Store Connect. |
+| 2 | Business model | **Superseded 2026-11-24 (twice):** Street Style is the free pack, and All Packs at $19.99 a year is the one product; no single packs and no bundles (see "Owner decisions after the reviews"). Original **2A.** The Classic pack is free. Every other pack is a one-time unlock. An all-access subscription ("All Packs") includes every pack and every future pack. The owner sets the prices and any trial in App Store Connect. |
 | 3 | Locked packs | **3A.** A locked pack card shows a chip with a lock icon and the word "LOCKED" (never color alone). A tap opens the unlock sheet, so the user sees the poses before paying. |
 | 4 | Settings | **4A.** The last item of the More menu opens a Settings sheet: Purchases (Restore Purchases, Manage subscription, "All Packs" state), Replay tips, Privacy, Terms, About. |
 | 5 | Purchase states | **5A.** The state table below. |
@@ -859,9 +859,15 @@ These came after the design and eng reviews. They outrank earlier text in this f
 **Classic and the opening pack (2026-11-24)**
 - Classic is a paid pack ($1.99). The app opens on Street Style, and Street Style replaces Classic as the fallback for a pack that is gone. This replaces "a draft whose pack is missing restores to Classic" (outside voice #8).
 
+**One product: All Packs (2026-11-24, later the same day)**
+- Owner's words: "buy app with unlock everything per year charge".
+- The app sells one product: All Packs, $19.99 a year (`com.a8media.peek.allpacks.yearly`). It unlocks every paid pack. The app stays a free download, and Street Style stays free.
+- This supersedes the $1.99 PEEK Pack, the 3-for-$4.99 themed bundles, and "Classic is a paid pack ($1.99)": Classic is now inside All Packs.
+- Why: one product in App Store Connect in place of 11, and one for each later bundle.
+
 **Still open (owner)**
 - Which looks (11A) are free.
-- The names and contents of the themed bundles.
+- How featured creator packs are paid for, now that no single pack is sold.
 
 ## GSTACK REVIEW REPORT
 
@@ -880,5 +886,5 @@ These came after the design and eng reviews. They outrank earlier text in this f
 - **VERDICT:** No review is CLEAR. The eng review has issues open. Prices and store details are decided (2026-11-24); T10 is dropped. Which looks are free and the bundle contents are open, but they do not block the start of T1. The host is decided (2026-11-23); its setup details are open (see "Owner decisions after the reviews"). The other 10 tasks can start with W0 and W1.
 
 **UNRESOLVED DECISIONS:**
-- Which looks (11A) are free, and the names and contents of the fixed themed bundles (owner)
+- Which looks (11A) are free, and how featured creator packs are paid for with All Packs as the one product (owner)
 - Site setup for `peek.therevolv.com`: the email service for the waitlist function, the address that gets signups, who manages the therevolv.com DNS, and where the site code lives (a separate repo is recommended, so this app repo stays pure iOS) (owner)

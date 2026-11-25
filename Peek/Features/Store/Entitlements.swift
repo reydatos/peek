@@ -58,7 +58,7 @@ final class Entitlements {
 
     /// True when the customer can use the pack. A paid pack counts as locked until the first read ends.
     func isUnlocked(_ pack: PosePack) -> Bool {
-        guard pack.productID != nil else { return true }
+        guard pack.isPaid else { return true }
         return isLoaded && StoreProducts.unlocks(pack, owned: owned)
     }
 
