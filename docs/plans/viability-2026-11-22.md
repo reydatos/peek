@@ -865,9 +865,14 @@ These came after the design and eng reviews. They outrank earlier text in this f
 - This supersedes the $1.99 PEEK Pack, the 3-for-$4.99 themed bundles, and "Classic is a paid pack ($1.99)": Classic is now inside All Packs.
 - Why: one product in App Store Connect in place of 11, and one for each later bundle.
 
+**Owner answers (2026-11-25)**
+- Street Style stays the only free pack.
+- The offer is named "Unlock everything": the button, the terms, and the subscription's App Store display name. The product ID stays `com.a8media.peek.allpacks.yearly`.
+- Featured creator packs are sold separately, one store product each. They are not part of the subscription.
+- Conflict to settle before the first creator pack ships: "Unlock everything" is then no longer true. The name must change (for example "Unlock all PEEK packs"), or creator packs must join the subscription. Version 1.0 has no creator packs, so the name is true at launch.
+
 **Still open (owner)**
 - Which looks (11A) are free.
-- How featured creator packs are paid for, now that no single pack is sold.
 
 ## GSTACK REVIEW REPORT
 
@@ -886,5 +891,5 @@ These came after the design and eng reviews. They outrank earlier text in this f
 - **VERDICT:** No review is CLEAR. The eng review has issues open. Prices and store details are decided (2026-11-24); T10 is dropped. Which looks are free and the bundle contents are open, but they do not block the start of T1. The host is decided (2026-11-23); its setup details are open (see "Owner decisions after the reviews"). The other 10 tasks can start with W0 and W1.
 
 **UNRESOLVED DECISIONS:**
-- Which looks (11A) are free, and how featured creator packs are paid for with All Packs as the one product (owner)
+- Which looks (11A) are free; and before the first creator pack ships, the new name for "Unlock everything" (owner)
 - Site setup for `peek.therevolv.com`: the email service for the waitlist function, the address that gets signups, who manages the therevolv.com DNS, and where the site code lives (a separate repo is recommended, so this app repo stays pure iOS) (owner)
