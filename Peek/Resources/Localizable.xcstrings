@@ -35,37 +35,37 @@
       }
     },
     "allPacks" : {
-      "comment" : "The yearly subscription that unlocks every pack",
+      "comment" : "The yearly subscription that unlocks every paid pack. Its App Store name is the same.",
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "All Packs"
+            "value" : "Unlock everything"
           }
         }
       }
     },
     "allPacksForPrice" : {
-      "comment" : "Second button of the unlock sheet. %@ is the yearly price. Example: All Packs · $19.99 a year",
+      "comment" : "The red button of the unlock sheet. %@ is the yearly price. Example: Unlock everything · $19.99 a year",
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "All Packs · %@ a year"
+            "value" : "Unlock everything · %@ a year"
           }
         }
       }
     },
     "allPacksTerms" : {
-      "comment" : "Subscription terms under the All Packs offer. %@ is the yearly price.",
+      "comment" : "Subscription terms under the Unlock everything offer. %@ is the yearly price.",
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "All Packs is %@ a year and renews every year until you cancel. Cancel at least 24 hours before it renews, in Settings > Apple Account > Subscriptions."
+            "value" : "Unlock everything is a subscription of %@ a year. It renews every year until you cancel. Cancel at least 24 hours before it renews, in Settings > Apple Account > Subscriptions."
           }
         }
       }
