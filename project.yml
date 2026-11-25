@@ -25,6 +25,8 @@ targets:
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         LSSupportsOpeningDocumentsInPlace: false
+        # The app uses only the encryption built into iOS, so App Store Connect does not ask for each build.
+        ITSAppUsesNonExemptEncryption: false
         UTExportedTypeDeclarations:
           - UTTypeIdentifier: com.a8media.peek.pack
             UTTypeDescription: PEEK Pose Pack
