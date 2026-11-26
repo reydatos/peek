@@ -8,11 +8,13 @@ struct BoothMoreMenu: View {
 
     var body: some View {
         Menu {
-            Picker(selection: $model.countdown) {
-                Text(.countdownManual).tag(CountdownLength.manual)
-                Text(.countdownThree).tag(CountdownLength.three)
-                Text(.countdownFive).tag(CountdownLength.five)
-            } label: {
+            // The heading says what "Manual, 3 s, 5 s" set. A Picker here hides its label, and on iOS 27 the
+            // menu also drops the heading of a section that holds a Picker. So each choice is a checkmark item.
+            Section {
+                countdownChoice(.manual) { Text(.countdownManual) }
+                countdownChoice(.three) { Text(.countdownThree) }
+                countdownChoice(.five) { Text(.countdownFive) }
+            } header: {
                 Text(.countdownLabel)
             }
             // The pose picture needs a person in it. A robot or an animal gives no body shape to match.
@@ -60,6 +62,20 @@ struct BoothMoreMenu: View {
             Button(role: .cancel) {} label: { Text(.cancel) }
         } message: {
             Text(.discardShotsMessage)
+        }
+    }
+
+    /// One countdown choice. A tap selects it; a tap on the selected choice keeps it, so one choice is always on.
+    private func countdownChoice(_ length: CountdownLength, label: () -> Text) -> some View {
+        Toggle(isOn: Binding(
+            get: { model.countdown == length },
+            set: {
+                if $0 {
+                    model.countdown = length
+                }
+            }
+        )) {
+            label()
         }
     }
 }

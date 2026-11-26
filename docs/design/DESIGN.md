@@ -130,6 +130,7 @@ Each entry gives the state, the primary action and the layout rule.
 - There is no Classic / Copycat choice and no Start a Booth. The poses button of the booth changes the pack.
 - A set that is not complete comes back at launch and continues at "ready" with no Resume step. A finished set that was saved to Photos does not come back.
 - The booth has no close button. "New set" in the More menu starts again during a set, after a confirmation.
+- In the More menu, the countdown choices (Manual, 3 s, 5 s) have the heading "Countdown" (owner request, 2026-11-25).
 - The picture has no "Live" label, on the inner display and on the outer display.
 
 ### 2. Choose a pose (Copycat)
